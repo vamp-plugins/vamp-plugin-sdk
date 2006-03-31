@@ -1,11 +1,11 @@
 
 
-all:	examples/plugins.so host/simplehost test
+all:	examples_ host_ test
 
-examples/plugins.so:
+examples_:
 	$(MAKE) -C examples all
 
-host/simplehost:
+host_:
 	$(MAKE) -C host all
 
 test:

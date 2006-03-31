@@ -62,8 +62,10 @@ PluginAdapterBase::getDescriptor()
     m_descriptor.parameterCount = m_parameters.size();
     m_descriptor.parameters = (const VampParameterDescriptor **)
         malloc(m_parameters.size() * sizeof(VampParameterDescriptor));
+
+    unsigned int i;
     
-    for (unsigned int i = 0; i < m_parameters.size(); ++i) {
+    for (i = 0; i < m_parameters.size(); ++i) {
         VampParameterDescriptor *desc = (VampParameterDescriptor *)
             malloc(sizeof(VampParameterDescriptor));
         desc->name = strdup(m_parameters[i].name.c_str());
@@ -81,7 +83,7 @@ PluginAdapterBase::getDescriptor()
     m_descriptor.programs = (const char **)
         malloc(m_programs.size() * sizeof(const char *));
     
-    for (unsigned int i = 0; i < m_programs.size(); ++i) {
+    for (i = 0; i < m_programs.size(); ++i) {
         m_descriptor.programs[i] = strdup(m_programs[i].c_str());
     }
     
@@ -316,16 +318,19 @@ void
 PluginAdapterBase::vampReleaseFeatureSet(VampFeatureList **fs)
 {
     if (!fs) return;
+
     for (unsigned int i = 0; fs[i]; ++i) {
+
         for (unsigned int j = 0; j < fs[i]->featureCount; ++j) {
             VampFeature *feature = &fs[i]->features[j];
             if (feature->values) free((void *)feature->values);
             if (feature->label) free((void *)feature->label);
-            free((void *)feature);
         }
+
         if (fs[i]->features) free((void *)fs[i]->features);
         free((void *)fs[i]);
     }
+
     free((void *)fs);
 }
 
@@ -373,15 +378,19 @@ PluginAdapterBase::getOutputDescriptor(Plugin *plugin,
     desc->hasFixedValueCount = od.hasFixedValueCount;
     desc->valueCount = od.valueCount;
 
-    desc->valueNames = (const char **)
-        malloc(od.valueCount * sizeof(const char *));
+    if (od.valueCount > 0) {
+        desc->valueNames = (const char **)
+            malloc(od.valueCount * sizeof(const char *));
         
-    for (unsigned int i = 0; i < od.valueCount; ++i) {
-        if (i < od.valueNames.size()) {
-            desc->valueNames[i] = strdup(od.valueNames[i].c_str());
-        } else {
-            desc->valueNames[i] = 0;
+        for (unsigned int i = 0; i < od.valueCount; ++i) {
+            if (i < od.valueNames.size()) {
+                desc->valueNames[i] = strdup(od.valueNames[i].c_str());
+            } else {
+                desc->valueNames[i] = 0;
+            }
         }
+    } else {
+        desc->valueNames = 0;
     }
 
     desc->hasKnownExtents = od.hasKnownExtents;
@@ -435,28 +444,49 @@ PluginAdapterBase::convertFeatures(const Plugin::FeatureSet &features)
         malloc((n + 1) * sizeof(VampFeatureList *));
 
     for (unsigned int i = 0; i < n; ++i) {
+
         fs[i] = (VampFeatureList *)malloc(sizeof(VampFeatureList));
+
         if (features.find(i) == features.end()) {
+
             fs[i]->featureCount = 0;
             fs[i]->features = 0;
-        } else {
-            Plugin::FeatureSet::const_iterator fi =
-                features.find(i);
-            const Plugin::FeatureList &fl = fi->second;
-            fs[i]->featureCount = fl.size();
-            fs[i]->features = (VampFeature *)malloc(fl.size() *
-                                                   sizeof(VampFeature));
-            for (unsigned int j = 0; j < fl.size(); ++j) {
-                fs[i]->features[j].hasTimestamp = fl[j].hasTimestamp;
-                fs[i]->features[j].sec = fl[j].timestamp.sec;
-                fs[i]->features[j].nsec = fl[j].timestamp.nsec;
-                fs[i]->features[j].valueCount = fl[j].values.size();
-                fs[i]->features[j].values = (float *)malloc
-                    (fs[i]->features[j].valueCount * sizeof(float));
-                for (unsigned int k = 0; k < fs[i]->features[j].valueCount; ++k) {
-                    fs[i]->features[j].values[k] = fl[j].values[k];
-                }
-                fs[i]->features[j].label = strdup(fl[j].label.c_str());
+            continue;
+        }
+
+        Plugin::FeatureSet::const_iterator fi = features.find(i);
+
+        const Plugin::FeatureList &fl = fi->second;
+
+        fs[i]->featureCount = fl.size();
+
+        if (fs[i]->featureCount == 0) {
+            fs[i]->features = 0;
+            continue;
+        }
+
+        fs[i]->features = (VampFeature *)malloc(fl.size() * sizeof(VampFeature));
+
+        for (unsigned int j = 0; j < fl.size(); ++j) {
+
+            VampFeature *feature = &fs[i]->features[j];
+
+            feature->hasTimestamp = fl[j].hasTimestamp;
+            feature->sec = fl[j].timestamp.sec;
+            feature->nsec = fl[j].timestamp.nsec;
+            feature->valueCount = fl[j].values.size();
+            feature->label = strdup(fl[j].label.c_str());
+
+            if (feature->valueCount == 0) {
+                feature->values = 0;
+                continue;
+            }
+
+            feature->values = (float *)malloc
+                (feature->valueCount * sizeof(float));
+
+            for (unsigned int k = 0; k < feature->valueCount; ++k) {
+                feature->values[k] = fl[j].values[k];
             }
         }
     }

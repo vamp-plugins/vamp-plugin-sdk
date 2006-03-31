@@ -36,15 +36,12 @@
 
 #include "SpectralCentroid.h"
 
-/*
-#include "dsp/transforms/FFT.h"
-#include "base/Window.h"
-*/
-
 using std::string;
 using std::vector;
 using std::cerr;
 using std::endl;
+
+#include <cmath>
 
 
 SpectralCentroid::SpectralCentroid(float inputSampleRate) :
@@ -75,7 +72,7 @@ SpectralCentroid::getDescription() const
 string
 SpectralCentroid::getMaker() const
 {
-    return "QMUL";
+    return "Queen Mary, University of London";
 }
 
 int
@@ -87,7 +84,7 @@ SpectralCentroid::getPluginVersion() const
 string
 SpectralCentroid::getCopyright() const
 {
-    return "GPL";
+    return "Freely redistributable (BSD license)";
 }
 
 bool
@@ -156,21 +153,6 @@ SpectralCentroid::process(float **inputBuffers, Vamp::RealTime)
 	     << endl;
 	return FeatureSet();
     }
-
-/*
-    for (size_t i = 0; i < m_blockSize; ++i) {
-	m_workBuffer[i] = inputBuffers[0][i];
-	m_workBuffer[i + m_blockSize] = 0.0;
-    }
-
-    Window<double>(HanningWindow, m_blockSize).cut(m_workBuffer);
-
-    FFT::process(m_blockSize, false,
-		 m_workBuffer,
-		 m_workBuffer + m_blockSize,
-		 m_workBuffer + m_blockSize*2,
-		 m_workBuffer + m_blockSize*3);
-*/
 
     double numLin = 0.0, numLog = 0.0, denom = 0.0;
 

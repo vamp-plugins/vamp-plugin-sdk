@@ -223,7 +223,7 @@ PluginHostAdapter::getOutputDescriptors() const
         d.hasFixedValueCount = sd->hasFixedValueCount;
         d.valueCount = sd->valueCount;
         for (unsigned int j = 0; j < sd->valueCount; ++j) {
-            d.valueNames.push_back(sd->valueNames[i] ? sd->valueNames[i] : "");
+            d.valueNames.push_back(sd->valueNames[j] ? sd->valueNames[j] : "");
         }
         d.hasKnownExtents = sd->hasKnownExtents;
         d.minValue = sd->minValue;
@@ -286,6 +286,8 @@ void
 PluginHostAdapter::convertFeatures(VampFeatureList **features,
                                    FeatureSet &fs)
 {
+    if (!features) return;
+
     for (unsigned int i = 0; features[i]; ++i) {
         
         VampFeatureList &list = *features[i];
@@ -302,8 +304,10 @@ PluginHostAdapter::convertFeatures(VampFeatureList **features,
                 for (unsigned int k = 0; k < list.features[j].valueCount; ++k) {
                     feature.values.push_back(list.features[j].values[k]);
                 }
-                
-                feature.label = list.features[j].label;
+
+                if (list.features[j].label) {
+                    feature.label = list.features[j].label;
+                }
 
                 fs[i].push_back(feature);
             }

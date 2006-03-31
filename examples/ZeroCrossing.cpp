@@ -68,7 +68,7 @@ ZeroCrossing::getDescription() const
 string
 ZeroCrossing::getMaker() const
 {
-    return "QMUL";
+    return "Queen Mary, University of London";
 }
 
 int
@@ -80,7 +80,7 @@ ZeroCrossing::getPluginVersion() const
 string
 ZeroCrossing::getCopyright() const
 {
-    return "GPL";
+    return "Freely redistributable (BSD license)";
 }
 
 bool
