@@ -2,7 +2,7 @@
 TARGET	:= plugins.so
 OBJECTS	:= ZeroCrossing.o SpectralCentroid.o plugins.o
 
-SDKPATH := ../sdk
+SDKPATH := ../vamp-sdk
 APIPATH := ../vamp
 
 CXXFLAGS := $(CXXFLAGS) -O2 -Wall -I$(SDKPATH) -I$(APIPATH)
@@ -22,5 +22,5 @@ clean:
 distclean:	clean
 	rm -f *~ *.bak $(TARGET)
 
-ZeroCrossing.o:	ZeroCrossing.cpp ../vamp/vamp.h ../sdk/PluginAdapter.h ../sdk/PluginAdapter.cpp ../sdk/RealTime.h ../sdk/RealTime.cpp ../sdk/Plugin.h ../sdk/PluginBase.h
-SpectralCentroid.o:	SpectralCentroid.cpp ../vamp/vamp.h ../sdk/PluginAdapter.h ../sdk/PluginAdapter.cpp ../sdk/RealTime.h ../sdk/RealTime.cpp ../sdk/Plugin.h ../sdk/PluginBase.h
+ZeroCrossing.o:	ZeroCrossing.cpp $(APIPATH)/vamp.h $(SDKPATH)/PluginAdapter.h $(SDKPATH)/PluginAdapter.cpp $(SDKPATH)/RealTime.h $(SDKPATH)/RealTime.cpp $(SDKPATH)/Plugin.h $(SDKPATH)/PluginBase.h
+SpectralCentroid.o:	SpectralCentroid.cpp $(APIPATH)/vamp.h $(SDKPATH)/PluginAdapter.h $(SDKPATH)/PluginAdapter.cpp $(SDKPATH)/RealTime.h $(SDKPATH)/RealTime.cpp $(SDKPATH)/Plugin.h $(SDKPATH)/PluginBase.h

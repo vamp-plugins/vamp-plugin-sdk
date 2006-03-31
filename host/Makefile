@@ -1,5 +1,5 @@
 
-SDKPATH := ../sdk
+SDKPATH := ../vamp-sdk
 APIPATH := ../vamp
 
 CXXFLAGS := $(CXXFLAGS) -O2 -Wall -I$(SDKPATH) -I$(APIPATH)
@@ -21,4 +21,4 @@ clean:
 distclean:	clean
 	rm -f simplehost *~ *.bak
 
-simplehost.o:	simplehost.cpp system.h ../vamp/vamp.h ../sdk/PluginHostAdapter.h ../sdk/PluginHostAdapter.cpp ../sdk/RealTime.h ../sdk/RealTime.cpp ../sdk/Plugin.h ../sdk/PluginBase.h
+simplehost.o:	simplehost.cpp system.h $(APIPATH)/vamp.h $(SDKPATH)/PluginHostAdapter.h $(SDKPATH)/PluginHostAdapter.cpp $(SDKPATH)/RealTime.h $(SDKPATH)/RealTime.cpp $(SDKPATH)/Plugin.h $(SDKPATH)/PluginBase.h
