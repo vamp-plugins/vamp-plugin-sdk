@@ -34,8 +34,8 @@
     authorization.
 */
 
-#ifndef _PLUGIN_ADAPTER_H_
-#define _PLUGIN_ADAPTER_H_
+#ifndef _VAMP_PLUGIN_ADAPTER_H_
+#define _VAMP_PLUGIN_ADAPTER_H_
 
 #include "vamp.h"
 #include "Plugin.h"

@@ -40,8 +40,8 @@
    This file copyright 2000-2006 Chris Cannam; relicensed as detailed above
 */
 
-#ifndef _REAL_TIME_H_
-#define _REAL_TIME_H_
+#ifndef _VAMP_REAL_TIME_H_
+#define _VAMP_REAL_TIME_H_
 
 #include <iostream>
 #include <string>
