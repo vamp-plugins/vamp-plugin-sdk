@@ -152,19 +152,29 @@ public:
     virtual InputDomain getInputDomain() const = 0;
 
     /**
+     * Get the preferred block size (window size -- the number of
+     * sample frames passed in each block to the process() function).
+     * This should be called before initialise().
+     *
+     * A plugin that can handle any block size may return 0.  The
+     * final block size will be set in the initialise() call.
+     */
+    virtual size_t getPreferredBlockSize() const { return 0; }
+
+    /**
      * Get the preferred step size (window increment -- the distance
      * in sample frames between the start frames of consecutive blocks
      * passed to the process() function) for the plugin.  This should
      * be called before initialise().
+     *
+     * A plugin may return 0 if it has no particular interest in the
+     * step size.  In this case, the host should make the step size
+     * equal to the block size if the plugin is accepting input in the
+     * time domain.  If the plugin is accepting input in the frequency
+     * domain, the host may use any step size.  The final step size
+     * will be set in the initialise() call.
      */
-    virtual size_t getPreferredStepSize() const = 0;
-
-    /**
-     * Get the preferred block size (window size -- the number of
-     * sample frames passed in each block to the process() function).
-     * This should be called before initialise().
-     */
-    virtual size_t getPreferredBlockSize() const { return getPreferredStepSize(); }
+    virtual size_t getPreferredStepSize() const { return 0; }
 
     /**
      * Get the minimum supported number of input channels.

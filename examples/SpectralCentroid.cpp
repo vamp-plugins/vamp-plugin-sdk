@@ -109,18 +109,6 @@ SpectralCentroid::reset()
     m_workBuffer = new double[m_blockSize * 4];
 }
 
-size_t
-SpectralCentroid::getPreferredStepSize() const
-{
-    return 2048; // or whatever -- parameter?
-}
-
-size_t
-SpectralCentroid::getPreferredBlockSize() const
-{
-    return getPreferredStepSize();
-}
-
 SpectralCentroid::OutputList
 SpectralCentroid::getOutputDescriptors() const
 {

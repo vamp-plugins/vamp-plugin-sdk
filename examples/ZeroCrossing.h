@@ -58,9 +58,6 @@ public:
     int getPluginVersion() const;
     std::string getCopyright() const;
 
-    size_t getPreferredStepSize() const;
-    size_t getPreferredBlockSize() const;
-
     OutputList getOutputDescriptors() const;
 
     FeatureSet process(float **inputBuffers, Vamp::RealTime timestamp);

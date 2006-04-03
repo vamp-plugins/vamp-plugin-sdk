@@ -100,18 +100,6 @@ ZeroCrossing::reset()
     m_previousSample = 0.0f;
 }
 
-size_t
-ZeroCrossing::getPreferredStepSize() const
-{
-    return 4096; // or whatever
-}
-
-size_t
-ZeroCrossing::getPreferredBlockSize() const
-{
-    return getPreferredStepSize();
-}
-
 ZeroCrossing::OutputList
 ZeroCrossing::getOutputDescriptors() const
 {
