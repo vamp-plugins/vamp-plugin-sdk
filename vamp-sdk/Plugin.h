@@ -205,59 +205,55 @@ public:
 	std::string unit;
 
 	/**
-	 * True if the output has the same number of values per result
-	 * for every output result.  Outputs for which this is false
+	 * True if the output has the same number of values per sample
+	 * for every output sample.  Outputs for which this is false
 	 * are unlikely to be very useful in a general-purpose host.
 	 */
-	bool hasFixedValueCount;
+	bool hasFixedBinCount;
 
 	/**
 	 * The number of values per result of the output.  Undefined
-	 * if hasFixedValueCount is false.  If this is zero, the output
+	 * if hasFixedBinCount is false.  If this is zero, the output
 	 * is point data (i.e. only the time of each output is of
 	 * interest, the value list will be empty).
-	 *
-	 * Note that this gives the number of values of a single
-	 * output result, not of the output stream (which has one more
-	 * dimension: time).
 	 */
-	size_t valueCount;
+	size_t binCount;
 
 	/**
-	 * The names of each of the values, if appropriate.  This is
+	 * The names of each of the bins, if appropriate.  This is
 	 * always optional.
 	 */
-	std::vector<std::string> valueNames;
+	std::vector<std::string> binNames;
 
 	/**
-	 * True if the results in the output have a fixed numeric
-	 * range (minimum and maximum values).  Undefined if
-	 * valueCount is zero.
+	 * True if the results in each output bin fall within a fixed
+	 * numeric range (minimum and maximum values).  Undefined if
+	 * binCount is zero.
 	 */
 	bool hasKnownExtents;
 
 	/**
 	 * Minimum value of the results in the output.  Undefined if
-	 * hasKnownExtents is false or valueCount is zero.
+	 * hasKnownExtents is false or binCount is zero.
 	 */
 	float minValue;
 
 	/**
 	 * Maximum value of the results in the output.  Undefined if
-	 * hasKnownExtents is false or valueCount is zero.
+	 * hasKnownExtents is false or binCount is zero.
 	 */
 	float maxValue;
 
 	/**
 	 * True if the output values are quantized to a particular
-	 * resolution.  Undefined if valueCount is zero.
+	 * resolution.  Undefined if binCount is zero.
 	 */
 	bool isQuantized;
 
 	/**
 	 * Quantization resolution of the output values (e.g. 1.0 if
 	 * they are all integers).  Undefined if isQuantized is false
-	 * or valueCount is zero.
+	 * or binCount is zero.
 	 */
 	float quantizeStep;
 
@@ -284,7 +280,7 @@ public:
 	 *
 	 * If sampleType is VariableSampleRate and this value is
 	 * non-zero, then it may be used to calculate a resolution for
-	 * the output (i.e. the "duration" of each value, in time).
+	 * the output (i.e. the "duration" of each sample, in time).
 	 * It's recommended to set this to zero if that behaviour is
 	 * not desired.
 	 */
@@ -318,8 +314,8 @@ public:
 	
 	/**
 	 * Results for a single sample of this feature.  If the output
-	 * hasFixedValueCount, there must be the same number of values
-	 * as the output's valueCount count.
+	 * hasFixedBinCount, there must be the same number of values
+	 * as the output's binCount count.
 	 */
 	std::vector<float> values;
 
@@ -338,16 +334,19 @@ public:
      * If the plugin's inputDomain is TimeDomain, inputBuffers will
      * point to one array of floats per input channel, and each of
      * these arrays will contain blockSize consecutive audio samples
-     * (the host will zero-pad as necessary).
+     * (the host will zero-pad as necessary).  The timestamp will be
+     * the real time in seconds of the start of the supplied block of
+     * samples.
      *
      * If the plugin's inputDomain is FrequencyDomain, inputBuffers
      * will point to one array of floats per input channel, and each
      * of these arrays will contain blockSize/2 consecutive pairs of
      * real and imaginary component floats corresponding to bins
-     * 0..(blockSize/2-1) of the FFT output.
-     *
-     * The timestamp is the real time in seconds of the start of the
-     * supplied block of samples.
+     * 0..(blockSize/2-1) of the FFT output.  The timestamp will be
+     * the real time in seconds of the centre of the FFT input window
+     * (i.e. the very first block passed to process might contain the
+     * FFT of half a block of zero samples and the first half-block of
+     * the actual data, with a timestamp of zero).
      *
      * Return any features that have become available after this
      * process call.  (These do not necessarily have to fall within

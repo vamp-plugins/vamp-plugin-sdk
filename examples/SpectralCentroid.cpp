@@ -118,8 +118,8 @@ SpectralCentroid::getOutputDescriptors() const
     d.name = "logcentroid";
     d.unit = "Hz";
     d.description = "Log Frequency Centroid";
-    d.hasFixedValueCount = true;
-    d.valueCount = 1;
+    d.hasFixedBinCount = true;
+    d.binCount = 1;
     d.hasKnownExtents = false;
     d.isQuantized = false;
     d.sampleType = OutputDescriptor::OneSamplePerStep;

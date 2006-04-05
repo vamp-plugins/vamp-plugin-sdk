@@ -141,6 +141,19 @@ public:
 	 * false.
 	 */
 	float quantizeStep;
+
+        /**
+         * Names for the quantized values.  If isQuantized is true,
+         * this may either be empty or contain one string for each of
+         * the quantize steps from minValue up to maxValue inclusive.
+         * Undefined if isQuantized is false.
+         *
+         * If these names are provided, they should be shown to the
+         * user in preference to the values themselves.  The user may
+         * never see the actual numeric values unless they are also
+         * encoded in the names.
+         */
+        std::vector<std::string> valueNames;
     };
 
     typedef std::vector<ParameterDescriptor> ParameterList;

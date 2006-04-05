@@ -125,6 +125,11 @@ PluginHostAdapter::getParameterDescriptors() const
         pd.defaultValue = spd->defaultValue;
         pd.isQuantized = spd->isQuantized;
         pd.quantizeStep = spd->quantizeStep;
+        if (pd.isQuantized && spd->valueNames) {
+            for (unsigned int j = 0; spd->valueNames[j]; ++j) {
+                pd.valueNames.push_back(spd->valueNames[j]);
+            }
+        }
         list.push_back(pd);
     }
     return list;
@@ -220,10 +225,12 @@ PluginHostAdapter::getOutputDescriptors() const
         d.name = sd->name;
         d.description = sd->description;
         d.unit = sd->unit;
-        d.hasFixedValueCount = sd->hasFixedValueCount;
-        d.valueCount = sd->valueCount;
-        for (unsigned int j = 0; j < sd->valueCount; ++j) {
-            d.valueNames.push_back(sd->valueNames[j] ? sd->valueNames[j] : "");
+        d.hasFixedBinCount = sd->hasFixedBinCount;
+        d.binCount = sd->binCount;
+        if (d.hasFixedBinCount) {
+            for (unsigned int j = 0; j < sd->binCount; ++j) {
+                d.binNames.push_back(sd->binNames[j] ? sd->binNames[j] : "");
+            }
         }
         d.hasKnownExtents = sd->hasKnownExtents;
         d.minValue = sd->minValue;

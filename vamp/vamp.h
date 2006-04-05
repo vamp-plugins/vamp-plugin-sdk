@@ -61,6 +61,7 @@ typedef struct _VampParameterDescriptor
     float defaultValue;
     int isQuantized;
     float quantizeStep;
+    const char **valueNames;
 
 } VampParameterDescriptor;
 
@@ -77,9 +78,9 @@ typedef struct _VampOutputDescriptor
     const char *name;
     const char *description;
     const char *unit;
-    int hasFixedValueCount;
-    unsigned int valueCount;
-    const char **valueNames;
+    int hasFixedBinCount;
+    unsigned int binCount;
+    const char **binNames;
     int hasKnownExtents;
     float minValue;
     float maxValue;

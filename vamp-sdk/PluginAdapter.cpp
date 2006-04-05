@@ -76,6 +76,15 @@ PluginAdapterBase::getDescriptor()
         desc->defaultValue = m_parameters[i].defaultValue;
         desc->isQuantized = m_parameters[i].isQuantized;
         desc->quantizeStep = m_parameters[i].quantizeStep;
+        desc->valueNames = 0;
+        if (desc->isQuantized && !m_parameters[i].valueNames.empty()) {
+            desc->valueNames = (const char **)
+                malloc((m_parameters[i].valueNames.size()+1) * sizeof(char *));
+            for (unsigned int j = 0; j < m_parameters[i].valueNames.size(); ++j) {
+                desc->valueNames[j] = strdup(m_parameters[i].valueNames[j].c_str());
+            }
+            desc->valueNames[m_parameters[i].valueNames.size()] = 0;
+        }
         m_descriptor.parameters[i] = desc;
     }
     
@@ -134,6 +143,12 @@ PluginAdapterBase::~PluginAdapterBase()
         free((void *)desc->name);
         free((void *)desc->description);
         free((void *)desc->unit);
+        if (desc->valueNames) {
+            for (unsigned int j = 0; desc->valueNames[j]; ++j) {
+                free((void *)desc->valueNames[j]);
+            }
+            free((void *)desc->valueNames);
+        }
     }
     free((void *)m_descriptor.parameters);
 
@@ -287,10 +302,10 @@ PluginAdapterBase::vampReleaseOutputDescriptor(VampOutputDescriptor *desc)
     if (desc->name) free((void *)desc->name);
     if (desc->description) free((void *)desc->description);
     if (desc->unit) free((void *)desc->unit);
-    for (unsigned int i = 0; i < desc->valueCount; ++i) {
-        free((void *)desc->valueNames[i]);
+    for (unsigned int i = 0; i < desc->binCount; ++i) {
+        free((void *)desc->binNames[i]);
     }
-    if (desc->valueNames) free((void *)desc->valueNames);
+    if (desc->binNames) free((void *)desc->binNames);
     free((void *)desc);
 }
 
@@ -375,22 +390,22 @@ PluginAdapterBase::getOutputDescriptor(Plugin *plugin,
     desc->name = strdup(od.name.c_str());
     desc->description = strdup(od.description.c_str());
     desc->unit = strdup(od.unit.c_str());
-    desc->hasFixedValueCount = od.hasFixedValueCount;
-    desc->valueCount = od.valueCount;
+    desc->hasFixedBinCount = od.hasFixedBinCount;
+    desc->binCount = od.binCount;
 
-    if (od.valueCount > 0) {
-        desc->valueNames = (const char **)
-            malloc(od.valueCount * sizeof(const char *));
+    if (od.hasFixedBinCount && od.binCount > 0) {
+        desc->binNames = (const char **)
+            malloc(od.binCount * sizeof(const char *));
         
-        for (unsigned int i = 0; i < od.valueCount; ++i) {
-            if (i < od.valueNames.size()) {
-                desc->valueNames[i] = strdup(od.valueNames[i].c_str());
+        for (unsigned int i = 0; i < od.binCount; ++i) {
+            if (i < od.binNames.size()) {
+                desc->binNames[i] = strdup(od.binNames[i].c_str());
             } else {
-                desc->valueNames[i] = 0;
+                desc->binNames[i] = 0;
             }
         }
     } else {
-        desc->valueNames = 0;
+        desc->binNames = 0;
     }
 
     desc->hasKnownExtents = od.hasKnownExtents;

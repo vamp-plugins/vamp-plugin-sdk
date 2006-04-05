@@ -109,8 +109,8 @@ ZeroCrossing::getOutputDescriptors() const
     zc.name = "counts";
     zc.unit = "crossings";
     zc.description = "Zero Crossing Counts";
-    zc.hasFixedValueCount = true;
-    zc.valueCount = 1;
+    zc.hasFixedBinCount = true;
+    zc.binCount = 1;
     zc.hasKnownExtents = false;
     zc.isQuantized = true;
     zc.quantizeStep = 1.0;
@@ -120,8 +120,8 @@ ZeroCrossing::getOutputDescriptors() const
     zc.name = "zerocrossings";
     zc.unit = "";
     zc.description = "Zero Crossings";
-    zc.hasFixedValueCount = true;
-    zc.valueCount = 0;
+    zc.hasFixedBinCount = true;
+    zc.binCount = 0;
     zc.sampleType = OutputDescriptor::VariableSampleRate;
     zc.sampleRate = m_inputSampleRate;
     list.push_back(zc);
