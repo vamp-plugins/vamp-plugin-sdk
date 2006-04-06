@@ -79,7 +79,7 @@ public:
     FeatureSet getRemainingFeatures();
 
 protected:
-    void convertFeatures(VampFeatureList **, FeatureSet &);
+    void convertFeatures(VampFeatureList *, FeatureSet &);
 
     const VampPluginDescriptor *m_descriptor;
     VampPluginHandle m_handle;

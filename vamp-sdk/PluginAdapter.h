@@ -84,25 +84,26 @@ protected:
 
     static void vampReleaseOutputDescriptor(VampOutputDescriptor *desc);
 
-    static VampFeatureList **vampProcess(VampPluginHandle handle,
-                                       float **inputBuffers,
-                                       int sec,
-                                       int nsec);
+    static VampFeatureList *vampProcess(VampPluginHandle handle,
+                                        float **inputBuffers,
+                                        int sec,
+                                        int nsec);
 
-    static VampFeatureList **vampGetRemainingFeatures(VampPluginHandle handle);
+    static VampFeatureList *vampGetRemainingFeatures(VampPluginHandle handle);
 
-    static void vampReleaseFeatureSet(VampFeatureList **fs);
+    static void vampReleaseFeatureSet(VampFeatureList *fs);
 
     void cleanup(Plugin *plugin);
     void checkOutputMap(Plugin *plugin);
     unsigned int getOutputCount(Plugin *plugin);
     VampOutputDescriptor *getOutputDescriptor(Plugin *plugin,
                                              unsigned int i);
-    VampFeatureList **process(Plugin *plugin,
+    VampFeatureList *process(Plugin *plugin,
                               float **inputBuffers,
                               int sec, int nsec);
-    VampFeatureList **getRemainingFeatures(Plugin *plugin);
-    VampFeatureList **convertFeatures(const Plugin::FeatureSet &features);
+    VampFeatureList *getRemainingFeatures(Plugin *plugin);
+    VampFeatureList *convertFeatures(Plugin *plugin,
+                                     const Plugin::FeatureSet &features);
     
     typedef std::map<const void *, PluginAdapterBase *> AdapterMap;
     static AdapterMap m_adapterMap;
@@ -116,8 +117,12 @@ protected:
     typedef std::map<Plugin *, Plugin::OutputList *> OutputMap;
     OutputMap m_pluginOutputs;
 
-    typedef std::map<Plugin *, VampFeature ***> FeatureBufferMap;
-    FeatureBufferMap m_pluginFeatures;
+    std::map<Plugin *, VampFeatureList *> m_fs;
+    std::map<Plugin *, std::vector<size_t> > m_fsizes;
+    std::map<Plugin *, std::vector<std::vector<size_t> > > m_fvsizes;
+    void resizeFS(Plugin *plugin, int n);
+    void resizeFL(Plugin *plugin, int n, size_t sz);
+    void resizeFV(Plugin *plugin, int n, int j, size_t sz);
 };
 
 template <typename P>

@@ -267,7 +267,7 @@ PluginHostAdapter::process(float **inputBuffers,
     int sec = timestamp.sec;
     int nsec = timestamp.nsec;
     
-    VampFeatureList **features = m_descriptor->process(m_handle,
+    VampFeatureList *features = m_descriptor->process(m_handle,
                                                       inputBuffers,
                                                       sec, nsec);
     
@@ -282,7 +282,7 @@ PluginHostAdapter::getRemainingFeatures()
     FeatureSet fs;
     if (!m_handle) return fs;
     
-    VampFeatureList **features = m_descriptor->getRemainingFeatures(m_handle); 
+    VampFeatureList *features = m_descriptor->getRemainingFeatures(m_handle); 
 
     convertFeatures(features, fs);
     m_descriptor->releaseFeatureSet(features);
@@ -290,14 +290,16 @@ PluginHostAdapter::getRemainingFeatures()
 }
 
 void
-PluginHostAdapter::convertFeatures(VampFeatureList **features,
+PluginHostAdapter::convertFeatures(VampFeatureList *features,
                                    FeatureSet &fs)
 {
     if (!features) return;
 
-    for (unsigned int i = 0; features[i]; ++i) {
+    unsigned int outputs = m_descriptor->getOutputCount(m_handle);
+
+    for (unsigned int i = 0; i < outputs; ++i) {
         
-        VampFeatureList &list = *features[i];
+        VampFeatureList &list = features[i];
 
         if (list.featureCount > 0) {
 

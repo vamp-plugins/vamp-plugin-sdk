@@ -309,7 +309,7 @@ PluginAdapterBase::vampReleaseOutputDescriptor(VampOutputDescriptor *desc)
     free((void *)desc);
 }
 
-VampFeatureList **
+VampFeatureList *
 PluginAdapterBase::vampProcess(VampPluginHandle handle,
                                float **inputBuffers,
                                int sec,
@@ -321,7 +321,7 @@ PluginAdapterBase::vampProcess(VampPluginHandle handle,
                             inputBuffers, sec, nsec);
 }
 
-VampFeatureList **
+VampFeatureList *
 PluginAdapterBase::vampGetRemainingFeatures(VampPluginHandle handle)
 {
     PluginAdapterBase *adapter = lookupAdapter(handle);
@@ -330,28 +330,35 @@ PluginAdapterBase::vampGetRemainingFeatures(VampPluginHandle handle)
 }
 
 void
-PluginAdapterBase::vampReleaseFeatureSet(VampFeatureList **fs)
+PluginAdapterBase::vampReleaseFeatureSet(VampFeatureList *fs)
 {
-    if (!fs) return;
-
-    for (unsigned int i = 0; fs[i]; ++i) {
-
-        for (unsigned int j = 0; j < fs[i]->featureCount; ++j) {
-            VampFeature *feature = &fs[i]->features[j];
-            if (feature->values) free((void *)feature->values);
-            if (feature->label) free((void *)feature->label);
-        }
-
-        if (fs[i]->features) free((void *)fs[i]->features);
-        free((void *)fs[i]);
-    }
-
-    free((void *)fs);
 }
 
 void 
 PluginAdapterBase::cleanup(Plugin *plugin)
 {
+    if (m_fs.find(plugin) != m_fs.end()) {
+        size_t outputCount = 0;
+        if (m_pluginOutputs[plugin]) {
+            outputCount = m_pluginOutputs[plugin]->size();
+        }
+        VampFeatureList *list = m_fs[plugin];
+        for (unsigned int i = 0; i < outputCount; ++i) {
+            for (unsigned int j = 0; j < m_fsizes[plugin][i]; ++j) {
+                if (list[i].features[j].label) {
+                    free(list[i].features[j].label);
+                }
+                if (list[i].features[j].values) {
+                    free(list[i].features[j].values);
+                }
+            }
+            if (list[i].features) free(list[i].features);
+        }
+        m_fs.erase(plugin);
+        m_fsizes.erase(plugin);
+        m_fvsizes.erase(plugin);
+    }
+
     if (m_pluginOutputs.find(plugin) != m_pluginOutputs.end()) {
         delete m_pluginOutputs[plugin];
         m_pluginOutputs.erase(plugin);
@@ -428,89 +435,167 @@ PluginAdapterBase::getOutputDescriptor(Plugin *plugin,
     return desc;
 }
     
-VampFeatureList **
+VampFeatureList *
 PluginAdapterBase::process(Plugin *plugin,
                            float **inputBuffers,
                            int sec, int nsec)
 {
+//    std::cerr << "PluginAdapterBase::process" << std::endl;
     RealTime rt(sec, nsec);
-    return convertFeatures(plugin->process(inputBuffers, rt));
+    checkOutputMap(plugin);
+    return convertFeatures(plugin, plugin->process(inputBuffers, rt));
 }
     
-VampFeatureList **
+VampFeatureList *
 PluginAdapterBase::getRemainingFeatures(Plugin *plugin)
 {
-    return convertFeatures(plugin->getRemainingFeatures());
+//    std::cerr << "PluginAdapterBase::getRemainingFeatures" << std::endl;
+    checkOutputMap(plugin);
+    return convertFeatures(plugin, plugin->getRemainingFeatures());
 }
 
-VampFeatureList **
-PluginAdapterBase::convertFeatures(const Plugin::FeatureSet &features)
+VampFeatureList *
+PluginAdapterBase::convertFeatures(Plugin *plugin,
+                                   const Plugin::FeatureSet &features)
 {
-    unsigned int n = 0;
-    if (features.begin() != features.end()) {
-        Plugin::FeatureSet::const_iterator i = features.end();
-        --i;
-        n = i->first + 1;
-    }
+    int lastN = -1;
 
-    if (!n) return 0;
+    int outputCount = 0;
+    if (m_pluginOutputs[plugin]) outputCount = m_pluginOutputs[plugin]->size();
+    
+    resizeFS(plugin, outputCount);
+    VampFeatureList *fs = m_fs[plugin];
 
-    VampFeatureList **fs = (VampFeatureList **)
-        malloc((n + 1) * sizeof(VampFeatureList *));
+    for (Plugin::FeatureSet::const_iterator fi = features.begin();
+         fi != features.end(); ++fi) {
 
-    for (unsigned int i = 0; i < n; ++i) {
+        int n = fi->first;
+        
+//        std::cerr << "PluginAdapterBase::convertFeatures: n = " << n << std::endl;
 
-        fs[i] = (VampFeatureList *)malloc(sizeof(VampFeatureList));
-
-        if (features.find(i) == features.end()) {
-
-            fs[i]->featureCount = 0;
-            fs[i]->features = 0;
+        if (n >= int(outputCount)) {
+            std::cerr << "WARNING: PluginAdapterBase::convertFeatures: Too many outputs from plugin (" << n+1 << ", only should be " << outputCount << ")" << std::endl;
             continue;
         }
 
-        Plugin::FeatureSet::const_iterator fi = features.find(i);
+        if (n > lastN + 1) {
+            for (int i = lastN + 1; i < n; ++i) {
+                fs[i].featureCount = 0;
+            }
+        }
 
         const Plugin::FeatureList &fl = fi->second;
 
-        fs[i]->featureCount = fl.size();
+        size_t sz = fl.size();
+        if (sz > m_fsizes[plugin][n]) resizeFL(plugin, n, sz);
+        fs[n].featureCount = sz;
+        
+        for (size_t j = 0; j < sz; ++j) {
 
-        if (fs[i]->featureCount == 0) {
-            fs[i]->features = 0;
-            continue;
-        }
+//            std::cerr << "PluginAdapterBase::convertFeatures: j = " << j << std::endl;
 
-        fs[i]->features = (VampFeature *)malloc(fl.size() * sizeof(VampFeature));
-
-        for (unsigned int j = 0; j < fl.size(); ++j) {
-
-            VampFeature *feature = &fs[i]->features[j];
+            VampFeature *feature = &fs[n].features[j];
 
             feature->hasTimestamp = fl[j].hasTimestamp;
             feature->sec = fl[j].timestamp.sec;
             feature->nsec = fl[j].timestamp.nsec;
             feature->valueCount = fl[j].values.size();
-            feature->label = strdup(fl[j].label.c_str());
 
-            if (feature->valueCount == 0) {
-                feature->values = 0;
-                continue;
+            if (feature->label) free(feature->label);
+
+            if (fl[j].label.empty()) {
+                feature->label = 0;
+            } else {
+                feature->label = strdup(fl[j].label.c_str());
             }
 
-            feature->values = (float *)malloc
-                (feature->valueCount * sizeof(float));
+            if (feature->valueCount > m_fvsizes[plugin][n][j]) {
+                resizeFV(plugin, n, j, feature->valueCount);
+            }
 
             for (unsigned int k = 0; k < feature->valueCount; ++k) {
+//                std::cerr << "PluginAdapterBase::convertFeatures: k = " << k << std::endl;
                 feature->values[k] = fl[j].values[k];
             }
         }
+
+        lastN = n;
     }
 
-    fs[n] = 0;
+    if (lastN == -1) return 0;
+
+    if (int(outputCount) > lastN + 1) {
+        for (int i = lastN + 1; i < int(outputCount); ++i) {
+            fs[i].featureCount = 0;
+        }
+    }
 
     return fs;
 }
 
+void
+PluginAdapterBase::resizeFS(Plugin *plugin, int n)
+{
+//    std::cerr << "PluginAdapterBase::resizeFS(" << plugin << ", " << n << ")" << std::endl;
+
+    int i = m_fsizes[plugin].size();
+    if (i >= n) return;
+
+    std::cerr << "resizing from " << i << std::endl;
+
+    m_fs[plugin] = (VampFeatureList *)realloc
+        (m_fs[plugin], n * sizeof(VampFeatureList));
+
+    while (i < n) {
+        m_fs[plugin][i].featureCount = 0;
+        m_fs[plugin][i].features = 0;
+        m_fsizes[plugin].push_back(0);
+        m_fvsizes[plugin].push_back(std::vector<size_t>());
+        i++;
+    }
+}
+
+void
+PluginAdapterBase::resizeFL(Plugin *plugin, int n, size_t sz)
+{
+    std::cerr << "PluginAdapterBase::resizeFL(" << plugin << ", " << n << ", "
+              << sz << ")" << std::endl;
+
+    size_t i = m_fsizes[plugin][n];
+    if (i >= sz) return;
+
+    std::cerr << "resizing from " << i << std::endl;
+
+    m_fs[plugin][n].features = (VampFeature *)realloc
+        (m_fs[plugin][n].features, sz * sizeof(VampFeature));
+
+    while (m_fsizes[plugin][n] < sz) {
+        m_fs[plugin][n].features[m_fsizes[plugin][n]].valueCount = 0;
+        m_fs[plugin][n].features[m_fsizes[plugin][n]].values = 0;
+        m_fs[plugin][n].features[m_fsizes[plugin][n]].label = 0;
+        m_fvsizes[plugin][n].push_back(0);
+        m_fsizes[plugin][n]++;
+    }
+}
+
+void
+PluginAdapterBase::resizeFV(Plugin *plugin, int n, int j, size_t sz)
+{
+
+    std::cerr << "PluginAdapterBase::resizeFV(" << plugin << ", " << n << ", "
+              << j << ", " << sz << ")" << std::endl;
+
+    size_t i = m_fvsizes[plugin][n][j];
+    if (i >= sz) return;
+
+    std::cerr << "resizing from " << i << std::endl;
+
+    m_fs[plugin][n].features[j].values = (float *)realloc
+        (m_fs[plugin][n].features[j].values, sz * sizeof(float));
+
+    m_fvsizes[plugin][n][j] = sz;
+}
+  
 PluginAdapterBase::AdapterMap 
 PluginAdapterBase::m_adapterMap;
 

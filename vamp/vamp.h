@@ -159,12 +159,12 @@ typedef struct _VampPluginDescriptor
                                                 unsigned int);
     void (*releaseOutputDescriptor)(VampOutputDescriptor *);
 
-    VampFeatureList **(*process)(VampPluginHandle,
+    VampFeatureList *(*process)(VampPluginHandle,
                                 float **inputBuffers,
                                 int sec,
                                 int nsec);
-    VampFeatureList **(*getRemainingFeatures)(VampPluginHandle);
-    void (*releaseFeatureSet)(VampFeatureList **);
+    VampFeatureList *(*getRemainingFeatures)(VampPluginHandle);
+    void (*releaseFeatureSet)(VampFeatureList *);
 
 } VampPluginDescriptor;
 
