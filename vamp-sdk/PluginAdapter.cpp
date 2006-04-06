@@ -121,7 +121,10 @@ PluginAdapterBase::getDescriptor()
     m_descriptor.getRemainingFeatures = vampGetRemainingFeatures;
     m_descriptor.releaseFeatureSet = vampReleaseFeatureSet;
     
-    m_adapterMap[&m_descriptor] = this;
+    if (!m_adapterMap) {
+        m_adapterMap = new AdapterMap;
+        (*m_adapterMap)[&m_descriptor] = this;
+    }
 
     delete plugin;
 
@@ -157,14 +160,23 @@ PluginAdapterBase::~PluginAdapterBase()
     }
     free((void *)m_descriptor.programs);
 
-    m_adapterMap.erase(&m_descriptor);
+    if (m_adapterMap) {
+        
+        m_adapterMap->erase(&m_descriptor);
+
+        if (m_adapterMap->empty()) {
+            delete m_adapterMap;
+            m_adapterMap = 0;
+        }
+    }
 }
 
 PluginAdapterBase *
 PluginAdapterBase::lookupAdapter(VampPluginHandle handle)
 {
-    AdapterMap::const_iterator i = m_adapterMap.find(handle);
-    if (i == m_adapterMap.end()) return 0;
+    if (!m_adapterMap) return 0;
+    AdapterMap::const_iterator i = m_adapterMap->find(handle);
+    if (i == m_adapterMap->end()) return 0;
     return i->second;
 }
 
@@ -172,13 +184,14 @@ VampPluginHandle
 PluginAdapterBase::vampInstantiate(const VampPluginDescriptor *desc,
                                    float inputSampleRate)
 {
-    if (m_adapterMap.find(desc) == m_adapterMap.end()) return 0;
-    PluginAdapterBase *adapter = m_adapterMap[desc];
+    if (!m_adapterMap) return 0;
+    if (m_adapterMap->find(desc) == m_adapterMap->end()) return 0;
+    PluginAdapterBase *adapter = (*m_adapterMap)[desc];
     if (desc != &adapter->m_descriptor) return 0;
 
     Plugin *plugin = adapter->createPlugin(inputSampleRate);
     if (plugin) {
-        m_adapterMap[plugin] = adapter;
+        (*m_adapterMap)[plugin] = adapter;
     }
 
     return plugin;
@@ -363,7 +376,16 @@ PluginAdapterBase::cleanup(Plugin *plugin)
         delete m_pluginOutputs[plugin];
         m_pluginOutputs.erase(plugin);
     }
-    m_adapterMap.erase(plugin);
+
+    if (m_adapterMap) {
+        m_adapterMap->erase(plugin);
+
+        if (m_adapterMap->empty()) {
+            delete m_adapterMap;
+            m_adapterMap = 0;
+        }
+    }
+
     delete ((Plugin *)plugin);
 }
 
@@ -596,8 +618,8 @@ PluginAdapterBase::resizeFV(Plugin *plugin, int n, int j, size_t sz)
     m_fvsizes[plugin][n][j] = sz;
 }
   
-PluginAdapterBase::AdapterMap 
-PluginAdapterBase::m_adapterMap;
+PluginAdapterBase::AdapterMap *
+PluginAdapterBase::m_adapterMap = 0;
 
 }
 

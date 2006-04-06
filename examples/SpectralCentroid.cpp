@@ -156,7 +156,7 @@ SpectralCentroid::process(float **inputBuffers, Vamp::RealTime)
 
     FeatureSet returnFeatures;
 
-    std::cerr << "power " << denom << ", block size " << m_blockSize << std::endl;
+//    std::cerr << "power " << denom << ", block size " << m_blockSize << std::endl;
 
     if (denom != 0.0) {
 	float centroidLin = float(numLin / denom);

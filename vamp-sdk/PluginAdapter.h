@@ -105,8 +105,9 @@ protected:
     VampFeatureList *convertFeatures(Plugin *plugin,
                                      const Plugin::FeatureSet &features);
     
+    // maps both plugins and descriptors to adapters
     typedef std::map<const void *, PluginAdapterBase *> AdapterMap;
-    static AdapterMap m_adapterMap;
+    static AdapterMap *m_adapterMap;
     static PluginAdapterBase *lookupAdapter(VampPluginHandle);
 
     bool m_populated;
