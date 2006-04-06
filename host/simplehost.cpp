@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 
     if (!libraryHandle) {
         std::cerr << argv[0] << ": Failed to open plugin library " 
-                  << soname << std::endl;
+                  << soname << ": " << DLERROR() << std::endl;
         return 1;
     }
 

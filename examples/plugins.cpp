@@ -34,7 +34,7 @@
     authorization.
 */
 
-#include "vamp.h"
+#include <vamp/vamp.h>
 
 #include "PluginAdapter.h"
 #include "ZeroCrossing.h"
