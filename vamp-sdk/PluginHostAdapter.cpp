@@ -44,12 +44,16 @@ PluginHostAdapter::PluginHostAdapter(const VampPluginDescriptor *descriptor,
     Plugin(inputSampleRate),
     m_descriptor(descriptor)
 {
-    std::cerr << "PluginHostAdapter::PluginHostAdapter (plugin = " << descriptor->name << ")" << std::endl;
+//    std::cerr << "PluginHostAdapter::PluginHostAdapter (plugin = " << descriptor->name << ")" << std::endl;
     m_handle = m_descriptor->instantiate(m_descriptor, inputSampleRate);
+    if (!m_handle) {
+//        std::cerr << "WARNING: PluginHostAdapter: Plugin instantiation failed for plugin " << m_descriptor->name << std::endl;
+    }
 }
 
 PluginHostAdapter::~PluginHostAdapter()
 {
+//    std::cerr << "PluginHostAdapter::~PluginHostAdapter (plugin = " << m_descriptor->name << ")" << std::endl;
     if (m_handle) m_descriptor->cleanup(m_handle);
 }
 
@@ -215,7 +219,10 @@ PluginHostAdapter::OutputList
 PluginHostAdapter::getOutputDescriptors() const
 {
     OutputList list;
-    if (!m_handle) return list;
+    if (!m_handle) {
+//        std::cerr << "PluginHostAdapter::getOutputDescriptors: no handle " << std::endl;
+        return list;
+    }
 
     unsigned int count = m_descriptor->getOutputCount(m_handle);
 

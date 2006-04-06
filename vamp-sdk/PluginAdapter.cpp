@@ -123,8 +123,8 @@ PluginAdapterBase::getDescriptor()
     
     if (!m_adapterMap) {
         m_adapterMap = new AdapterMap;
-        (*m_adapterMap)[&m_descriptor] = this;
     }
+    (*m_adapterMap)[&m_descriptor] = this;
 
     delete plugin;
 
@@ -184,8 +184,15 @@ VampPluginHandle
 PluginAdapterBase::vampInstantiate(const VampPluginDescriptor *desc,
                                    float inputSampleRate)
 {
-    if (!m_adapterMap) return 0;
-    if (m_adapterMap->find(desc) == m_adapterMap->end()) return 0;
+    if (!m_adapterMap) {
+        m_adapterMap = new AdapterMap();
+    }
+
+    if (m_adapterMap->find(desc) == m_adapterMap->end()) {
+        std::cerr << "WARNING: PluginAdapterBase::vampInstantiate: Descriptor " << desc << " not in adapter map" << std::endl;
+        return 0;
+    }
+
     PluginAdapterBase *adapter = (*m_adapterMap)[desc];
     if (desc != &adapter->m_descriptor) return 0;
 
@@ -296,6 +303,9 @@ unsigned int
 PluginAdapterBase::vampGetOutputCount(VampPluginHandle handle)
 {
     PluginAdapterBase *adapter = lookupAdapter(handle);
+
+//    std::cerr << "vampGetOutputCount: handle " << handle << " -> adapter "<< adapter << std::endl;
+
     if (!adapter) return 0;
     return adapter->getOutputCount((Plugin *)handle);
 }
@@ -305,6 +315,9 @@ PluginAdapterBase::vampGetOutputDescriptor(VampPluginHandle handle,
                                            unsigned int i)
 {
     PluginAdapterBase *adapter = lookupAdapter(handle);
+
+//    std::cerr << "vampGetOutputDescriptor: handle " << handle << " -> adapter "<< adapter << std::endl;
+
     if (!adapter) return 0;
     return adapter->getOutputDescriptor((Plugin *)handle, i);
 }
@@ -392,9 +405,11 @@ PluginAdapterBase::cleanup(Plugin *plugin)
 void 
 PluginAdapterBase::checkOutputMap(Plugin *plugin)
 {
-    if (!m_pluginOutputs[plugin]) {
+    if (m_pluginOutputs.find(plugin) == m_pluginOutputs.end() ||
+        !m_pluginOutputs[plugin]) {
         m_pluginOutputs[plugin] = new Plugin::OutputList
             (plugin->getOutputDescriptors());
+//        std::cerr << "PluginAdapterBase::checkOutputMap: Have " << m_pluginOutputs[plugin]->size() << " outputs for plugin label " << plugin->getName() << std::endl;
     }
 }
 
