@@ -17,7 +17,7 @@ CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -I$(SDKDIR) -I$(APIDIR) -I.
 
 # Libraries required for the host at link time
 #
-HOST_LIBS	= -Lvamp-sdk -lvamp-sdk -ldl
+HOST_LIBS	= -Lvamp-sdk -lvamp-sdk -lsndfile -ldl
 
 # Libraries required for the plugin.  Note that we can (and actively
 # want to) statically link with libstdc++, because our plugin exposes

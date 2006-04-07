@@ -578,7 +578,7 @@ PluginAdapterBase::resizeFS(Plugin *plugin, int n)
     int i = m_fsizes[plugin].size();
     if (i >= n) return;
 
-    std::cerr << "resizing from " << i << std::endl;
+//    std::cerr << "resizing from " << i << std::endl;
 
     m_fs[plugin] = (VampFeatureList *)realloc
         (m_fs[plugin], n * sizeof(VampFeatureList));
@@ -595,13 +595,13 @@ PluginAdapterBase::resizeFS(Plugin *plugin, int n)
 void
 PluginAdapterBase::resizeFL(Plugin *plugin, int n, size_t sz)
 {
-    std::cerr << "PluginAdapterBase::resizeFL(" << plugin << ", " << n << ", "
-              << sz << ")" << std::endl;
+//    std::cerr << "PluginAdapterBase::resizeFL(" << plugin << ", " << n << ", "
+//              << sz << ")" << std::endl;
 
     size_t i = m_fsizes[plugin][n];
     if (i >= sz) return;
 
-    std::cerr << "resizing from " << i << std::endl;
+//    std::cerr << "resizing from " << i << std::endl;
 
     m_fs[plugin][n].features = (VampFeature *)realloc
         (m_fs[plugin][n].features, sz * sizeof(VampFeature));
@@ -618,14 +618,13 @@ PluginAdapterBase::resizeFL(Plugin *plugin, int n, size_t sz)
 void
 PluginAdapterBase::resizeFV(Plugin *plugin, int n, int j, size_t sz)
 {
-
-    std::cerr << "PluginAdapterBase::resizeFV(" << plugin << ", " << n << ", "
-              << j << ", " << sz << ")" << std::endl;
+//    std::cerr << "PluginAdapterBase::resizeFV(" << plugin << ", " << n << ", "
+//              << j << ", " << sz << ")" << std::endl;
 
     size_t i = m_fvsizes[plugin][n][j];
     if (i >= sz) return;
 
-    std::cerr << "resizing from " << i << std::endl;
+//    std::cerr << "resizing from " << i << std::endl;
 
     m_fs[plugin][n].features[j].values = (float *)realloc
         (m_fs[plugin][n].features[j].values, sz * sizeof(float));
