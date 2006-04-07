@@ -275,14 +275,14 @@ public:
 	SampleType sampleType;
 
 	/**
-	 * Sample rate of the output results.  Undefined if sampleType
-	 * is OneSamplePerStep.
+	 * Sample rate of the output results, as samples per second.
+	 * Undefined if sampleType is OneSamplePerStep.
 	 *
 	 * If sampleType is VariableSampleRate and this value is
 	 * non-zero, then it may be used to calculate a resolution for
-	 * the output (i.e. the "duration" of each sample, in time).
-	 * It's recommended to set this to zero if that behaviour is
-	 * not desired.
+	 * the output (i.e. the "duration" of each sample, in time,
+	 * will be 1/sampleRate seconds).  It's recommended to set
+	 * this to zero if that behaviour is not desired.
 	 */
 	float sampleRate;
     };
