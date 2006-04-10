@@ -5,8 +5,7 @@ Vamp
 An API for audio analysis and feature extraction plugins.
 
 Vamp is an API for C and C++ plugins that process sampled audio data
-to produce descriptive output, such as measurements of particular
-features of the audio or semantic output based on them.
+to produce descriptive output (measurements or semantic observations).
 
 The principal differences between Vamp and a real-time audio
 processing plugin system such as VST are:
@@ -25,16 +24,22 @@ processing plugin system such as VST are:
 
  * Vamp plugins have more control over their inputs than a typical
    real-time processing plugin.  For example, they can indicate to
-   the host the permitted range of processing block sizes, and can
-   request input data in the frequency domain instead of the time
-   domain.
+   the host their preferred processing block and step sizes, and these
+   may differ.
+
+ * Vamp plugins may ask to receive data in the frequency domain
+   instead of the time domain.  The host takes the responsibility
+   for converting the input data using an FFT of windowed frames.
+   This simplifies plugins that do straightforward frequency-domain
+   processing and permits the host to cache frequency-domain data
+   when possible.
 
  * A Vamp plugin is configured once before each processing run, and
    receives no further parameter changes during use -- unlike real
    time plugin APIs in which the input parameters may change at any
    time.  This also means that fundamental properties such as the
    number of values per output or the preferred processing block
-   size can depend on the input parameters.
+   size may depend on the input parameters.
 
 
 About this SDK
@@ -52,14 +57,17 @@ which returns data defined in the rest of this C header.
 
 Although this is the official API for Vamp, we don't recommend that
 you program directly to it.  The C++ abstraction in the SDK directory
-(below) is likely to be preferable for most purposes and also better
+(below) is likely to be preferable for most purposes, and is better
 documented.
 
  * vamp-sdk
 
 C++ classes for straightforwardly implementing Vamp plugins and hosts.
-Plugins should subclass Vamp::Plugin (in vamp-sdk/Plugin.h) and then
-use a Vamp::PluginAdapter to expose the correct C API for the plugin.
+
+Plugins should subclass Vamp::Plugin and then use a
+Vamp::PluginAdapter to expose the correct C API for the plugin.  Read
+vamp-sdk/PluginBase.h and Plugin.h for code documentation.
+
 Hosts may use the Vamp::PluginHostAdapter to convert the loaded
 plugin's C API back into a Vamp::Plugin object.
 
@@ -80,17 +88,18 @@ Requires libsndfile.
 Building the SDK
 ================
 
-Edit the Makefile for your platform according to the comments in it.
-Type "make".
+Edit the Makefile to suit your platform according to the comments in
+it.  Type "make".
 
 
 Licensing
 =========
 
-This plugin SDK is freely redistributable under the "new BSD" licence.
-See the file COPYING for more details.  In short, you are permitted to
-reuse the SDK and example plugins in any commercial or non-commercial,
-proprietary or open-source application under almost any conditions.
+This plugin SDK is freely redistributable under a "new-style BSD"
+licence.  See the file COPYING for more details.  In short, you are
+permitted to reuse the SDK and example plugins in any commercial or
+non-commercial, proprietary or open-source application or plugin under
+almost any conditions provided you retain the original copyright note.
 
 
 See Also

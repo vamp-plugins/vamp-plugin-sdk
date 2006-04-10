@@ -20,11 +20,11 @@ CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -I$(SDKDIR) -I$(APIDIR) -I.
 HOST_LIBS	= -Lvamp-sdk -lvamp-sdk -lsndfile -ldl
 
 # Libraries required for the plugin.  Note that we can (and actively
-# want to) statically link with libstdc++, because our plugin exposes
+# want to) statically link libstdc++, because our plugin exposes only
 # a C API so there are no boundary compatibility problems.
 #
 PLUGIN_LIBS	= -Lvamp-sdk -lvamp-sdk
-#PLUGIN_LIBS	= -lvamp-sdk $(shell g++ -print-file-name=libstdc++.a)
+#PLUGIN_LIBS	= -Lvamp-sdk -lvamp-sdk $(shell g++ -print-file-name=libstdc++.a)
 
 # Flags required to tell the compiler to link to a dynamically loadable object
 #

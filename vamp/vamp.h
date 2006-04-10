@@ -41,15 +41,23 @@
  * C language API for Vamp plugins.
  * 
  * This is the formal plugin API for Vamp.  Plugin authors may prefer
- * to use the C++ classes defined in the sdk directory, instead of
+ * to use the C++ classes provided in the Vamp plugin SDK, instead of
  * using this API directly.  There is an adapter class provided that
  * makes C++ plugins available using this C API with relatively little
- * work.  See the example plugins in the examples directory.
+ * work, and the C++ headers are thoroughly documented.
  */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** 
+ * Plugin API version. Incompatible changes to the API may be expected
+ * prior to version 1.0.
+ */
+#define VAMP_API_VERSION "0.2"
+#define VAMP_API_VERSION_MAJOR 0
+#define VAMP_API_VERSION_MINOR 2
 
 typedef struct _VampParameterDescriptor
 {
