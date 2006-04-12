@@ -43,6 +43,8 @@
 
 #include "system.h"
 
+#include <cmath>
+
 using std::cout;
 using std::cerr;
 using std::endl;

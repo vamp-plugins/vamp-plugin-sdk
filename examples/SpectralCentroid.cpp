@@ -160,7 +160,7 @@ SpectralCentroid::process(float **inputBuffers, Vamp::RealTime)
 
     if (denom != 0.0) {
 	float centroidLin = float(numLin / denom);
-	float centroidLog = exp10f(float(numLog / denom));
+	float centroidLog = powf(10, float(numLog / denom));
 	Feature feature;
 	feature.hasTimestamp = false;
 	feature.values.push_back(centroidLog);
