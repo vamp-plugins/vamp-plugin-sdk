@@ -75,9 +75,10 @@ int main(int argc, char **argv)
     string wavname;
     if (argc >= 3) wavname = argv[2];
 
-    if (soname.find(":") >= 0) {
-        plugname = soname.substr(soname.find(":") + 1);
-        soname = soname.substr(0, soname.find(":"));
+    int sep = soname.find(":");
+    if (sep >= 0 && sep < soname.length()) {
+        plugname = soname.substr(sep + 1);
+        soname = soname.substr(0, sep);
     }
 
     void *libraryHandle = DLOPEN(soname, RTLD_LAZY);

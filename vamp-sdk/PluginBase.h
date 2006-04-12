@@ -56,6 +56,8 @@ namespace Vamp {
 class PluginBase 
 {
 public:
+    virtual ~PluginBase() { }
+
     /**
      * Get the computer-usable name of the plugin.  This should be
      * reasonably short and contain no whitespace or punctuation

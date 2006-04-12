@@ -40,6 +40,16 @@ PLUGIN_EXT	= .so
 
 ### End of user-serviceable parts
 
+API_HEADERS	= \
+		$(APIDIR)/vamp.h
+
+SDK_HEADERS	= \
+		$(SDKDIR)/Plugin.h \
+		$(SDKDIR)/PluginAdapter.h \
+		$(SDKDIR)/PluginBase.h \
+		$(SDKDIR)/PluginHostAdapter.h \
+		$(SDKDIR)/RealTime.h
+
 SDK_OBJECTS	= \
 		$(SDKDIR)/PluginAdapter.o \
 		$(SDKDIR)/PluginHostAdapter.o \
@@ -48,13 +58,20 @@ SDK_OBJECTS	= \
 SDK_TARGET	= \
 		$(SDKDIR)/libvamp-sdk.a
 
+PLUGIN_HEADERS	= \
+		$(EXAMPLEDIR)/SpectralCentroid.h \
+		$(EXAMPLEDIR)/ZeroCrossing.h
+
 PLUGIN_OBJECTS	= \
-		$(EXAMPLEDIR)/ZeroCrossing.o \
 		$(EXAMPLEDIR)/SpectralCentroid.o \
+		$(EXAMPLEDIR)/ZeroCrossing.o \
 		$(EXAMPLEDIR)/plugins.o
 
 PLUGIN_TARGET	= \
 		$(EXAMPLEDIR)/plugins$(PLUGIN_EXT)
+
+HOST_HEADERS	= \
+		$(HOSTDIR)/system.h
 
 HOST_OBJECTS	= \
 		$(HOSTDIR)/simplehost.o
@@ -64,14 +81,14 @@ HOST_TARGET	= \
 
 all:		$(SDK_TARGET) $(PLUGIN_TARGET) $(HOST_TARGET) test
 
-$(SDK_TARGET):	$(SDK_OBJECTS)
-		$(AR) r $@ $^
+$(SDK_TARGET):	$(SDK_OBJECTS) $(API_HEADERS) $(SDK_HEADERS)
+		$(AR) r $@ $(SDK_OBJECTS)
 
-$(PLUGIN_TARGET):	$(PLUGIN_OBJECTS) $(SDK_TARGET)
-		$(CXX) $(LDFLAGS) $(PLUGIN_LDFLAGS) -o $@ $^ $(PLUGIN_LIBS)
+$(PLUGIN_TARGET):	$(PLUGIN_OBJECTS) $(SDK_TARGET) $(PLUGIN_HEADERS)
+		$(CXX) $(LDFLAGS) $(PLUGIN_LDFLAGS) -o $@ $(PLUGIN_OBJECTS) $(PLUGIN_LIBS)
 
-$(HOST_TARGET):	$(HOST_OBJECTS) $(SDK_TARGET)
-		$(CXX) $(LDFLAGS) $(HOST_LDFLAGS) -o $@ $^ $(HOST_LIBS)
+$(HOST_TARGET):	$(HOST_OBJECTS) $(SDK_TARGET) $(HOST_HEADERS)
+		$(CXX) $(LDFLAGS) $(HOST_LDFLAGS) -o $@ $(HOST_OBJECTS) $(HOST_LIBS)
 
 test:		$(HOST_TARGET) $(PLUGIN_TARGET)
 		$(HOST_TARGET) $(PLUGIN_TARGET)

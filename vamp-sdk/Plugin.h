@@ -114,6 +114,8 @@ namespace Vamp {
 class Plugin : public PluginBase
 {
 public:
+    virtual ~Plugin() { }
+
     /**
      * Initialise a plugin to prepare it for use with the given number
      * of input channels, step size (window increment, in sample
