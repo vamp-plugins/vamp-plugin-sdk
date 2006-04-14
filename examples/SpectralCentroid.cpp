@@ -47,14 +47,12 @@ using std::endl;
 SpectralCentroid::SpectralCentroid(float inputSampleRate) :
     Plugin(inputSampleRate),
     m_stepSize(0),
-    m_blockSize(0),
-    m_workBuffer(0)
+    m_blockSize(0)
 {
 }
 
 SpectralCentroid::~SpectralCentroid()
 {
-    delete m_workBuffer;
 }
 
 string
@@ -96,17 +94,12 @@ SpectralCentroid::initialise(size_t channels, size_t stepSize, size_t blockSize)
     m_stepSize = stepSize;
     m_blockSize = blockSize;
 
-    delete m_workBuffer;
-    m_workBuffer = new double[m_blockSize * 4];
-
     return true;
 }
 
 void
 SpectralCentroid::reset()
 {
-    delete m_workBuffer;
-    m_workBuffer = new double[m_blockSize * 4];
 }
 
 SpectralCentroid::OutputList

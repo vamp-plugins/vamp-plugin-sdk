@@ -68,7 +68,7 @@ PLUGIN_OBJECTS	= \
 		$(EXAMPLEDIR)/plugins.o
 
 PLUGIN_TARGET	= \
-		$(EXAMPLEDIR)/plugins$(PLUGIN_EXT)
+		$(EXAMPLEDIR)/vamp-example-plugins$(PLUGIN_EXT)
 
 HOST_HEADERS	= \
 		$(HOSTDIR)/system.h
