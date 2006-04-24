@@ -36,16 +36,26 @@
 
 #include "PluginAdapter.h"
 
+#define DEBUG_PLUGIN_ADAPTER 1
+
+
 namespace Vamp {
 
 PluginAdapterBase::PluginAdapterBase() :
     m_populated(false)
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase[" << this << "]::PluginAdapterBase" << std::endl;
+#endif
 }
 
 const VampPluginDescriptor *
 PluginAdapterBase::getDescriptor()
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase[" << this << "]::getDescriptor" << std::endl;
+#endif
+
     if (m_populated) return &m_descriptor;
 
     Plugin *plugin = createPlugin(48000);
@@ -134,6 +144,10 @@ PluginAdapterBase::getDescriptor()
 
 PluginAdapterBase::~PluginAdapterBase()
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase[" << this << "]::~PluginAdapterBase" << std::endl;
+#endif
+
     if (!m_populated) return;
 
     free((void *)m_descriptor.name);
@@ -174,6 +188,10 @@ PluginAdapterBase::~PluginAdapterBase()
 PluginAdapterBase *
 PluginAdapterBase::lookupAdapter(VampPluginHandle handle)
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::lookupAdapter(" << handle << ")" << std::endl;
+#endif
+
     if (!m_adapterMap) return 0;
     AdapterMap::const_iterator i = m_adapterMap->find(handle);
     if (i == m_adapterMap->end()) return 0;
@@ -184,6 +202,10 @@ VampPluginHandle
 PluginAdapterBase::vampInstantiate(const VampPluginDescriptor *desc,
                                    float inputSampleRate)
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::vampInstantiate(" << desc << ")" << std::endl;
+#endif
+
     if (!m_adapterMap) {
         m_adapterMap = new AdapterMap();
     }
@@ -201,12 +223,20 @@ PluginAdapterBase::vampInstantiate(const VampPluginDescriptor *desc,
         (*m_adapterMap)[plugin] = adapter;
     }
 
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::vampInstantiate(" << desc << "): returning handle " << plugin << std::endl;
+#endif
+
     return plugin;
 }
 
 void
 PluginAdapterBase::vampCleanup(VampPluginHandle handle)
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::vampCleanup(" << handle << ")" << std::endl;
+#endif
+
     PluginAdapterBase *adapter = lookupAdapter(handle);
     if (!adapter) {
         delete ((Plugin *)handle);
@@ -221,6 +251,10 @@ PluginAdapterBase::vampInitialise(VampPluginHandle handle,
                                   unsigned int stepSize,
                                   unsigned int blockSize)
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::vampInitialise(" << handle << ", " << channels << ", " << stepSize << ", " << blockSize << ")" << std::endl;
+#endif
+
     bool result = ((Plugin *)handle)->initialise
         (channels, stepSize, blockSize);
     return result ? 1 : 0;
@@ -229,6 +263,10 @@ PluginAdapterBase::vampInitialise(VampPluginHandle handle,
 void
 PluginAdapterBase::vampReset(VampPluginHandle handle) 
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::vampReset(" << handle << ")" << std::endl;
+#endif
+
     ((Plugin *)handle)->reset();
 }
 
@@ -236,6 +274,10 @@ float
 PluginAdapterBase::vampGetParameter(VampPluginHandle handle,
                                     int param) 
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::vampGetParameter(" << handle << ", " << param << ")" << std::endl;
+#endif
+
     PluginAdapterBase *adapter = lookupAdapter(handle);
     if (!adapter) return 0.0;
     Plugin::ParameterList &list = adapter->m_parameters;
@@ -246,6 +288,10 @@ void
 PluginAdapterBase::vampSetParameter(VampPluginHandle handle,
                                     int param, float value)
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::vampSetParameter(" << handle << ", " << param << ", " << value << ")" << std::endl;
+#endif
+
     PluginAdapterBase *adapter = lookupAdapter(handle);
     if (!adapter) return;
     Plugin::ParameterList &list = adapter->m_parameters;
@@ -255,6 +301,10 @@ PluginAdapterBase::vampSetParameter(VampPluginHandle handle,
 unsigned int
 PluginAdapterBase::vampGetCurrentProgram(VampPluginHandle handle)
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::vampGetCurrentProgram(" << handle << ")" << std::endl;
+#endif
+
     PluginAdapterBase *adapter = lookupAdapter(handle);
     if (!adapter) return 0;
     Plugin::ProgramList &list = adapter->m_programs;
@@ -269,6 +319,10 @@ void
 PluginAdapterBase::vampSelectProgram(VampPluginHandle handle,
                                      unsigned int program)
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::vampSelectProgram(" << handle << ", " << program << ")" << std::endl;
+#endif
+
     PluginAdapterBase *adapter = lookupAdapter(handle);
     if (!adapter) return;
     Plugin::ProgramList &list = adapter->m_programs;
@@ -278,30 +332,50 @@ PluginAdapterBase::vampSelectProgram(VampPluginHandle handle,
 unsigned int
 PluginAdapterBase::vampGetPreferredStepSize(VampPluginHandle handle)
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::vampGetPreferredStepSize(" << handle << ")" << std::endl;
+#endif
+
     return ((Plugin *)handle)->getPreferredStepSize();
 }
 
 unsigned int
 PluginAdapterBase::vampGetPreferredBlockSize(VampPluginHandle handle) 
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::vampGetPreferredBlockSize(" << handle << ")" << std::endl;
+#endif
+
     return ((Plugin *)handle)->getPreferredBlockSize();
 }
 
 unsigned int
 PluginAdapterBase::vampGetMinChannelCount(VampPluginHandle handle)
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::vampGetMinChannelCount(" << handle << ")" << std::endl;
+#endif
+
     return ((Plugin *)handle)->getMinChannelCount();
 }
 
 unsigned int
 PluginAdapterBase::vampGetMaxChannelCount(VampPluginHandle handle)
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::vampGetMaxChannelCount(" << handle << ")" << std::endl;
+#endif
+
     return ((Plugin *)handle)->getMaxChannelCount();
 }
 
 unsigned int
 PluginAdapterBase::vampGetOutputCount(VampPluginHandle handle)
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::vampGetOutputCount(" << handle << ")" << std::endl;
+#endif
+
     PluginAdapterBase *adapter = lookupAdapter(handle);
 
 //    std::cerr << "vampGetOutputCount: handle " << handle << " -> adapter "<< adapter << std::endl;
@@ -314,6 +388,10 @@ VampOutputDescriptor *
 PluginAdapterBase::vampGetOutputDescriptor(VampPluginHandle handle,
                                            unsigned int i)
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::vampGetOutputDescriptor(" << handle << ", " << i << ")" << std::endl;
+#endif
+
     PluginAdapterBase *adapter = lookupAdapter(handle);
 
 //    std::cerr << "vampGetOutputDescriptor: handle " << handle << " -> adapter "<< adapter << std::endl;
@@ -325,6 +403,10 @@ PluginAdapterBase::vampGetOutputDescriptor(VampPluginHandle handle,
 void
 PluginAdapterBase::vampReleaseOutputDescriptor(VampOutputDescriptor *desc)
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::vampReleaseOutputDescriptor(" << desc << ")" << std::endl;
+#endif
+
     if (desc->name) free((void *)desc->name);
     if (desc->description) free((void *)desc->description);
     if (desc->unit) free((void *)desc->unit);
@@ -341,6 +423,10 @@ PluginAdapterBase::vampProcess(VampPluginHandle handle,
                                int sec,
                                int nsec)
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::vampProcess(" << handle << ", " << sec << ", " << nsec << ")" << std::endl;
+#endif
+
     PluginAdapterBase *adapter = lookupAdapter(handle);
     if (!adapter) return 0;
     return adapter->process((Plugin *)handle,
@@ -350,6 +436,10 @@ PluginAdapterBase::vampProcess(VampPluginHandle handle,
 VampFeatureList *
 PluginAdapterBase::vampGetRemainingFeatures(VampPluginHandle handle)
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::vampGetRemainingFeatures(" << handle << ")" << std::endl;
+#endif
+
     PluginAdapterBase *adapter = lookupAdapter(handle);
     if (!adapter) return 0;
     return adapter->getRemainingFeatures((Plugin *)handle);
@@ -358,6 +448,9 @@ PluginAdapterBase::vampGetRemainingFeatures(VampPluginHandle handle)
 void
 PluginAdapterBase::vampReleaseFeatureSet(VampFeatureList *fs)
 {
+#ifdef DEBUG_PLUGIN_ADAPTER
+    std::cerr << "PluginAdapterBase::vampReleaseFeatureSet" << std::endl;
+#endif
 }
 
 void 

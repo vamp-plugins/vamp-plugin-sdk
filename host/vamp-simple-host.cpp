@@ -115,6 +115,12 @@ int main(int argc, char **argv)
 
         if (plugin.getName() == plugname) plugnumber = index;
         
+        cerr << "(testing overlap...)" << endl;
+        {
+            Vamp::PluginHostAdapter otherPlugin(descriptor, 48000);
+            cerr << "(other plugin reports min " << otherPlugin.getMinChannelCount() << " channels)" << endl;
+        }
+
         ++index;
     }
 

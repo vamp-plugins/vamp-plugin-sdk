@@ -13,7 +13,7 @@ HOSTDIR		= host
 
 # Compile flags
 #
-CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -I$(SDKDIR) -I$(APIDIR) -I.
+CXXFLAGS	:= $(CXXFLAGS) -g -Wall -I$(SDKDIR) -I$(APIDIR) -I.
 
 # Libraries required for the host at link time
 #
@@ -74,10 +74,10 @@ HOST_HEADERS	= \
 		$(HOSTDIR)/system.h
 
 HOST_OBJECTS	= \
-		$(HOSTDIR)/simplehost.o
+		$(HOSTDIR)/vamp-simple-host.o
 
 HOST_TARGET	= \
-		$(HOSTDIR)/simplehost
+		$(HOSTDIR)/vamp-simple-host
 
 all:		$(SDK_TARGET) $(PLUGIN_TARGET) $(HOST_TARGET) test
 
