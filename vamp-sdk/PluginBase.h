@@ -40,6 +40,8 @@
 #include <string>
 #include <vector>
 
+#define VAMP_SDK_VERSION "0.2"
+
 namespace Vamp {
 
 /**
@@ -63,7 +65,8 @@ public:
      * reasonably short and contain no whitespace or punctuation
      * characters.  It may be shown to the user, but it won't be the
      * main method for a user to identify a plugin (that will be the
-     * description, below).
+     * description, below).  This may only contain the characters
+     * [a-zA-Z0-9_].
      */
     virtual std::string getName() const = 0;
 
@@ -127,7 +130,10 @@ public:
 	float maxValue;
 
 	/**
-	 * The default value of the parameter.
+	 * The default value of the parameter.  The plugin should
+	 * ensure that parameters have this value on initialisation
+	 * (i.e. the host is not required to explicitly set parameters
+	 * if it wants to use their default values).
 	 */
 	float defaultValue;
 	

@@ -44,7 +44,13 @@
  * to use the C++ classes provided in the Vamp plugin SDK, instead of
  * using this API directly.  There is an adapter class provided that
  * makes C++ plugins available using this C API with relatively little
- * work, and the C++ headers are thoroughly documented.
+ * work, and the C++ headers are more thoroughly documented.
+ *
+ * IMPORTANT: The comments in this file summarise the purpose of each
+ * of the declared fields and functions, but do not provide a complete
+ * guide to their permitted values and expected usage.  Please refer
+ * to the C++ headers in the Vamp plugin SDK for further details and
+ * plugin lifecycle documentation.
  */
 
 #ifdef __cplusplus
@@ -61,58 +67,120 @@ extern "C" {
 
 typedef struct _VampParameterDescriptor
 {
+    /** Computer-usable name of the parameter. Must not change. [a-zA-Z0-9_] */
     const char *name;
+
+    /** Human-readable name of the parameter. May be translatable. */
     const char *description;
+
+    /** Human-readable unit of the parameter. */
     const char *unit;
+
+    /** Minimum value. */
     float minValue;
+
+    /** Maximum value. */
     float maxValue;
+
+    /** Default value. Plugin is responsible for setting this on initialise. */
     float defaultValue;
+
+    /** 1 if parameter values are quantized to a particular resolution. */
     int isQuantized;
+
+    /** Quantization resolution, if isQuantized. */
     float quantizeStep;
+
+    /** Human-readable names of the values, if isQuantized.  May be NULL. */
     const char **valueNames;
 
 } VampParameterDescriptor;
 
 typedef enum
 {
+    /** Each process call returns results aligned with call's block start. */
     vampOneSamplePerStep,
+
+    /** Returned results are evenly spaced at samplerate specified below. */
     vampFixedSampleRate,
+
+    /** Returned results have their own individual timestamps. */
     vampVariableSampleRate
 
 } VampSampleType;
 
 typedef struct _VampOutputDescriptor
 {
+    /** Computer-usable name of the output. Must not change. [a-zA-Z0-9_] */
     const char *name;
+
+    /** Human-readable name of the output. May be translatable. */
     const char *description;
+
+    /** Human-readable name of the unit of the output. */
     const char *unit;
+
+    /** 1 if output has equal number of values for each returned result. */
     int hasFixedBinCount;
+
+    /** Number of values per result, if hasFixedBinCount. */
     unsigned int binCount;
+
+    /** Names of returned value bins, if hasFixedBinCount.  May be NULL. */
     const char **binNames;
+
+    /** 1 if each returned value falls within the same fixed min/max range. */
     int hasKnownExtents;
+    
+    /** Minimum value for a returned result in any bin, if hasKnownExtents. */
     float minValue;
+
+    /** Maximum value for a returned result in any bin, if hasKnownExtents. */
     float maxValue;
+
+    /** 1 if returned results are quantized to a particular resolution. */
     int isQuantized;
+
+    /** Quantization resolution for returned results, if isQuantized. */
     float quantizeStep;
+
+    /** Time positioning method for returned results (see VampSampleType). */
     VampSampleType sampleType;
+
+    /** Sample rate of returned results, if sampleType is vampFixedSampleRate.
+       "Resolution" of result, if sampleType is vampVariableSampleRate. */
     float sampleRate;
 
 } VampOutputDescriptor;
 
 typedef struct _VampFeature
 {
+    /** 1 if the feature has a timestamp (i.e. if vampVariableSampleRate). */
     int hasTimestamp;
+
+    /** Seconds component of timestamp. */
     int sec;
+
+    /** Nanoseconds component of timestamp. */
     int nsec;
+
+    /** Number of values.  Must be binCount if hasFixedBinCount. */
     unsigned int valueCount;
+
+    /** Values for this returned sample. */
     float *values;
+
+    /** Label for this returned sample.  May be NULL. */
     char *label;
 
 } VampFeature;
 
 typedef struct _VampFeatureList
 {
+    /** Number of features in this feature list. */
     unsigned int featureCount;
+
+    /** Features in this feature list.  May be NULL if featureCount is zero. */
     VampFeature *features;
 
 } VampFeatureList;
@@ -128,56 +196,113 @@ typedef void *VampPluginHandle;
 
 typedef struct _VampPluginDescriptor
 {
+    /** Computer-usable name of the plugin. Must not change. [a-zA-Z0-9_] */
     const char *name;
+
+    /** Human-readable name of the plugin. May be translatable. */
     const char *description;
+
+    /** Human-readable name of plugin's author or vendor. */
     const char *maker;
+
+    /** Version number of the plugin. */
     int pluginVersion;
+
+    /** Human-readable summary of copyright or licensing for plugin. */
     const char *copyright;
+
+    /** Number of parameter inputs. */
     unsigned int parameterCount;
+
+    /** Fixed descriptors for parameter inputs. */
     const VampParameterDescriptor **parameters;
+
+    /** Number of programs. */
     unsigned int programCount;
+
+    /** Fixed names for programs. */
     const char **programs;
+
+    /** Preferred input domain for audio input (time or frequency). */
     VampInputDomain inputDomain;
-    
+
+    /** Create and return a new instance of this plugin. */
     VampPluginHandle (*instantiate)(const struct _VampPluginDescriptor *,
                                    float inputSampleRate);
 
+    /** Destroy an instance of this plugin. */
     void (*cleanup)(VampPluginHandle);
 
+    /** Initialise an instance following parameter configuration. */
     int (*initialise)(VampPluginHandle,
                       unsigned int inputChannels,
                       unsigned int stepSize, 
                       unsigned int blockSize);
 
+    /** Reset an instance, ready to use again on new input data. */
     void (*reset)(VampPluginHandle);
 
+    /** Get a parameter value. */
     float (*getParameter)(VampPluginHandle, int);
+
+    /** Set a parameter value. May only be called before initialise. */
     void  (*setParameter)(VampPluginHandle, int, float);
 
+    /** Get the current program (if programCount > 0). */
     unsigned int (*getCurrentProgram)(VampPluginHandle);
+
+    /** Set the current program. May only be called before initialise. */
     void  (*selectProgram)(VampPluginHandle, unsigned int);
     
+    /** Get the plugin's preferred processing window increment in samples. */
     unsigned int (*getPreferredStepSize)(VampPluginHandle);
+
+    /** Get the plugin's preferred processing window size in samples. */
     unsigned int (*getPreferredBlockSize)(VampPluginHandle);
+
+    /** Get the minimum number of input channels this plugin can handle. */
     unsigned int (*getMinChannelCount)(VampPluginHandle);
+
+    /** Get the maximum number of input channels this plugin can handle. */
     unsigned int (*getMaxChannelCount)(VampPluginHandle);
 
+    /** Get the number of feature outputs (distinct sets of results). */
     unsigned int (*getOutputCount)(VampPluginHandle);
+
+    /** Get a descriptor for a given feature output. Returned pointer
+        is valid only until next call to getOutputDescriptor for this
+        handle, or releaseOutputDescriptor for this descriptor. Host
+        must call releaseOutputDescriptor after use. */
     VampOutputDescriptor *(*getOutputDescriptor)(VampPluginHandle,
                                                 unsigned int);
+
+    /** Destroy a descriptor for a feature output. */
     void (*releaseOutputDescriptor)(VampOutputDescriptor *);
 
+    /** Process an input block and return a set of features. Returned
+        pointer is valid only until next call to process,
+        getRemainingFeatures, or cleanup for this handle, or
+        releaseFeatureSet for this feature set. Host must call
+        releaseFeatureSet after use. */
     VampFeatureList *(*process)(VampPluginHandle,
                                 float **inputBuffers,
                                 int sec,
                                 int nsec);
+
+    /** Return any remaining features at the end of processing. */
     VampFeatureList *(*getRemainingFeatures)(VampPluginHandle);
+
+    /** Release a feature set returned from process or getRemainingFeatures. */
     void (*releaseFeatureSet)(VampFeatureList *);
 
 } VampPluginDescriptor;
 
+/** Get the descriptor for a given plugin index in this library.
+    Return NULL if the index is outside the range of valid indices for
+    this plugin library. */
 const VampPluginDescriptor *vampGetPluginDescriptor(unsigned int index);
 
+/** Function pointer type for vampGetPluginDescriptor. */
 typedef const VampPluginDescriptor *(*VampGetPluginDescriptorFunction)(unsigned int);
 
 #ifdef __cplusplus
