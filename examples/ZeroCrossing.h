@@ -39,8 +39,6 @@
 
 #include "Plugin.h"
 
-class ZeroCrossingData;
-
 class ZeroCrossing : public Vamp::Plugin
 {
 public:

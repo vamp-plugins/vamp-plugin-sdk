@@ -39,8 +39,6 @@
 
 #include "Plugin.h"
 
-class SpectralCentroidData;
-
 class SpectralCentroid : public Vamp::Plugin
 {
 public:
