@@ -79,12 +79,10 @@ namespace Vamp {
  * When a program is set, the parameter values may change and the host
  * will re-query them to check.
  *
- * 4. Host queries the preferred step size, block size, number of
- * channels, and the number of values per feature for the plugin's
- * outputs.  These may all vary depending on the parameter values.
+ * 4. Host queries the preferred step size, block size and number of
+ * channels.  These may all vary depending on the parameter values.
  * (Note however that you cannot make the number of distinct outputs
- * dependent on parameter values; nor can you make any of these depend
- * on the number of input channels.)
+ * dependent on parameter values.)
  *
  * 5. Plugin is properly initialised with a call to initialise.  This
  * fixes the step size, block size, and number of channels, as well as
@@ -93,15 +91,19 @@ namespace Vamp {
  * from step 4, the plugin may refuse to initialise and return false
  * (although if possible it should accept the new values).
  *
- * 6. Host will repeatedly call the process method to pass in blocks
+ * 6. Host finally checks the number of values per output (which may
+ * vary depending on the number of channels, step size and block size
+ * as well as the parameter values).
+ *
+ * 7. Host will repeatedly call the process method to pass in blocks
  * of input data.  This method may return features extracted from that
  * data (if the plugin is causal).
  *
- * 7. Host will call getRemainingFeatures exactly once, after all the
+ * 8. Host will call getRemainingFeatures exactly once, after all the
  * input data has been processed.  This may return any non-causal or
  * leftover features.
  *
- * 8. At any point after initialise was called, the host may
+ * 9. At any point after initialise was called, the host may
  * optionally call the reset method and restart processing.  (This
  * does not mean it can change the parameters, which are fixed from
  * initialise until destruction.)
