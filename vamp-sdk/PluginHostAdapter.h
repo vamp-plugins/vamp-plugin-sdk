@@ -72,6 +72,9 @@ public:
     size_t getPreferredStepSize() const;
     size_t getPreferredBlockSize() const;
 
+    size_t getMinChannelCount() const;
+    size_t getMaxChannelCount() const;
+
     OutputList getOutputDescriptors() const;
 
     FeatureSet process(float **inputBuffers, RealTime timestamp);

@@ -215,6 +215,20 @@ PluginHostAdapter::getPreferredBlockSize() const
     return m_descriptor->getPreferredBlockSize(m_handle);
 }
 
+size_t
+PluginHostAdapter::getMinChannelCount() const
+{
+    if (!m_handle) return 0;
+    return m_descriptor->getMinChannelCount(m_handle);
+}
+
+size_t
+PluginHostAdapter::getMaxChannelCount() const
+{
+    if (!m_handle) return 0;
+    return m_descriptor->getMaxChannelCount(m_handle);
+}
+
 PluginHostAdapter::OutputList
 PluginHostAdapter::getOutputDescriptors() const
 {
