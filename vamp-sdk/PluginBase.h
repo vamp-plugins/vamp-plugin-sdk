@@ -40,7 +40,7 @@
 #include <string>
 #include <vector>
 
-#define VAMP_SDK_VERSION "0.2"
+#define VAMP_SDK_VERSION "0.9"
 
 namespace Vamp {
 

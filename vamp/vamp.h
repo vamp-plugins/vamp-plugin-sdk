@@ -61,9 +61,9 @@ extern "C" {
  * Plugin API version. Incompatible changes to the API may be expected
  * prior to version 1.0.
  */
-#define VAMP_API_VERSION "0.2"
+#define VAMP_API_VERSION "0.9"
 #define VAMP_API_VERSION_MAJOR 0
-#define VAMP_API_VERSION_MINOR 2
+#define VAMP_API_VERSION_MINOR 9
 
 typedef struct _VampParameterDescriptor
 {
