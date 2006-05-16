@@ -87,7 +87,7 @@ RealTime::RealTime(int s, int n) :
 RealTime
 RealTime::fromSeconds(double sec)
 {
-    return RealTime(int(sec), int((sec - int(sec)) * ONE_BILLION));
+    return RealTime(int(sec), int((sec - int(sec)) * ONE_BILLION + 0.5));
 }
 
 RealTime
