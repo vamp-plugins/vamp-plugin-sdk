@@ -169,10 +169,26 @@ int main(int argc, char **argv)
     int stepSize = plugin->getPreferredStepSize();
 
     cerr << "Preferred block size = " << blockSize << ", step size = "
-              << stepSize << endl;
+         << stepSize << endl;
 
     if (blockSize == 0) blockSize = 1024;
     if (stepSize == 0) stepSize = blockSize;
+
+    bool rightBlockSize = true;
+    if (plugin->getInputDomain() == Vamp::Plugin::FrequencyDomain) {
+        int p = 1, b = blockSize;
+        while (b) {
+            p <<= 1;
+            b >>= 1;
+        }
+        if (p != blockSize * 2) {
+            cerr << "WARNING: Plugin requested non-power-of-two block size of "
+                 << blockSize << ",\nwhich is not supported by this host.  ";
+            blockSize = p;
+            cerr << "Rounding up to " << blockSize << "." << endl;
+            rightBlockSize = false;
+        }
+    }
 
     int channels = sfinfo.channels;
 
@@ -189,6 +205,8 @@ int main(int argc, char **argv)
 
     Vamp::Plugin::OutputList outputs = plugin->getOutputDescriptors();
     Vamp::Plugin::OutputDescriptor od;
+
+    int returnValue = 1;
 
     int output = 0;
     if (argc == 4) output = atoi(argv[3]);
@@ -219,7 +237,15 @@ int main(int argc, char **argv)
     od = outputs[output];
     cerr << "Output is " << od.name << endl;
 
-    plugin->initialise(channels, stepSize, blockSize);
+    if (!plugin->initialise(channels, stepSize, blockSize)) {
+        cerr << "ERROR: Plugin initialise (channels = " << channels
+             << ", stepSize = " << stepSize << ", blockSize = "
+             << blockSize << ") failed." << endl;
+        if (!rightBlockSize) {
+            cerr << "(Probably because I couldn't provide the plugin's preferred block size.)" << endl;
+        }
+        goto done;
+    }
 
     for (size_t i = 0; i < sfinfo.frames; i += stepSize) {
 
@@ -261,12 +287,14 @@ int main(int argc, char **argv)
     printFeatures(sfinfo.frames, sfinfo.samplerate, output,
                   plugin->getRemainingFeatures());
 
+    returnValue = 0;
+
 done:
     delete plugin;
 
     DLCLOSE(libraryHandle);
     sf_close(sndfile);
-    return 0;
+    return returnValue;
 }
 
 void
