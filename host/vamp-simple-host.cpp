@@ -49,6 +49,7 @@ using std::cout;
 using std::cerr;
 using std::endl;
 using std::string;
+using std::vector;
 
 void printFeatures(int, int, int, Vamp::Plugin::FeatureSet);
 void transformInput(float *, size_t);
@@ -69,6 +70,13 @@ int main(int argc, char **argv)
     }
 
     cerr << endl << argv[0] << ": Running..." << endl;
+
+    cerr << endl << "Vamp path is set to:" << endl;
+    vector<string> path = Vamp::PluginHostAdapter::getPluginPath();
+    for (size_t i = 0; i < path.size(); ++i) {
+        cerr << "\t" << path[i] << endl;
+    }
+    cerr << "(This program doesn't use the path; just printing it for information)" << endl << endl;
 
     string soname = argv[1];
     string plugname = "";
@@ -115,12 +123,6 @@ int main(int argc, char **argv)
 
         if (plugin.getName() == plugname) plugnumber = index;
         
-        cerr << "(testing overlap...)" << endl;
-        {
-            Vamp::PluginHostAdapter otherPlugin(descriptor, 48000);
-            cerr << "(other plugin reports min " << otherPlugin.getMinChannelCount() << " channels)" << endl;
-        }
-
         ++index;
     }
 

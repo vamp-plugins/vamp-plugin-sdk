@@ -1,0 +1,10 @@
+prefix=%PREFIX%
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: vamp-sdk
+Version: 0.9.5
+Description: Development libraries for Vamp audio analysis plugin API
+Libs: -L${libdir} -lvamp-sdk
+Cflags: -I${includedir} 

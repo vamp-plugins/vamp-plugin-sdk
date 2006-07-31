@@ -57,6 +57,62 @@ PluginHostAdapter::~PluginHostAdapter()
     if (m_handle) m_descriptor->cleanup(m_handle);
 }
 
+std::vector<std::string>
+PluginHostAdapter::getPluginPath()
+{
+    std::vector<std::string> path;
+    std::string envPath;
+
+    char *cpath = getenv("VAMP_PATH");
+    if (cpath) envPath = cpath;
+
+#ifdef _WIN32
+#define PATH_SEPARATOR ';'
+#define DEFAULT_VAMP_PATH "%ProgramFiles%\\Vamp Plugins"
+#else
+#define PATH_SEPARATOR ':'
+#ifdef __APPLE__
+#define DEFAULT_VAMP_PATH "/Library/Audio/Plug-Ins/Vamp/:$HOME/Library/Audio/Plug-Ins/Vamp"
+#else
+#define DEFAULT_VAMP_PATH "/usr/local/lib/vamp:/usr/lib/vamp:$HOME/vamp:$HOME/.vamp"
+#endif
+#endif
+
+    if (envPath == "") {
+        envPath = DEFAULT_VAMP_PATH;
+        char *chome = getenv("HOME");
+        if (chome) {
+            std::string home(chome);
+            std::string::size_type f;
+            while ((f = envPath.find("$HOME")) != std::string::npos &&
+                    f < envPath.length()) {
+                envPath.replace(f, 5, home);
+            }
+        }
+#ifdef _WIN32
+        char *cpfiles = getenv("ProgramFiles");
+        if (!cpfiles) cpfiles = "C:\\Program Files";
+        std::string pfiles(cpfiles);
+        std::string::size_type f;
+        while ((f = envPath.find("%ProgramFiles%")) != std::string::npos &&
+               f < envPath.length()) {
+            envPath.replace(f, 14, pfiles);
+        }
+#endif
+    }
+
+    std::string::size_type index = 0, newindex = 0;
+
+    while ((newindex = envPath.find(PATH_SEPARATOR, index)) < envPath.size()) {
+	path.push_back(envPath.substr(index, newindex - index));
+	index = newindex + 1;
+    }
+    
+    path.push_back(envPath.substr(index));
+
+    return path;
+}
+
 bool
 PluginHostAdapter::initialise(size_t channels,
                               size_t stepSize,

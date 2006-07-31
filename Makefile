@@ -11,20 +11,33 @@ HOSTDIR		= host
 
 ### Start of user-serviceable parts
 
+# Locations for "make install".  This will need quite a bit of 
+# editing for non-Linux platforms.  Of course you don't necessarily
+# have to use "make install".
+#
+INSTALL_PREFIX		:= /usr/local
+INSTALL_API_HEADERS	:= $(INSTALL_PREFIX)/include/vamp/
+INSTALL_SDK_HEADERS	:= $(INSTALL_PREFIX)/include/vamp-sdk/
+INSTALL_SDK_LIBS	:= $(INSTALL_PREFIX)/lib/
+INSTALL_SDK_LIBNAME	:= libvamp-sdk.so.0.9.5
+INSTALL_SDK_LINK_ABI	:= libvamp-sdk.so.0
+INSTALL_SDK_LINK_DEV	:= libvamp-sdk.so
+INSTALL_PKGCONFIG	:= $(INSTALL_PREFIX)/lib/pkgconfig/
+
 # Compile flags
 #
 CXXFLAGS	:= $(CXXFLAGS) -g -Wall -I$(SDKDIR) -I$(APIDIR) -I.
 
 # Libraries required for the host at link time
 #
-HOST_LIBS	= -Lvamp-sdk -lvamp-sdk -lsndfile -ldl
+HOST_LIBS	= vamp-sdk/libvamp-sdk.a -lsndfile -ldl
 
 # Libraries required for the plugin.  Note that we can (and actively
 # want to) statically link libstdc++, because our plugin exposes only
 # a C API so there are no boundary compatibility problems.
 #
-PLUGIN_LIBS	= -Lvamp-sdk -lvamp-sdk
-#PLUGIN_LIBS	= -Lvamp-sdk -lvamp-sdk $(shell g++ -print-file-name=libstdc++.a)
+PLUGIN_LIBS	= vamp-sdk/libvamp-sdk.a
+#PLUGIN_LIBS	= vamp-sdk/libvamp-sdk.a $(shell g++ -print-file-name=libstdc++.a)
 
 # Flags required to tell the compiler to link to a dynamically loadable object
 #
@@ -39,6 +52,7 @@ PLUGIN_EXT	= .so
 #PLUGIN_EXT	= .dylib
 
 ### End of user-serviceable parts
+
 
 API_HEADERS	= \
 		$(APIDIR)/vamp.h
@@ -55,8 +69,11 @@ SDK_OBJECTS	= \
 		$(SDKDIR)/PluginHostAdapter.o \
 		$(SDKDIR)/RealTime.o
 
-SDK_TARGET	= \
+SDK_STATIC	= \
 		$(SDKDIR)/libvamp-sdk.a
+
+SDK_DYNAMIC	= \
+		$(SDKDIR)/libvamp-sdk.so
 
 PLUGIN_HEADERS	= \
 		$(EXAMPLEDIR)/SpectralCentroid.h \
@@ -79,10 +96,13 @@ HOST_OBJECTS	= \
 HOST_TARGET	= \
 		$(HOSTDIR)/vamp-simple-host
 
-all:		$(SDK_TARGET) $(PLUGIN_TARGET) $(HOST_TARGET) test
+all:		$(SDK_STATIC) $(SDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET) test
 
-$(SDK_TARGET):	$(SDK_OBJECTS) $(API_HEADERS) $(SDK_HEADERS)
+$(SDK_STATIC):	$(SDK_OBJECTS) $(API_HEADERS) $(SDK_HEADERS)
 		$(AR) r $@ $(SDK_OBJECTS)
+
+$(SDK_DYNAMIC):	$(SDK_OBJECTS) $(API_HEADERS) $(SDK_HEADERS)
+		$(CXX) $(LDFLAGS) $(PLUGIN_LDFLAGS) -o $@ $(SDK_OBJECTS)
 
 $(PLUGIN_TARGET):	$(PLUGIN_OBJECTS) $(SDK_TARGET) $(PLUGIN_HEADERS)
 		$(CXX) $(LDFLAGS) $(PLUGIN_LDFLAGS) -o $@ $(PLUGIN_OBJECTS) $(PLUGIN_LIBS)
@@ -96,7 +116,23 @@ test:		$(HOST_TARGET) $(PLUGIN_TARGET)
 clean:		
 		rm -f $(SDK_OBJECTS) $(PLUGIN_OBJECTS) $(HOST_OBJECTS)
 
+install:	$(SDK_STATIC) $(SDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET)
+		mkdir -p $(INSTALL_API_HEADERS)
+		mkdir -p $(INSTALL_SDK_HEADERS)
+		mkdir -p $(INSTALL_SDK_LIBS)
+		mkdir -p $(INSTALL_PKGCONFIG)
+		cp $(API_HEADERS) $(INSTALL_API_HEADERS)
+		cp $(SDK_HEADERS) $(INSTALL_SDK_HEADERS)
+		cp $(SDK_STATIC) $(INSTALL_SDK_LIBS)
+		cp $(SDK_DYNAMIC) $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LIBNAME)
+		rm -f $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LINK_ABI)
+		ln -s $(INSTALL_SDK_LIBNAME) $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LINK_ABI)
+		rm -f $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LINK_DEV)
+		ln -s $(INSTALL_SDK_LINK_ABI) $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LINK_DEV)
+		sed "s,%PREFIX%,$(INSTALL_PREFIX)," vamp/vamp.pc.in > $(INSTALL_PKGCONFIG)/vamp.pc
+		sed "s,%PREFIX%,$(INSTALL_PREFIX)," vamp-sdk/vamp-sdk.pc.in > $(INSTALL_PKGCONFIG)/vamp-sdk.pc
+
 distclean:	clean
-		rm -f $(SDK_TARGET) $(PLUGIN_TARGET) $(HOST_TARGET) *~ */*~
+		rm -f $(SDK_STATIC) $(SDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET) *~ */*~
 
 
