@@ -16,17 +16,19 @@ HOSTDIR		= host
 # have to use "make install".
 #
 INSTALL_PREFIX		:= /usr/local
-INSTALL_API_HEADERS	:= $(INSTALL_PREFIX)/include/vamp/
-INSTALL_SDK_HEADERS	:= $(INSTALL_PREFIX)/include/vamp-sdk/
-INSTALL_SDK_LIBS	:= $(INSTALL_PREFIX)/lib/
-INSTALL_SDK_LIBNAME	:= libvamp-sdk.so.0.9.5
+INSTALL_API_HEADERS	:= $(INSTALL_PREFIX)/include/vamp
+INSTALL_SDK_HEADERS	:= $(INSTALL_PREFIX)/include/vamp-sdk
+INSTALL_SDK_LIBS	:= $(INSTALL_PREFIX)/lib
+INSTALL_SDK_LIBNAME	:= libvamp-sdk.so.0.0.5
 INSTALL_SDK_LINK_ABI	:= libvamp-sdk.so.0
 INSTALL_SDK_LINK_DEV	:= libvamp-sdk.so
-INSTALL_PKGCONFIG	:= $(INSTALL_PREFIX)/lib/pkgconfig/
+INSTALL_SDK_STATIC      := libvamp-sdk.a
+INSTALL_SDK_LA          := libvamp-sdk.la
+INSTALL_PKGCONFIG	:= $(INSTALL_PREFIX)/lib/pkgconfig
 
 # Compile flags
 #
-CXXFLAGS	:= $(CXXFLAGS) -g -Wall -I$(SDKDIR) -I$(APIDIR) -I.
+CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -I$(SDKDIR) -I$(APIDIR) -I.
 
 # Libraries required for the host at link time
 #
@@ -75,6 +77,9 @@ SDK_STATIC	= \
 SDK_DYNAMIC	= \
 		$(SDKDIR)/libvamp-sdk.so
 
+SDK_LA		= \
+		$(SDKDIR)/libvamp-sdk.la
+
 PLUGIN_HEADERS	= \
 		$(EXAMPLEDIR)/SpectralCentroid.h \
 		$(EXAMPLEDIR)/ZeroCrossing.h
@@ -116,6 +121,9 @@ test:		$(HOST_TARGET) $(PLUGIN_TARGET)
 clean:		
 		rm -f $(SDK_OBJECTS) $(PLUGIN_OBJECTS) $(HOST_OBJECTS)
 
+distclean:	clean
+		rm -f $(SDK_STATIC) $(SDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET) *~ */*~
+
 install:	$(SDK_STATIC) $(SDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET)
 		mkdir -p $(INSTALL_API_HEADERS)
 		mkdir -p $(INSTALL_SDK_HEADERS)
@@ -129,10 +137,13 @@ install:	$(SDK_STATIC) $(SDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET)
 		ln -s $(INSTALL_SDK_LIBNAME) $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LINK_ABI)
 		rm -f $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LINK_DEV)
 		ln -s $(INSTALL_SDK_LINK_ABI) $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LINK_DEV)
-		sed "s,%PREFIX%,$(INSTALL_PREFIX)," vamp/vamp.pc.in > $(INSTALL_PKGCONFIG)/vamp.pc
-		sed "s,%PREFIX%,$(INSTALL_PREFIX)," vamp-sdk/vamp-sdk.pc.in > $(INSTALL_PKGCONFIG)/vamp-sdk.pc
-
-distclean:	clean
-		rm -f $(SDK_STATIC) $(SDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET) *~ */*~
-
-
+		sed "s,%PREFIX%,$(INSTALL_PREFIX)," $(APIDIR)/vamp.pc.in \
+		> $(INSTALL_PKGCONFIG)/vamp.pc
+		sed "s,%PREFIX%,$(INSTALL_PREFIX)," $(SDKDIR)/vamp-sdk.pc.in \
+		> $(INSTALL_PKGCONFIG)/vamp-sdk.pc
+		sed -e "s,%LIBNAME%,$(INSTALL_SDK_LIBNAME),g" \
+		    -e "s,%LINK_ABI%,$(INSTALL_SDK_LINK_ABI),g" \
+		    -e "s,%LINK_DEV%,$(INSTALL_SDK_LINK_DEV),g" \
+		    -e "s,%STATIC%,$(INSTALL_SDK_STATIC),g" \
+		    -e "s,%LIBS%,$(INSTALL_SDK_LIBS),g" $(SDK_LA) \
+		> $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LA)
