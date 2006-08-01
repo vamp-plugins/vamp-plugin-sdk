@@ -145,5 +145,5 @@ install:	$(SDK_STATIC) $(SDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET)
 		    -e "s,%LINK_ABI%,$(INSTALL_SDK_LINK_ABI),g" \
 		    -e "s,%LINK_DEV%,$(INSTALL_SDK_LINK_DEV),g" \
 		    -e "s,%STATIC%,$(INSTALL_SDK_STATIC),g" \
-		    -e "s,%LIBS%,$(INSTALL_SDK_LIBS),g" $(SDK_LA) \
+		    -e "s,%LIBS%,$(INSTALL_SDK_LIBS),g" $(SDK_LA).in \
 		> $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LA)
