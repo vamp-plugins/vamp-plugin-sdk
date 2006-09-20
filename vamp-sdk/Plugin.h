@@ -89,7 +89,8 @@ namespace Vamp {
  * all of the parameter and program settings.  If the values passed in
  * to initialise do not match the plugin's advertised preferred values
  * from step 4, the plugin may refuse to initialise and return false
- * (although if possible it should accept the new values).
+ * (although if possible it should accept the new values).  Any
+ * computationally expensive setup code should take place here.
  *
  * 6. Host finally checks the number of values per output (which may
  * vary depending on the number of channels, step size and block size
@@ -110,7 +111,8 @@ namespace Vamp {
  *
  * A plugin does not need to handle the case where setParameter or
  * selectProgram is called after initialise has been called.  It's the
- * host's responsibility not to do that.
+ * host's responsibility not to do that.  Similarly, the plugin may
+ * safely assume that initialise is called no more than once.
  */
 
 class Plugin : public PluginBase

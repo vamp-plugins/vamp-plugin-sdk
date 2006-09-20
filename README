@@ -1,6 +1,7 @@
 
 Vamp
 ====
+http://www.sonicvisualiser.org/vamp.html
 
 An API for audio analysis and feature extraction plugins.
 
@@ -78,8 +79,12 @@ plugin's C API back into a Vamp::Plugin object.
 
 Example plugins implemented using the C++ classes.  ZeroCrossing
 calculates the positions and density of zero-crossing points in an
-audio waveform; SpectralCentroid calculates the centre of gravity of
+audio waveform.  SpectralCentroid calculates the centre of gravity of
 the frequency domain representation of each block of audio.
+PercussionOnsetDetector estimates the locations of percussive onsets
+using a simple method described in "Drum Source Separation using
+Percussive Feature Detection and Spectral Modulation" by Dan Barry,
+Derry Fitzgerald, Eugene Coyle and Bob Lawlor, ISSC 2005.
 
  * host
 
@@ -118,6 +123,7 @@ See Also
 
 Sonic Visualiser, an interactive open-source graphical audio
 inspection, analysis and visualisation tool supporting Vamp plugins.
+http://www.sonicvisualiser.org/
 
 
 Chris Cannam

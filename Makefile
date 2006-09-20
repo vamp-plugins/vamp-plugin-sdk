@@ -82,10 +82,12 @@ SDK_LA		= \
 
 PLUGIN_HEADERS	= \
 		$(EXAMPLEDIR)/SpectralCentroid.h \
+		$(EXAMPLEDIR)/PercussionOnsetDetector.h \
 		$(EXAMPLEDIR)/ZeroCrossing.h
 
 PLUGIN_OBJECTS	= \
 		$(EXAMPLEDIR)/SpectralCentroid.o \
+		$(EXAMPLEDIR)/PercussionOnsetDetector.o \
 		$(EXAMPLEDIR)/ZeroCrossing.o \
 		$(EXAMPLEDIR)/plugins.o
 
@@ -136,7 +138,7 @@ install:	$(SDK_STATIC) $(SDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET)
 		rm -f $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LINK_ABI)
 		ln -s $(INSTALL_SDK_LIBNAME) $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LINK_ABI)
 		rm -f $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LINK_DEV)
-		ln -s $(INSTALL_SDK_LINK_ABI) $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LINK_DEV)
+		ln -s $(INSTALL_SDK_LIBNAME) $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LINK_DEV)
 		sed "s,%PREFIX%,$(INSTALL_PREFIX)," $(APIDIR)/vamp.pc.in \
 		> $(INSTALL_PKGCONFIG)/vamp.pc
 		sed "s,%PREFIX%,$(INSTALL_PREFIX)," $(SDKDIR)/vamp-sdk.pc.in \

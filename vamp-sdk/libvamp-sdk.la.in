@@ -5,4 +5,5 @@ dependency_libs=''
 current=0
 age=0
 revision=5
+installed=yes
 libdir='%LIBS%'

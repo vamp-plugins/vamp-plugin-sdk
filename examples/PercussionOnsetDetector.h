@@ -34,24 +34,51 @@
     authorization.
 */
 
-#include <vamp/vamp.h>
+#ifndef _PERCUSSION_ONSET_DETECTOR_PLUGIN_H_
+#define _PERCUSSION_ONSET_DETECTOR_PLUGIN_H_
 
-#include "PluginAdapter.h"
-#include "ZeroCrossing.h"
-#include "SpectralCentroid.h"
-#include "PercussionOnsetDetector.h"
+#include "Plugin.h"
 
-static Vamp::PluginAdapter<ZeroCrossing> zeroCrossingAdapter;
-static Vamp::PluginAdapter<SpectralCentroid> spectralCentroidAdapter;
-static Vamp::PluginAdapter<PercussionOnsetDetector> percussionOnsetAdapter;
-
-const VampPluginDescriptor *vampGetPluginDescriptor(unsigned int index)
+class PercussionOnsetDetector : public Vamp::Plugin
 {
-    switch (index) {
-    case  0: return zeroCrossingAdapter.getDescriptor();
-    case  1: return spectralCentroidAdapter.getDescriptor();
-    case  2: return percussionOnsetAdapter.getDescriptor();
-    default: return 0;
-    }
-}
+public:
+    PercussionOnsetDetector(float inputSampleRate);
+    virtual ~PercussionOnsetDetector();
 
+    bool initialise(size_t channels, size_t stepSize, size_t blockSize);
+    void reset();
+
+    InputDomain getInputDomain() const { return FrequencyDomain; }
+
+    std::string getName() const;
+    std::string getDescription() const;
+    std::string getMaker() const;
+    int getPluginVersion() const;
+    std::string getCopyright() const;
+
+    size_t getPreferredStepSize() const;
+    size_t getPreferredBlockSize() const;
+
+    ParameterList getParameterDescriptors() const;
+    float getParameter(std::string name) const;
+    void setParameter(std::string name, float value);
+
+    OutputList getOutputDescriptors() const;
+
+    FeatureSet process(float **inputBuffers, Vamp::RealTime timestamp);
+
+    FeatureSet getRemainingFeatures();
+
+protected:
+    size_t m_stepSize;
+    size_t m_blockSize;
+
+    float  m_threshold;
+    float  m_sensitivity;
+    float *m_priorMagnitudes;
+    float  m_dfMinus1;
+    float  m_dfMinus2;
+};
+
+
+#endif

@@ -72,9 +72,9 @@ PluginHostAdapter::getPluginPath()
 #else
 #define PATH_SEPARATOR ':'
 #ifdef __APPLE__
-#define DEFAULT_VAMP_PATH "/Library/Audio/Plug-Ins/Vamp/:$HOME/Library/Audio/Plug-Ins/Vamp"
+#define DEFAULT_VAMP_PATH "$HOME/Library/Audio/Plug-Ins/Vamp:/Library/Audio/Plug-Ins/Vamp"
 #else
-#define DEFAULT_VAMP_PATH "/usr/local/lib/vamp:/usr/lib/vamp:$HOME/vamp:$HOME/.vamp"
+#define DEFAULT_VAMP_PATH "$HOME/vamp:$HOME/.vamp:/usr/local/lib/vamp:/usr/lib/vamp"
 #endif
 #endif
 
