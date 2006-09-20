@@ -250,7 +250,7 @@ PercussionOnsetDetector::process(float **inputBuffers, Vamp::RealTime ts)
 
     if (m_dfMinus2 < m_dfMinus1 &&
         m_dfMinus1 >= count &&
-        m_dfMinus1 > (m_sensitivity * m_blockSize) / 200) {
+        m_dfMinus1 > ((100 - m_sensitivity) * m_blockSize) / 200) {
 
         Feature onset;
         onset.hasTimestamp = true;
