@@ -42,6 +42,8 @@ processing plugin system such as VST are:
    number of values per output or the preferred processing block
    size may depend on the input parameters.
 
+ * Vamp plugins do not have to be able to run in real time.
+
 Vamp reuses some ideas from several existing systems, notably DSSI
 (http://dssi.sourceforge.net) and FEAPI (http://feapi.sourceforge.net).
 
