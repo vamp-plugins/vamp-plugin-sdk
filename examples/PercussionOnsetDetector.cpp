@@ -255,7 +255,7 @@ PercussionOnsetDetector::process(float **inputBuffers, Vamp::RealTime ts)
         Feature onset;
         onset.hasTimestamp = true;
         onset.timestamp = ts - Vamp::RealTime::frame2RealTime
-            (m_stepSize, m_inputSampleRate);
+            (m_stepSize, lrintf(m_inputSampleRate));
         returnFeatures[0].push_back(onset);
     }
 
