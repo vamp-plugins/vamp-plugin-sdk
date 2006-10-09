@@ -40,6 +40,7 @@
 
 #include <iostream>
 #include <sndfile.h>
+#include <dirent.h> // POSIX directory open and read
 
 #include "system.h"
 
@@ -51,9 +52,16 @@ using std::endl;
 using std::string;
 using std::vector;
 
+
+
 void printFeatures(int, int, int, Vamp::Plugin::FeatureSet);
 void transformInput(float *, size_t);
 void fft(unsigned int, bool, double *, double *, double *, double *);
+void printPluginPath();
+
+#ifdef HAVE_OPENDIR
+void enumeratePlugins();
+#endif
 
 /*
     A very simple Vamp plugin host.  Given the name of a plugin
@@ -65,18 +73,48 @@ void fft(unsigned int, bool, double *, double *, double *, double *);
 int main(int argc, char **argv)
 {
     if (argc < 2 || argc > 4) {
-        cerr << "Usage: " << argv[0] << " pluginlibrary.so[:plugin] [file.wav] [outputno]" << endl;
+        char *scooter = argv[0];
+        char *name = 0;
+        while (scooter && *scooter) {
+            if (*scooter == '/' || *scooter == '\\') name = ++scooter;
+            else ++scooter;
+        }
+        if (!name || !*name) name = argv[0];
+        cerr << "\n"
+             << name << ": A simple Vamp plugin host.\n\n"
+            "Centre for Digital Music, Queen Mary, University of London.\n"
+            "Copyright 2006 Chris Cannam and QMUL.\n"
+            "Freely redistributable; published under a BSD-style license.\n\n"
+            "Usage:\n\n"
+            "  " << name << " pluginlibrary." << PLUGIN_SUFFIX << "\n\n"
+            "    -- Load \"pluginlibrary\" and list the Vamp plugins it contains.\n\n"
+            "  " << name << " pluginlibrary." << PLUGIN_SUFFIX << ":plugin file.wav [outputno]\n\n"
+            "    -- Load plugin id \"plugin\" from \"pluginlibrary\" and run it on the\n"
+            "       audio data in \"file.wav\", dumping the output from \"outputno\"\n"
+            "       (default 0) to standard output.\n\n"
+#ifdef HAVE_OPENDIR
+            "  " << name << " -l\n\n"
+            "    -- List the plugin libraries and Vamp plugins in the plugin search path.\n\n"
+#endif
+            "  " << name << " -p\n\n"
+            "    -- Print out the Vamp plugin search path.\n\n"
+            "Note that this host does not use the plugin search path when loading a plugin.\nIf a plugin library is specified, it should be with a full file path.\n"
+             << endl;
         return 2;
     }
 
-    cerr << endl << argv[0] << ": Running..." << endl;
-
-    cerr << endl << "Vamp path is set to:" << endl;
-    vector<string> path = Vamp::PluginHostAdapter::getPluginPath();
-    for (size_t i = 0; i < path.size(); ++i) {
-        cerr << "\t" << path[i] << endl;
+    if (argc == 2 && !strcmp(argv[1], "-l")) {
+#ifdef HAVE_OPENDIR
+        enumeratePlugins();
+#endif
+        return 0;
     }
-    cerr << "(This program doesn't use the path; just printing it for information)" << endl << endl;
+    if (argc == 2 && !strcmp(argv[1], "-p")) {
+        printPluginPath();
+        return 0;
+    }
+
+    cerr << endl << argv[0] << ": Running..." << endl;
 
     string soname = argv[1];
     string plugname = "";
@@ -84,7 +122,7 @@ int main(int argc, char **argv)
     if (argc >= 3) wavname = argv[2];
 
     int sep = soname.find(":");
-    if (sep >= 0 && sep < soname.length()) {
+    if (sep >= 0 && sep < int(soname.length())) {
         plugname = soname.substr(sep + 1);
         soname = soname.substr(0, sep);
     }
@@ -298,6 +336,78 @@ done:
     sf_close(sndfile);
     return returnValue;
 }
+
+void
+printPluginPath()
+{
+    vector<string> path = Vamp::PluginHostAdapter::getPluginPath();
+    for (size_t i = 0; i < path.size(); ++i) {
+        cerr << path[i] << endl;
+    }
+}
+
+#ifdef HAVE_OPENDIR
+
+void
+enumeratePlugins()
+{
+    cerr << endl << "Vamp plugin libraries found in search path:" << endl;
+    vector<string> path = Vamp::PluginHostAdapter::getPluginPath();
+    for (size_t i = 0; i < path.size(); ++i) {
+        cerr << "\n" << path[i] << ":" << endl;
+        DIR *d = opendir(path[i].c_str());
+        if (!d) {
+            perror("Failed to open directory");
+            continue;
+        }
+        struct dirent *e = 0;
+        while ((e = readdir(d))) {
+            if (!(e->d_type & DT_REG)) continue;
+            int len = strlen(e->d_name);
+            if (len < int(strlen(PLUGIN_SUFFIX) + 2) ||
+                e->d_name[len - strlen(PLUGIN_SUFFIX) - 1] != '.' ||
+                strcmp(e->d_name + len - strlen(PLUGIN_SUFFIX), PLUGIN_SUFFIX)) {
+                continue;
+            }
+            char *fp = new char[path[i].length() + len + 3];
+            sprintf(fp, "%s/%s", path[i].c_str(), e->d_name);
+            void *handle = DLOPEN(string(fp), RTLD_LAZY);
+            if (handle) {
+                VampGetPluginDescriptorFunction fn =
+                    (VampGetPluginDescriptorFunction)DLSYM
+                    (handle, "vampGetPluginDescriptor");
+                if (fn) {
+                    cerr << "\n  " << e->d_name << ":" << endl;
+                    int index = 0;
+                    const VampPluginDescriptor *descriptor = 0;
+                    while ((descriptor = fn(index))) {
+                        Vamp::PluginHostAdapter plugin(descriptor, 48000);
+                        cerr << "    [" << char('A' + index) << "] "
+                             << plugin.getDescription()
+                             << ", \"" << plugin.getName() << "\""
+                             << " [" << plugin.getMaker()
+                             << "]" << std::endl;
+                        Vamp::Plugin::OutputList outputs =
+                            plugin.getOutputDescriptors();
+                        if (outputs.size() > 1) {
+                            for (size_t j = 0; j < outputs.size(); ++j) {
+                                cerr << "         (" << j << ") "
+                                     << outputs[j].description << endl;
+                            }
+                        }
+                        ++index;
+                    }
+                }
+                DLCLOSE(handle);
+            }
+        }
+        closedir(d);
+    }
+    cerr << endl;
+}
+
+#endif
+
 
 void
 printFeatures(int frame, int sr, int output, Vamp::Plugin::FeatureSet features)

@@ -410,8 +410,12 @@ PluginAdapterBase::vampReleaseOutputDescriptor(VampOutputDescriptor *desc)
     if (desc->name) free((void *)desc->name);
     if (desc->description) free((void *)desc->description);
     if (desc->unit) free((void *)desc->unit);
-    for (unsigned int i = 0; i < desc->binCount; ++i) {
-        free((void *)desc->binNames[i]);
+    if (desc->hasFixedBinCount && desc->binNames) {
+        for (unsigned int i = 0; i < desc->binCount; ++i) {
+            if (desc->binNames[i]) {
+                free((void *)desc->binNames[i]);
+            }
+        }
     }
     if (desc->binNames) free((void *)desc->binNames);
     free((void *)desc);

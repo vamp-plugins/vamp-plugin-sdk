@@ -46,7 +46,7 @@
 #define DLCLOSE(a)   FreeLibrary((HINSTANCE)(a))
 #define DLERROR()    ""
 
-#define PLUGIN_GLOB  "*.dll"
+#define PLUGIN_SUFFIX "dll"
 
 #else
 
@@ -59,11 +59,13 @@
 
 #ifdef __APPLE__
 
-#define PLUGIN_GLOB  "*.dylib"
+#define PLUGIN_SUFFIX  "dylib"
+#define HAVE_OPENDIR 1
 
 #else 
 
-#define PLUGIN_GLOB  "*.so"
+#define PLUGIN_SUFFIX  "so"
+#define HAVE_OPENDIR 1
 
 #endif /* __APPLE__ */
 
