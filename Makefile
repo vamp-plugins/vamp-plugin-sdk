@@ -83,11 +83,13 @@ SDK_LA		= \
 PLUGIN_HEADERS	= \
 		$(EXAMPLEDIR)/SpectralCentroid.h \
 		$(EXAMPLEDIR)/PercussionOnsetDetector.h \
+		$(EXAMPLEDIR)/AmplitudeFollower.h \
 		$(EXAMPLEDIR)/ZeroCrossing.h
 
 PLUGIN_OBJECTS	= \
 		$(EXAMPLEDIR)/SpectralCentroid.o \
 		$(EXAMPLEDIR)/PercussionOnsetDetector.o \
+		$(EXAMPLEDIR)/AmplitudeFollower.o \
 		$(EXAMPLEDIR)/ZeroCrossing.o \
 		$(EXAMPLEDIR)/plugins.o
 

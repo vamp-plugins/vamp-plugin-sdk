@@ -6,7 +6,7 @@
     An API for audio analysis and feature extraction plugins.
 
     Centre for Digital Music, Queen Mary, University of London.
-    Copyright 2006 Chris Cannam.
+    This file copyright 2006 Dan Stowell.
   
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
@@ -34,27 +34,44 @@
     authorization.
 */
 
-#include <vamp/vamp.h>
+#ifndef _AMPLITUDE_FOLLOWER_PLUGIN_H_
+#define _AMPLITUDE_FOLLOWER_PLUGIN_H_
 
-#include "PluginAdapter.h"
-#include "ZeroCrossing.h"
-#include "SpectralCentroid.h"
-#include "PercussionOnsetDetector.h"
-#include "AmplitudeFollower.h"
+#include "Plugin.h"
 
-static Vamp::PluginAdapter<ZeroCrossing> zeroCrossingAdapter;
-static Vamp::PluginAdapter<SpectralCentroid> spectralCentroidAdapter;
-static Vamp::PluginAdapter<PercussionOnsetDetector> percussionOnsetAdapter;
-static Vamp::PluginAdapter<AmplitudeFollower> amplitudeAdapter;
-
-const VampPluginDescriptor *vampGetPluginDescriptor(unsigned int index)
+class AmplitudeFollower : public Vamp::Plugin
 {
-    switch (index) {
-    case  0: return zeroCrossingAdapter.getDescriptor();
-    case  1: return spectralCentroidAdapter.getDescriptor();
-    case  2: return percussionOnsetAdapter.getDescriptor();
-    case  3: return amplitudeAdapter.getDescriptor();
-    default: return 0;
-    }
-}
+public:
+    AmplitudeFollower(float inputSampleRate);
+    virtual ~AmplitudeFollower();
 
+    bool initialise(size_t channels, size_t stepSize, size_t blockSize);
+    void reset();
+
+    InputDomain getInputDomain() const { return TimeDomain; }
+
+    std::string getName() const;
+    std::string getDescription() const;
+    std::string getMaker() const;
+    int getPluginVersion() const;
+    std::string getCopyright() const;
+	
+    OutputList getOutputDescriptors() const;
+	
+    ParameterList getParameterDescriptors() const;
+    float getParameter(std::string paramname) const;
+    void setParameter(std::string paramname, float newval);
+
+    FeatureSet process(float **inputBuffers, Vamp::RealTime timestamp);
+
+    FeatureSet getRemainingFeatures();
+
+protected:
+    size_t m_stepSize;
+    float  m_previn;
+    float  m_clampcoef;
+    float  m_relaxcoef;
+};
+
+
+#endif
