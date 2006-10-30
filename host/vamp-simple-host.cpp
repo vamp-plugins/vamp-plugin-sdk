@@ -212,10 +212,11 @@ int main(int argc, char **argv)
          << stepSize << endl;
 
     if (blockSize == 0) blockSize = 1024;
-    if (stepSize == 0) stepSize = blockSize;
 
     bool rightBlockSize = true;
+
     if (plugin->getInputDomain() == Vamp::Plugin::FrequencyDomain) {
+
         int p = 1, b = blockSize;
         while (b) {
             p <<= 1;
@@ -228,6 +229,11 @@ int main(int argc, char **argv)
             cerr << "Rounding up to " << blockSize << "." << endl;
             rightBlockSize = false;
         }
+        if (stepSize == 0) stepSize = blockSize / 2;
+
+    } else {
+
+        if (stepSize == 0) stepSize = blockSize;
     }
 
     int channels = sfinfo.channels;

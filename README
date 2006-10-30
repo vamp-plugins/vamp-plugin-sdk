@@ -126,21 +126,43 @@ trees, which is why this information is not queried as part of the
 Vamp API itself.
 
 
-Building the SDK
-================
+Building and Installing the SDK and Examples
+============================================
 
-Edit the Makefile to suit your platform according to the comments in
-it.  Type "make".
+To build the SDK, the simple host, and the example plugins, edit the
+Makefile to suit your platform according to the comments in it, then
+run "make".
+
+Installing the example plugins so that they can be found by other Vamp
+hosts depends on your platform:
+
+ * Windows: copy examples/vamp-example-plugins.dll and
+   examples/vamp-example-plugins.cat to C:\Program Files\Vamp Plugins
+
+ * Linux: copy examples/vamp-example-plugins.so and
+   examples/vamp-example-plugins.cat to /usr/local/lib/vamp/
+
+ * OS/X: copy examples/vamp-example-plugins.dylib and
+   examples/vamp-example-plugins.cat to /Library/Audio/Plug-Ins/Vamp
+
+When building a plugin or host of your own using the SDK, you will
+need to include the headers from the vamp-sdk directory.  When linking
+your plugin or host, we suggest statically linking the SDK code in
+preference to distributing it alongside your plugin or host in DLL
+form.  An easy way to do this, if using a project-based build tool
+such as Visual Studio or XCode, is simply to add the .cpp files in the
+vamp-sdk directory to your project.
 
 
 Licensing
 =========
 
 This plugin SDK is freely redistributable under a "new-style BSD"
-licence.  See the file COPYING for more details.  In short, you are
-permitted to reuse the SDK and example plugins in any commercial or
-non-commercial, proprietary or open-source application or plugin under
-almost any conditions provided you retain the original copyright note.
+licence.  See the file COPYING for more details.  In short, you may
+modify and redistribute the SDK and example plugins within any
+commercial or non-commercial, proprietary or open-source plugin or
+application under almost any conditions, with no obligation to provide
+source code, provided you retain the original copyright note.
 
 
 See Also
