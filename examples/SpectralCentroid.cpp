@@ -70,7 +70,7 @@ SpectralCentroid::getDescription() const
 string
 SpectralCentroid::getMaker() const
 {
-    return "Queen Mary, University of London";
+    return "Vamp SDK Example Plugins";
 }
 
 int

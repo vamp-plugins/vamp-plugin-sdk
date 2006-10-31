@@ -76,7 +76,7 @@ PercussionOnsetDetector::getDescription() const
 string
 PercussionOnsetDetector::getMaker() const
 {
-    return "Queen Mary, University of London";
+    return "Vamp SDK Example Plugins";
 }
 
 int

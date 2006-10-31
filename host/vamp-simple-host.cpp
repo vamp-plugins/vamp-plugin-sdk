@@ -52,7 +52,7 @@ using std::endl;
 using std::string;
 using std::vector;
 
-
+#define HOST_VERSION "1.0"
 
 void printFeatures(int, int, int, Vamp::Plugin::FeatureSet);
 void transformInput(float *, size_t);
@@ -98,11 +98,20 @@ int main(int argc, char **argv)
 #endif
             "  " << name << " -p\n\n"
             "    -- Print out the Vamp plugin search path.\n\n"
-            "Note that this host does not use the plugin search path when loading a plugin.\nIf a plugin library is specified, it should be with a full file path.\n"
+	    "  " << name << " -v\n\n"
+	    "    -- Display version information only.\n\n"
+	    "Note that this host does not use the plugin search path when loadinga plugin.\nIf a plugin library is specified, it should be with a full file path.\n"
              << endl;
         return 2;
     }
-
+    
+    if (argc == 2 && !strcmp(argv[1], "-v")) {
+	cout << "Simple Vamp plugin host version: " << HOST_VERSION << endl
+	     << "Vamp API version: " << VAMP_API_VERSION << endl
+	     << "Vamp SDK version: " << VAMP_SDK_VERSION << endl;
+	return 0;
+    }
+    
     if (argc == 2 && !strcmp(argv[1], "-l")) {
 #ifdef HAVE_OPENDIR
         enumeratePlugins();

@@ -68,7 +68,7 @@ ZeroCrossing::getDescription() const
 string
 ZeroCrossing::getMaker() const
 {
-    return "Queen Mary, University of London";
+    return "Vamp SDK Example Plugins";
 }
 
 int
