@@ -407,7 +407,9 @@ enumeratePlugins()
                         if (outputs.size() > 1) {
                             for (size_t j = 0; j < outputs.size(); ++j) {
                                 cerr << "         (" << j << ") "
-                                     << outputs[j].description << endl;
+                                     << outputs[j].description
+                                     << ", \"" << outputs[j].name << "\""
+                                     << endl;
                             }
                         }
                         ++index;
