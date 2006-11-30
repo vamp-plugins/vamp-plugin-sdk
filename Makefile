@@ -29,6 +29,7 @@ INSTALL_PKGCONFIG	:= $(INSTALL_PREFIX)/lib/pkgconfig
 # Compile flags
 #
 CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -I$(SDKDIR) -I$(APIDIR) -I.
+#CXXFLAGS	:= $(CXXFLAGS) -g -Wall -I$(SDKDIR) -I$(APIDIR) -I.
 
 # Libraries required for the host at link time
 #

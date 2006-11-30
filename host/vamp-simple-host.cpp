@@ -467,8 +467,8 @@ transformInput(float *buffer, size_t size)
         buffer[i * 2 + 1] = outbuf[i + size];
     }
     
-    delete inbuf;
-    delete outbuf;
+    delete[] inbuf;
+    delete[] outbuf;
 }
 
 void
