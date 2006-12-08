@@ -423,7 +423,7 @@ PluginAdapterBase::vampReleaseOutputDescriptor(VampOutputDescriptor *desc)
 
 VampFeatureList *
 PluginAdapterBase::vampProcess(VampPluginHandle handle,
-                               float **inputBuffers,
+                               const float *const *inputBuffers,
                                int sec,
                                int nsec)
 {
@@ -571,7 +571,7 @@ PluginAdapterBase::getOutputDescriptor(Plugin *plugin,
     
 VampFeatureList *
 PluginAdapterBase::process(Plugin *plugin,
-                           float **inputBuffers,
+                           const float *const *inputBuffers,
                            int sec, int nsec)
 {
 //    std::cerr << "PluginAdapterBase::process" << std::endl;

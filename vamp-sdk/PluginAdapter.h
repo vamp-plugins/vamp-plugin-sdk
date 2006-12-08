@@ -85,7 +85,7 @@ protected:
     static void vampReleaseOutputDescriptor(VampOutputDescriptor *desc);
 
     static VampFeatureList *vampProcess(VampPluginHandle handle,
-                                        float **inputBuffers,
+                                        const float *const *inputBuffers,
                                         int sec,
                                         int nsec);
 
@@ -99,8 +99,8 @@ protected:
     VampOutputDescriptor *getOutputDescriptor(Plugin *plugin,
                                              unsigned int i);
     VampFeatureList *process(Plugin *plugin,
-                              float **inputBuffers,
-                              int sec, int nsec);
+                             const float *const *inputBuffers,
+                             int sec, int nsec);
     VampFeatureList *getRemainingFeatures(Plugin *plugin);
     VampFeatureList *convertFeatures(Plugin *plugin,
                                      const Plugin::FeatureSet &features);
@@ -131,7 +131,7 @@ class PluginAdapter : public PluginAdapterBase
 {
 public:
     PluginAdapter() : PluginAdapterBase() { }
-    ~PluginAdapter() { }
+    virtual ~PluginAdapter() { }
 
 protected:
     Plugin *createPlugin(float inputSampleRate) {

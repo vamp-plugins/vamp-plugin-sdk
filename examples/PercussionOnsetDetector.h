@@ -65,7 +65,8 @@ public:
 
     OutputList getOutputDescriptors() const;
 
-    FeatureSet process(float **inputBuffers, Vamp::RealTime timestamp);
+    FeatureSet process(const float *const *inputBuffers,
+                       Vamp::RealTime timestamp);
 
     FeatureSet getRemainingFeatures();
 

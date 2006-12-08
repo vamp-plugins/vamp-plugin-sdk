@@ -62,7 +62,8 @@ public:
     float getParameter(std::string paramname) const;
     void setParameter(std::string paramname, float newval);
 
-    FeatureSet process(float **inputBuffers, Vamp::RealTime timestamp);
+    FeatureSet process(const float *const *inputBuffers,
+                       Vamp::RealTime timestamp);
 
     FeatureSet getRemainingFeatures();
 

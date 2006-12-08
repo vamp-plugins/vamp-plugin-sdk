@@ -130,7 +130,8 @@ ZeroCrossing::getOutputDescriptors() const
 }
 
 ZeroCrossing::FeatureSet
-ZeroCrossing::process(float **inputBuffers, Vamp::RealTime timestamp)
+ZeroCrossing::process(const float *const *inputBuffers,
+                      Vamp::RealTime timestamp)
 {
     if (m_stepSize == 0) {
 	cerr << "ERROR: ZeroCrossing::process: "

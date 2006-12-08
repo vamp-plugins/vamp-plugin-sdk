@@ -188,7 +188,8 @@ float AmplitudeFollower::getParameter(std::string paramname) const
 }
 
 AmplitudeFollower::FeatureSet
-AmplitudeFollower::process(float **inputBuffers, Vamp::RealTime timestamp)
+AmplitudeFollower::process(const float *const *inputBuffers,
+                           Vamp::RealTime timestamp)
 {
     if (m_stepSize == 0) {
 	cerr << "ERROR: AmplitudeFollower::process: "

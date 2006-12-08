@@ -249,7 +249,7 @@ int main(int argc, char **argv)
 
     float *filebuf = new float[blockSize * channels];
     float **plugbuf = new float*[channels];
-    for (int c = 0; c < channels; ++c) plugbuf[c] = new float[blockSize];
+    for (int c = 0; c < channels; ++c) plugbuf[c] = new float[blockSize + 2];
 
     cerr << "Using block size = " << blockSize << ", step size = "
               << stepSize << endl;
@@ -377,11 +377,16 @@ enumeratePlugins()
         }
         struct dirent *e = 0;
         while ((e = readdir(d))) {
-            if (!(e->d_type & DT_REG)) continue;
+//            cerr << "reading: " << e->d_name << endl;
+            if (!(e->d_type & DT_REG)) {
+//                cerr << e->d_name << ": not a regular file" << endl;
+                continue;
+            }
             int len = strlen(e->d_name);
             if (len < int(strlen(PLUGIN_SUFFIX) + 2) ||
                 e->d_name[len - strlen(PLUGIN_SUFFIX) - 1] != '.' ||
                 strcmp(e->d_name + len - strlen(PLUGIN_SUFFIX), PLUGIN_SUFFIX)) {
+//                cerr << e->d_name << ": not a library file" << endl;
                 continue;
             }
             char *fp = new char[path[i].length() + len + 3];
@@ -397,7 +402,9 @@ enumeratePlugins()
                     const VampPluginDescriptor *descriptor = 0;
                     while ((descriptor = fn(index))) {
                         Vamp::PluginHostAdapter plugin(descriptor, 48000);
-                        cerr << "    [" << char('A' + index) << "] "
+                        char c = char('A' + index);
+                        if (c > 'Z') c = char('a' + (index - 26));
+                        cerr << "    [" << c << "] "
                              << plugin.getDescription()
                              << ", \"" << plugin.getName() << "\""
                              << " [" << plugin.getMaker()
@@ -414,9 +421,13 @@ enumeratePlugins()
                         }
                         ++index;
                     }
+                } else {
+//                    cerr << e->d_name << ": no Vamp descriptor function" << endl;
                 }
                 DLCLOSE(handle);
-            }
+            } else {
+                cerr << "\n" << e->d_name << ": unable to load library (" << DLERROR() << ")" << endl;
+            }                
         }
         closedir(d);
     }
@@ -462,7 +473,7 @@ transformInput(float *buffer, size_t size)
 
     fft(size, false, inbuf, inbuf + size, outbuf, outbuf + size);
 
-    for (size_t i = 0; i < size/2; ++i) {
+    for (size_t i = 0; i <= size/2; ++i) {
         buffer[i * 2] = outbuf[i];
         buffer[i * 2 + 1] = outbuf[i + size];
     }

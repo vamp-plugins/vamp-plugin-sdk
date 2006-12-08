@@ -213,7 +213,8 @@ PercussionOnsetDetector::getOutputDescriptors() const
 }
 
 PercussionOnsetDetector::FeatureSet
-PercussionOnsetDetector::process(float **inputBuffers, Vamp::RealTime ts)
+PercussionOnsetDetector::process(const float *const *inputBuffers,
+                                 Vamp::RealTime ts)
 {
     if (m_stepSize == 0) {
 	cerr << "ERROR: PercussionOnsetDetector::process: "

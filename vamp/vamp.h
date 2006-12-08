@@ -285,7 +285,7 @@ typedef struct _VampPluginDescriptor
         releaseFeatureSet for this feature set. Host must call
         releaseFeatureSet after use. */
     VampFeatureList *(*process)(VampPluginHandle,
-                                float **inputBuffers,
+                                const float *const *inputBuffers,
                                 int sec,
                                 int nsec);
 

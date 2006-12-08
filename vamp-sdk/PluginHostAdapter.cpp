@@ -335,8 +335,8 @@ PluginHostAdapter::getOutputDescriptors() const
 }
 
 PluginHostAdapter::FeatureSet
-PluginHostAdapter::process(float **inputBuffers,
-                                            RealTime timestamp)
+PluginHostAdapter::process(const float *const *inputBuffers,
+                           RealTime timestamp)
 {
     FeatureSet fs;
     if (!m_handle) return fs;

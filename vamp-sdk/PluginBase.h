@@ -63,41 +63,43 @@ public:
     /**
      * Get the computer-usable name of the plugin.  This should be
      * reasonably short and contain no whitespace or punctuation
-     * characters.  It may be shown to the user, but it won't be the
-     * main method for a user to identify a plugin (that will be the
-     * description, below).  This may only contain the characters
-     * [a-zA-Z0-9_].
+     * characters.  It may only contain the characters [a-zA-Z0-9_].
+     * This is the authoritative way for a program to identify a
+     * plugin within a given library.
+     *
+     * This text may be visible to the user, but it should not be the
+     * main text used to identify a plugin to the user (that will be
+     * the description, below).
      */
     virtual std::string getName() const = 0;
 
     /**
-     * Get a human-readable description of the plugin.  This should be
-     * self-contained, as it may be shown to the user in isolation
-     * without also showing the plugin's "name".
+     * Get a human-readable description or title of the plugin.  This
+     * should be brief and self-contained, as it may be used to
+     * identify the plugin to the user in isolation (i.e. without also
+     * showing the plugin's "name").
      */
     virtual std::string getDescription() const = 0;
     
     /**
      * Get the name of the author or vendor of the plugin in
-     * human-readable form.
+     * human-readable form.  This should be a short identifying text,
+     * as it may be used to label plugins from the same source in a
+     * menu or similar.
      */
     virtual std::string getMaker() const = 0;
+
+    /**
+     * Get the copyright statement or licensing summary for the
+     * plugin.  This can be an informative text, without the same
+     * presentation constraints as mentioned for getMaker above.
+     */
+    virtual std::string getCopyright() const = 0;
 
     /**
      * Get the version number of the plugin.
      */
     virtual int getPluginVersion() const = 0;
-
-    /**
-     * Get the copyright statement or licensing summary of the plugin.
-     */
-    virtual std::string getCopyright() const = 0;
-
-    /**
-     * Get the type of plugin (e.g. DSSI, etc).  This is likely to be
-     * implemented by the immediate subclass, not by actual plugins.
-     */
-    virtual std::string getType() const = 0;
 
 
     struct ParameterDescriptor
@@ -204,6 +206,13 @@ public:
      * available programs, do nothing.)
      */
     virtual void selectProgram(std::string) { }
+
+    /**
+     * Get the type of plugin.  This is to be implemented by the
+     * immediate subclass, not by actual plugins.  Do not attempt to
+     * implement this in plugin code.
+     */
+    virtual std::string getType() const = 0;
 };
 
 }

@@ -126,7 +126,7 @@ SpectralCentroid::getOutputDescriptors() const
 }
 
 SpectralCentroid::FeatureSet
-SpectralCentroid::process(float **inputBuffers, Vamp::RealTime)
+SpectralCentroid::process(const float *const *inputBuffers, Vamp::RealTime)
 {
     if (m_stepSize == 0) {
 	cerr << "ERROR: SpectralCentroid::process: "
@@ -137,7 +137,7 @@ SpectralCentroid::process(float **inputBuffers, Vamp::RealTime)
 
     double numLin = 0.0, numLog = 0.0, denom = 0.0;
 
-    for (size_t i = 1; i < m_blockSize/2; ++i) {
+    for (size_t i = 1; i <= m_blockSize/2; ++i) {
 	double freq = (double(i) * m_inputSampleRate) / m_blockSize;
 	double real = inputBuffers[0][i*2];
 	double imag = inputBuffers[0][i*2 + 1];
@@ -154,12 +154,18 @@ SpectralCentroid::process(float **inputBuffers, Vamp::RealTime)
     if (denom != 0.0) {
 	float centroidLin = float(numLin / denom);
 	float centroidLog = powf(10, float(numLog / denom));
+
 	Feature feature;
 	feature.hasTimestamp = false;
-	feature.values.push_back(centroidLog);
+        if (!isnan(centroidLog) && !isinf(centroidLog)) {
+            feature.values.push_back(centroidLog);
+        }
 	returnFeatures[0].push_back(feature);
+
         feature.values.clear();
-	feature.values.push_back(centroidLin);
+        if (!isnan(centroidLin) && !isinf(centroidLin)) {
+            feature.values.push_back(centroidLin);
+        }
 	returnFeatures[1].push_back(feature);
     }
 
