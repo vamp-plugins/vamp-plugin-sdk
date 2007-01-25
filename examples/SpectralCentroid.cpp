@@ -157,13 +157,13 @@ SpectralCentroid::process(const float *const *inputBuffers, Vamp::RealTime)
 
 	Feature feature;
 	feature.hasTimestamp = false;
-        if (!isnan(centroidLog) && !isinf(centroidLog)) {
+        if (!std::isnan(centroidLog) && !std::isinf(centroidLog)) {
             feature.values.push_back(centroidLog);
         }
 	returnFeatures[0].push_back(feature);
 
         feature.values.clear();
-        if (!isnan(centroidLin) && !isinf(centroidLin)) {
+        if (!std::isnan(centroidLin) && !std::isinf(centroidLin)) {
             feature.values.push_back(centroidLin);
         }
 	returnFeatures[1].push_back(feature);
