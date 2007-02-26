@@ -66,15 +66,21 @@ AmplitudeFollower::~AmplitudeFollower()
 }
 
 string
-AmplitudeFollower::getName() const
+AmplitudeFollower::getIdentifier() const
 {
     return "amplitudefollower";
 }
 
 string
-AmplitudeFollower::getDescription() const
+AmplitudeFollower::getName() const
 {
     return "Amplitude Follower";
+}
+
+string
+AmplitudeFollower::getDescription() const
+{
+    return "Track the amplitude of the audio signal";
 }
 
 string
@@ -124,9 +130,10 @@ AmplitudeFollower::getOutputDescriptors() const
     OutputList list;
 
     OutputDescriptor sca;
-    sca.name = "amplitude";
+    sca.identifier = "amplitude";
+    sca.name = "Amplitude";
+    sca.description = "";
     sca.unit = "V";
-    sca.description = "Amplitude";
     sca.hasFixedBinCount = true;
     sca.binCount = 1;
     sca.hasKnownExtents = false;
@@ -143,8 +150,9 @@ AmplitudeFollower::getParameterDescriptors() const
     ParameterList list;
 	
     ParameterDescriptor att;
-    att.name = "attack";
-    att.description = "Attack time";
+    att.identifier = "attack";
+    att.name = "Attack time";
+    att.description = "";
     att.unit = "s";
     att.minValue = 0.0f;
     att.maxValue = 1.f;
@@ -154,8 +162,9 @@ AmplitudeFollower::getParameterDescriptors() const
     list.push_back(att);
     
     ParameterDescriptor dec;
-    dec.name = "release";
-    dec.description = "Release time";
+    dec.identifier = "release";
+    dec.name = "Release time";
+    dec.description = "";
     dec.unit = "s";
     dec.minValue = 0.0f;
     dec.maxValue = 1.f;
@@ -167,20 +176,20 @@ AmplitudeFollower::getParameterDescriptors() const
     return list;
 }
 
-void AmplitudeFollower::setParameter(std::string paramname, float newval)
+void AmplitudeFollower::setParameter(std::string paramid, float newval)
 {
-    if (paramname == "attack") {
+    if (paramid == "attack") {
         m_clampcoef = newval;
-    } else if (paramname == "release") {
+    } else if (paramid == "release") {
         m_relaxcoef = newval;
     }
 }
 
-float AmplitudeFollower::getParameter(std::string paramname) const
+float AmplitudeFollower::getParameter(std::string paramid) const
 {
-    if (paramname == "attack") {
+    if (paramid == "attack") {
         return m_clampcoef;
-    } else if (paramname == "release") {
+    } else if (paramid == "release") {
         return m_relaxcoef;
     }
 

@@ -69,15 +69,29 @@ public:
      *
      * This text may be visible to the user, but it should not be the
      * main text used to identify a plugin to the user (that will be
-     * the description, below).
+     * the name, below).
+     *
+     * Example: "zero_crossings"
+     */
+    virtual std::string getIdentifier() const = 0;
+
+    /**
+     * Get a human-readable name or title of the plugin.  This
+     * should be brief and self-contained, as it may be used to
+     * identify the plugin to the user in isolation (i.e. without also
+     * showing the plugin's "identifier").
+     *
+     * Example: "Zero Crossings"
      */
     virtual std::string getName() const = 0;
 
     /**
-     * Get a human-readable description or title of the plugin.  This
-     * should be brief and self-contained, as it may be used to
-     * identify the plugin to the user in isolation (i.e. without also
-     * showing the plugin's "name").
+     * Get a human-readable description for the plugin, typically
+     * a line of text that may optionally be displayed in addition
+     * to the plugin's "name".  May be empty if the name has said
+     * it all already.
+     *
+     * Example: "Detect and count zero crossing points"
      */
     virtual std::string getDescription() const = 0;
     
@@ -109,10 +123,16 @@ public:
 	 * be reasonably short, and may only contain the characters
 	 * [a-zA-Z0-9_].
 	 */
-	std::string name;
+	std::string identifier;
 
 	/**
 	 * The human-readable name of the parameter.
+	 */
+	std::string name;
+
+	/**
+	 * A human-readable short text describing the parameter.  May be
+         * empty if the name has said it all already.
 	 */
 	std::string description;
 
@@ -176,13 +196,13 @@ public:
     }
 
     /**
-     * Get the value of a named parameter.  The argument is the name
+     * Get the value of a named parameter.  The argument is the identifier
      * field from that parameter's descriptor.
      */
     virtual float getParameter(std::string) const { return 0.0; }
 
     /**
-     * Set a named parameter.  The first argument is the name field
+     * Set a named parameter.  The first argument is the identifier field
      * from that parameter's descriptor.
      */
     virtual void setParameter(std::string, float) { } 

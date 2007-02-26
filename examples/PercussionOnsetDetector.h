@@ -50,6 +50,7 @@ public:
 
     InputDomain getInputDomain() const { return FrequencyDomain; }
 
+    std::string getIdentifier() const;
     std::string getName() const;
     std::string getDescription() const;
     std::string getMaker() const;
@@ -60,8 +61,8 @@ public:
     size_t getPreferredBlockSize() const;
 
     ParameterList getParameterDescriptors() const;
-    float getParameter(std::string name) const;
-    void setParameter(std::string name, float value);
+    float getParameter(std::string id) const;
+    void setParameter(std::string id, float value);
 
     OutputList getOutputDescriptors() const;
 

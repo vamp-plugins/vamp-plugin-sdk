@@ -141,6 +141,12 @@ PluginHostAdapter::getInputDomain() const
 }
 
 std::string
+PluginHostAdapter::getIdentifier() const
+{
+    return m_descriptor->identifier;
+}
+
+std::string
 PluginHostAdapter::getName() const
 {
     return m_descriptor->name;
@@ -177,6 +183,7 @@ PluginHostAdapter::getParameterDescriptors() const
     for (unsigned int i = 0; i < m_descriptor->parameterCount; ++i) {
         const VampParameterDescriptor *spd = m_descriptor->parameters[i];
         ParameterDescriptor pd;
+        pd.identifier = spd->identifier;
         pd.name = spd->name;
         pd.description = spd->description;
         pd.unit = spd->unit;
@@ -201,7 +208,7 @@ PluginHostAdapter::getParameter(std::string param) const
     if (!m_handle) return 0.0;
 
     for (unsigned int i = 0; i < m_descriptor->parameterCount; ++i) {
-        if (param == m_descriptor->parameters[i]->name) {
+        if (param == m_descriptor->parameters[i]->identifier) {
             return m_descriptor->getParameter(m_handle, i);
         }
     }
@@ -216,7 +223,7 @@ PluginHostAdapter::setParameter(std::string param,
     if (!m_handle) return;
 
     for (unsigned int i = 0; i < m_descriptor->parameterCount; ++i) {
-        if (param == m_descriptor->parameters[i]->name) {
+        if (param == m_descriptor->parameters[i]->identifier) {
             m_descriptor->setParameter(m_handle, i, value);
             return;
         }
@@ -299,6 +306,7 @@ PluginHostAdapter::getOutputDescriptors() const
     for (unsigned int i = 0; i < count; ++i) {
         VampOutputDescriptor *sd = m_descriptor->getOutputDescriptor(m_handle, i);
         OutputDescriptor d;
+        d.identifier = sd->identifier;
         d.name = sd->name;
         d.description = sd->description;
         d.unit = sd->unit;

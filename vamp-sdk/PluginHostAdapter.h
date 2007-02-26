@@ -59,6 +59,7 @@ public:
 
     InputDomain getInputDomain() const;
 
+    std::string getIdentifier() const;
     std::string getName() const;
     std::string getDescription() const;
     std::string getMaker() const;

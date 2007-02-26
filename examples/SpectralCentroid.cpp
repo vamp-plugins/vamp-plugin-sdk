@@ -56,15 +56,21 @@ SpectralCentroid::~SpectralCentroid()
 }
 
 string
-SpectralCentroid::getName() const
+SpectralCentroid::getIdentifier() const
 {
     return "spectralcentroid";
 }
 
 string
-SpectralCentroid::getDescription() const
+SpectralCentroid::getName() const
 {
     return "Spectral Centroid";
+}
+
+string
+SpectralCentroid::getDescription() const
+{
+    return "Calculate the centroid frequency of the spectrum of the input signal";
 }
 
 string
@@ -108,9 +114,10 @@ SpectralCentroid::getOutputDescriptors() const
     OutputList list;
 
     OutputDescriptor d;
-    d.name = "logcentroid";
+    d.identifier = "logcentroid";
+    d.name = "Log Frequency Centroid";
+    d.description = "Centroid of the log weighted frequency spectrum";
     d.unit = "Hz";
-    d.description = "Log Frequency Centroid";
     d.hasFixedBinCount = true;
     d.binCount = 1;
     d.hasKnownExtents = false;
@@ -118,8 +125,9 @@ SpectralCentroid::getOutputDescriptors() const
     d.sampleType = OutputDescriptor::OneSamplePerStep;
     list.push_back(d);
 
-    d.name = "linearcentroid";
-    d.description = "Linear Frequency Centroid";
+    d.identifier = "linearcentroid";
+    d.name = "Linear Frequency Centroid";
+    d.description = "Centroid of the linear frequency spectrum";
     list.push_back(d);
 
     return list;

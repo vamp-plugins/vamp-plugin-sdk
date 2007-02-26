@@ -50,6 +50,7 @@ public:
 
     InputDomain getInputDomain() const { return TimeDomain; }
 
+    std::string getIdentifier() const;
     std::string getName() const;
     std::string getDescription() const;
     std::string getMaker() const;
@@ -59,8 +60,8 @@ public:
     OutputList getOutputDescriptors() const;
 	
     ParameterList getParameterDescriptors() const;
-    float getParameter(std::string paramname) const;
-    void setParameter(std::string paramname, float newval);
+    float getParameter(std::string paramid) const;
+    void setParameter(std::string paramid, float newval);
 
     FeatureSet process(const float *const *inputBuffers,
                        Vamp::RealTime timestamp);

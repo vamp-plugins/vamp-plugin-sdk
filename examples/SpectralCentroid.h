@@ -50,6 +50,7 @@ public:
 
     InputDomain getInputDomain() const { return FrequencyDomain; }
 
+    std::string getIdentifier() const;
     std::string getName() const;
     std::string getDescription() const;
     std::string getMaker() const;

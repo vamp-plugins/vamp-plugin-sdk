@@ -62,15 +62,21 @@ PercussionOnsetDetector::~PercussionOnsetDetector()
 }
 
 string
-PercussionOnsetDetector::getName() const
+PercussionOnsetDetector::getIdentifier() const
 {
     return "percussiononsets";
 }
 
 string
-PercussionOnsetDetector::getDescription() const
+PercussionOnsetDetector::getName() const
 {
     return "Simple Percussion Onset Detector";
+}
+
+string
+PercussionOnsetDetector::getDescription() const
+{
+    return "Detect percussive note onsets by identifying broadband energy rises";
 }
 
 string
@@ -141,8 +147,9 @@ PercussionOnsetDetector::getParameterDescriptors() const
     ParameterList list;
 
     ParameterDescriptor d;
-    d.name = "threshold";
-    d.description = "Broadband energy rise threshold";
+    d.identifier = "threshold";
+    d.name = "Energy rise threshold";
+    d.description = "Energy rise within a frequency bin necessary to count toward broadband total";
     d.unit = "dB";
     d.minValue = 0;
     d.maxValue = 20;
@@ -150,8 +157,9 @@ PercussionOnsetDetector::getParameterDescriptors() const
     d.isQuantized = false;
     list.push_back(d);
 
-    d.name = "sensitivity";
-    d.description = "Peak detection sensitivity";
+    d.identifier = "sensitivity";
+    d.name = "Sensitivity";
+    d.description = "Sensitivity of peak detector applied to broadband detection function";
     d.unit = "%";
     d.minValue = 0;
     d.maxValue = 100;
@@ -163,21 +171,21 @@ PercussionOnsetDetector::getParameterDescriptors() const
 }
 
 float
-PercussionOnsetDetector::getParameter(std::string name) const
+PercussionOnsetDetector::getParameter(std::string id) const
 {
-    if (name == "threshold") return m_threshold;
-    if (name == "sensitivity") return m_sensitivity;
+    if (id == "threshold") return m_threshold;
+    if (id == "sensitivity") return m_sensitivity;
     return 0.f;
 }
 
 void
-PercussionOnsetDetector::setParameter(std::string name, float value)
+PercussionOnsetDetector::setParameter(std::string id, float value)
 {
-    if (name == "threshold") {
+    if (id == "threshold") {
         if (value < 0) value = 0;
         if (value > 20) value = 20;
         m_threshold = value;
-    } else if (name == "sensitivity") {
+    } else if (id == "sensitivity") {
         if (value < 0) value = 0;
         if (value > 100) value = 100;
         m_sensitivity = value;
@@ -190,9 +198,10 @@ PercussionOnsetDetector::getOutputDescriptors() const
     OutputList list;
 
     OutputDescriptor d;
-    d.name = "onsets";
+    d.identifier = "onsets";
+    d.name = "Onsets";
+    d.description = "Percussive note onset locations";
     d.unit = "";
-    d.description = "Onsets";
     d.hasFixedBinCount = true;
     d.binCount = 0;
     d.hasKnownExtents = false;
@@ -201,8 +210,9 @@ PercussionOnsetDetector::getOutputDescriptors() const
     d.sampleRate = m_inputSampleRate;
     list.push_back(d);
 
-    d.name = "detectionfunction";
-    d.description = "Onset Detection Function";
+    d.identifier = "detectionfunction";
+    d.name = "Detection Function";
+    d.description = "Broadband energy rise detection function";
     d.binCount = 1;
     d.isQuantized = true;
     d.quantizeStep = 1.0;

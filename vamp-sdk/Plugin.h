@@ -196,12 +196,22 @@ public:
     {
 	/**
 	 * The name of the output, in computer-usable form.  Should be
-	 * reasonably short and without whitespace or punctuation.
+	 * reasonably short and without whitespace or punctuation, using
+         * the characters [a-zA-Z0-9_] only.
+         * Example: "zero_crossing_count"
+	 */
+	std::string identifier;
+
+	/**
+	 * The human-readable name of the output.
+         * Example: "Zero Crossing Counts"
 	 */
 	std::string name;
 
 	/**
-	 * The human-readable name of the output.
+	 * A human-readable short text describing the output.  May be
+         * empty if the name has said it all already.
+         * Example: "The number of zero crossing points per processing block"
 	 */
 	std::string description;
 
@@ -226,8 +236,8 @@ public:
 	size_t binCount;
 
 	/**
-	 * The names of each of the bins, if appropriate.  This is
-	 * always optional.
+	 * The (human-readable) names of each of the bins, if
+	 * appropriate.  This is always optional.
 	 */
 	std::vector<std::string> binNames;
 

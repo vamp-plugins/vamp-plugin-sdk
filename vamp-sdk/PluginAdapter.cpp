@@ -63,6 +63,7 @@ PluginAdapterBase::getDescriptor()
     m_parameters = plugin->getParameterDescriptors();
     m_programs = plugin->getPrograms();
     
+    m_descriptor.identifier = strdup(plugin->getIdentifier().c_str());
     m_descriptor.name = strdup(plugin->getName().c_str());
     m_descriptor.description = strdup(plugin->getDescription().c_str());
     m_descriptor.maker = strdup(plugin->getMaker().c_str());
@@ -78,6 +79,7 @@ PluginAdapterBase::getDescriptor()
     for (i = 0; i < m_parameters.size(); ++i) {
         VampParameterDescriptor *desc = (VampParameterDescriptor *)
             malloc(sizeof(VampParameterDescriptor));
+        desc->identifier = strdup(m_parameters[i].identifier.c_str());
         desc->name = strdup(m_parameters[i].name.c_str());
         desc->description = strdup(m_parameters[i].description.c_str());
         desc->unit = strdup(m_parameters[i].unit.c_str());
@@ -150,6 +152,7 @@ PluginAdapterBase::~PluginAdapterBase()
 
     if (!m_populated) return;
 
+    free((void *)m_descriptor.identifier);
     free((void *)m_descriptor.name);
     free((void *)m_descriptor.description);
     free((void *)m_descriptor.maker);
@@ -157,6 +160,7 @@ PluginAdapterBase::~PluginAdapterBase()
         
     for (unsigned int i = 0; i < m_descriptor.parameterCount; ++i) {
         const VampParameterDescriptor *desc = m_descriptor.parameters[i];
+        free((void *)desc->identifier);
         free((void *)desc->name);
         free((void *)desc->description);
         free((void *)desc->unit);
@@ -281,7 +285,7 @@ PluginAdapterBase::vampGetParameter(VampPluginHandle handle,
     PluginAdapterBase *adapter = lookupAdapter(handle);
     if (!adapter) return 0.0;
     Plugin::ParameterList &list = adapter->m_parameters;
-    return ((Plugin *)handle)->getParameter(list[param].name);
+    return ((Plugin *)handle)->getParameter(list[param].identifier);
 }
 
 void
@@ -295,7 +299,7 @@ PluginAdapterBase::vampSetParameter(VampPluginHandle handle,
     PluginAdapterBase *adapter = lookupAdapter(handle);
     if (!adapter) return;
     Plugin::ParameterList &list = adapter->m_parameters;
-    ((Plugin *)handle)->setParameter(list[param].name, value);
+    ((Plugin *)handle)->setParameter(list[param].identifier, value);
 }
 
 unsigned int
@@ -407,6 +411,7 @@ PluginAdapterBase::vampReleaseOutputDescriptor(VampOutputDescriptor *desc)
     std::cerr << "PluginAdapterBase::vampReleaseOutputDescriptor(" << desc << ")" << std::endl;
 #endif
 
+    if (desc->identifier) free((void *)desc->identifier);
     if (desc->name) free((void *)desc->name);
     if (desc->description) free((void *)desc->description);
     if (desc->unit) free((void *)desc->unit);
@@ -506,7 +511,7 @@ PluginAdapterBase::checkOutputMap(Plugin *plugin)
         !m_pluginOutputs[plugin]) {
         m_pluginOutputs[plugin] = new Plugin::OutputList
             (plugin->getOutputDescriptors());
-//        std::cerr << "PluginAdapterBase::checkOutputMap: Have " << m_pluginOutputs[plugin]->size() << " outputs for plugin label " << plugin->getName() << std::endl;
+//        std::cerr << "PluginAdapterBase::checkOutputMap: Have " << m_pluginOutputs[plugin]->size() << " outputs for plugin " << plugin->getIdentifier() << std::endl;
     }
 }
 
@@ -528,6 +533,7 @@ PluginAdapterBase::getOutputDescriptor(Plugin *plugin,
     VampOutputDescriptor *desc = (VampOutputDescriptor *)
         malloc(sizeof(VampOutputDescriptor));
 
+    desc->identifier = strdup(od.identifier.c_str());
     desc->name = strdup(od.name.c_str());
     desc->description = strdup(od.description.c_str());
     desc->unit = strdup(od.unit.c_str());

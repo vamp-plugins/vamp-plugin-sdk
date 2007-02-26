@@ -68,9 +68,12 @@ extern "C" {
 typedef struct _VampParameterDescriptor
 {
     /** Computer-usable name of the parameter. Must not change. [a-zA-Z0-9_] */
-    const char *name;
+    const char *identifier;
 
     /** Human-readable name of the parameter. May be translatable. */
+    const char *name;
+
+    /** Human-readable short text about the parameter.  May be translatable. */
     const char *description;
 
     /** Human-readable unit of the parameter. */
@@ -112,9 +115,12 @@ typedef enum
 typedef struct _VampOutputDescriptor
 {
     /** Computer-usable name of the output. Must not change. [a-zA-Z0-9_] */
-    const char *name;
+    const char *identifier;
 
     /** Human-readable name of the output. May be translatable. */
+    const char *name;
+
+    /** Human-readable short text about the output. May be translatable. */
     const char *description;
 
     /** Human-readable name of the unit of the output. */
@@ -197,9 +203,12 @@ typedef void *VampPluginHandle;
 typedef struct _VampPluginDescriptor
 {
     /** Computer-usable name of the plugin. Must not change. [a-zA-Z0-9_] */
-    const char *name;
+    const char *identifier;
 
     /** Human-readable name of the plugin. May be translatable. */
+    const char *name;
+
+    /** Human-readable short text about the plugin. May be translatable. */
     const char *description;
 
     /** Human-readable name of plugin's author or vendor. */

@@ -126,13 +126,13 @@ int main(int argc, char **argv)
     cerr << endl << argv[0] << ": Running..." << endl;
 
     string soname = argv[1];
-    string plugname = "";
+    string plugid = "";
     string wavname;
     if (argc >= 3) wavname = argv[2];
 
     int sep = soname.find(":");
     if (sep >= 0 && sep < int(soname.length())) {
-        plugname = soname.substr(sep + 1);
+        plugid = soname.substr(sep + 1);
         soname = soname.substr(0, sep);
     }
 
@@ -166,9 +166,9 @@ int main(int argc, char **argv)
 
         Vamp::PluginHostAdapter plugin(descriptor, 48000);
         cerr << argv[0] << ": Plugin " << (index+1)
-                  << " is \"" << plugin.getName() << "\"" << endl;
+                  << " is \"" << plugin.getIdentifier() << "\"" << endl;
 
-        if (plugin.getName() == plugname) plugnumber = index;
+        if (plugin.getIdentifier() == plugid) plugnumber = index;
         
         ++index;
     }
@@ -181,8 +181,8 @@ int main(int argc, char **argv)
     }
 
     if (plugnumber < 0) {
-        if (plugname != "") {
-            cerr << "ERROR: No such plugin as " << plugname << " in library"
+        if (plugid != "") {
+            cerr << "ERROR: No such plugin as " << plugid << " in library"
                  << endl;
             DLCLOSE(libraryHandle);
             return 0;
@@ -212,7 +212,7 @@ int main(int argc, char **argv)
     Vamp::PluginHostAdapter *plugin =
         new Vamp::PluginHostAdapter(descriptor, sfinfo.samplerate);
 
-    cerr << "Running " << plugin->getName() << "..." << endl;
+    cerr << "Running " << plugin->getIdentifier() << "..." << endl;
 
     int blockSize = plugin->getPreferredBlockSize();
     int stepSize = plugin->getPreferredStepSize();
@@ -290,7 +290,7 @@ int main(int argc, char **argv)
     }        
 
     od = outputs[output];
-    cerr << "Output is " << od.name << endl;
+    cerr << "Output is " << od.identifier << endl;
 
     if (!plugin->initialise(channels, stepSize, blockSize)) {
         cerr << "ERROR: Plugin initialise (channels = " << channels
@@ -405,18 +405,25 @@ enumeratePlugins()
                         char c = char('A' + index);
                         if (c > 'Z') c = char('a' + (index - 26));
                         cerr << "    [" << c << "] "
-                             << plugin.getDescription()
-                             << ", \"" << plugin.getName() << "\""
+                             << plugin.getName()
+                             << ", \"" << plugin.getIdentifier() << "\""
                              << " [" << plugin.getMaker()
-                             << "]" << std::endl;
+                             << "]" << endl;
+                        if (plugin.getDescription() != "") {
+                            cerr << "        - " << plugin.getDescription() << endl;
+                        }
                         Vamp::Plugin::OutputList outputs =
                             plugin.getOutputDescriptors();
                         if (outputs.size() > 1) {
                             for (size_t j = 0; j < outputs.size(); ++j) {
                                 cerr << "         (" << j << ") "
-                                     << outputs[j].description
-                                     << ", \"" << outputs[j].name << "\""
+                                     << outputs[j].name
+                                     << ", \"" << outputs[j].identifier << "\""
                                      << endl;
+                                if (outputs[j].description != "") {
+                                    cerr << "             - " 
+                                         << outputs[j].description << endl;
+                                }
                             }
                         }
                         ++index;

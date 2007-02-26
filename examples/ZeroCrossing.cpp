@@ -54,15 +54,21 @@ ZeroCrossing::~ZeroCrossing()
 }
 
 string
-ZeroCrossing::getName() const
+ZeroCrossing::getIdentifier() const
 {
     return "zerocrossing";
 }
 
 string
-ZeroCrossing::getDescription() const
+ZeroCrossing::getName() const
 {
     return "Zero Crossings";
+}
+
+string
+ZeroCrossing::getDescription() const
+{
+    return "Detect and count zero crossing points";
 }
 
 string
@@ -106,9 +112,10 @@ ZeroCrossing::getOutputDescriptors() const
     OutputList list;
 
     OutputDescriptor zc;
-    zc.name = "counts";
+    zc.identifier = "counts";
+    zc.name = "Zero Crossing Counts";
+    zc.description = "The number of zero crossing points per processing block";
     zc.unit = "crossings";
-    zc.description = "Zero Crossing Counts";
     zc.hasFixedBinCount = true;
     zc.binCount = 1;
     zc.hasKnownExtents = false;
@@ -117,9 +124,10 @@ ZeroCrossing::getOutputDescriptors() const
     zc.sampleType = OutputDescriptor::OneSamplePerStep;
     list.push_back(zc);
 
-    zc.name = "zerocrossings";
+    zc.identifier = "zerocrossings";
+    zc.name = "Zero Crossings";
+    zc.description = "The locations of zero crossing points";
     zc.unit = "";
-    zc.description = "Zero Crossings";
     zc.hasFixedBinCount = true;
     zc.binCount = 0;
     zc.sampleType = OutputDescriptor::VariableSampleRate;
