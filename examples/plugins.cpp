@@ -47,8 +47,11 @@ static Vamp::PluginAdapter<SpectralCentroid> spectralCentroidAdapter;
 static Vamp::PluginAdapter<PercussionOnsetDetector> percussionOnsetAdapter;
 static Vamp::PluginAdapter<AmplitudeFollower> amplitudeAdapter;
 
-const VampPluginDescriptor *vampGetPluginDescriptor(unsigned int index)
+const VampPluginDescriptor *vampGetPluginDescriptor(unsigned int version,
+                                                    unsigned int index)
 {
+    if (version < 1) return 0;
+
     switch (index) {
     case  0: return zeroCrossingAdapter.getDescriptor();
     case  1: return spectralCentroidAdapter.getDescriptor();

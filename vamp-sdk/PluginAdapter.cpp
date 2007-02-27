@@ -60,9 +60,20 @@ PluginAdapterBase::getDescriptor()
 
     Plugin *plugin = createPlugin(48000);
 
+    if (plugin->getVampApiVersion() != VAMP_API_VERSION) {
+        std::cerr << "Vamp::PluginAdapterBase::getDescriptor: ERROR: "
+                  << "Plugin object API version "
+                  << plugin->getVampApiVersion()
+                  << " does not match actual API version "
+                  << VAMP_API_VERSION << std::endl;
+        delete plugin;
+        return 0;
+    }
+
     m_parameters = plugin->getParameterDescriptors();
     m_programs = plugin->getPrograms();
-    
+
+    m_descriptor.vampApiVersion = plugin->getVampApiVersion();
     m_descriptor.identifier = strdup(plugin->getIdentifier().c_str());
     m_descriptor.name = strdup(plugin->getName().c_str());
     m_descriptor.description = strdup(plugin->getDescription().c_str());

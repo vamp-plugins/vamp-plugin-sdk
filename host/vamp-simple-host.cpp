@@ -162,7 +162,7 @@ int main(int argc, char **argv)
     int plugnumber = -1;
     const VampPluginDescriptor *descriptor = 0;
 
-    while ((descriptor = fn(index))) {
+    while ((descriptor = fn(VAMP_API_VERSION, index))) {
 
         Vamp::PluginHostAdapter plugin(descriptor, 48000);
         cerr << argv[0] << ": Plugin " << (index+1)
@@ -191,7 +191,7 @@ int main(int argc, char **argv)
         }
     }
 
-    descriptor = fn(plugnumber);
+    descriptor = fn(VAMP_API_VERSION, plugnumber);
     if (!descriptor) {
         DLCLOSE(libraryHandle);
         return 0;
@@ -400,11 +400,12 @@ enumeratePlugins()
                     cerr << "\n  " << e->d_name << ":" << endl;
                     int index = 0;
                     const VampPluginDescriptor *descriptor = 0;
-                    while ((descriptor = fn(index))) {
+                    while ((descriptor = fn(VAMP_API_VERSION, index))) {
                         Vamp::PluginHostAdapter plugin(descriptor, 48000);
                         char c = char('A' + index);
                         if (c > 'Z') c = char('a' + (index - 26));
-                        cerr << "    [" << c << "] "
+                        cerr << "    [" << c << "] [v"
+                             << plugin.getVampApiVersion() << "] "
                              << plugin.getName()
                              << ", \"" << plugin.getIdentifier() << "\""
                              << " [" << plugin.getMaker()

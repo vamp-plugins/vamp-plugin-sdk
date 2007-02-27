@@ -58,12 +58,15 @@ extern "C" {
 #endif
 
 /** 
- * Plugin API version. Incompatible changes to the API may be expected
- * prior to version 1.0.
+ * Plugin API version.  This is incremented when a change is made that
+ * changes the binary layout of the descriptor records.  When this
+ * happens, there should be a mechanism for retaining compatibility
+ * with older hosts and/or plugins.
+ *
+ * See also the vampApiVersion field in the plugin descriptor, and the
+ * hostApiVersion argument to the vampGetPluginDescriptor function.
  */
-#define VAMP_API_VERSION "1.0"
-#define VAMP_API_VERSION_MAJOR 1
-#define VAMP_API_VERSION_MINOR 0
+#define VAMP_API_VERSION 1
 
 typedef struct _VampParameterDescriptor
 {
@@ -202,6 +205,9 @@ typedef void *VampPluginHandle;
 
 typedef struct _VampPluginDescriptor
 {
+    /** API version with which this descriptor is compatible. */
+    unsigned int vampApiVersion;
+
     /** Computer-usable name of the plugin. Must not change. [a-zA-Z0-9_] */
     const char *identifier;
 
@@ -308,11 +314,23 @@ typedef struct _VampPluginDescriptor
 
 /** Get the descriptor for a given plugin index in this library.
     Return NULL if the index is outside the range of valid indices for
-    this plugin library. */
-const VampPluginDescriptor *vampGetPluginDescriptor(unsigned int index);
+    this plugin library.
+
+    The hostApiVersion argument tells the library code the highest
+    Vamp API version supported by the host.  The function should
+    return a plugin descriptor compatible with the highest API version
+    supported by the library that is no higher than that supported by
+    the host.  Provided the descriptor has the correct vampApiVersion
+    field for its actual compatibility level, the host should be able
+    to do the right thing with it: use it if possible, discard it
+    otherwise.
+*/
+const VampPluginDescriptor *vampGetPluginDescriptor
+    (unsigned int hostApiVersion, unsigned int index);
 
 /** Function pointer type for vampGetPluginDescriptor. */
-typedef const VampPluginDescriptor *(*VampGetPluginDescriptorFunction)(unsigned int);
+typedef const VampPluginDescriptor *(*VampGetPluginDescriptorFunction)
+    (unsigned int, unsigned int);
 
 #ifdef __cplusplus
 }

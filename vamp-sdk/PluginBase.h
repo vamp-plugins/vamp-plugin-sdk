@@ -61,6 +61,11 @@ public:
     virtual ~PluginBase() { }
 
     /**
+     * Get the Vamp API compatibility level of the plugin.
+     */
+    virtual unsigned int getVampApiVersion() const { return 1; }
+
+    /**
      * Get the computer-usable name of the plugin.  This should be
      * reasonably short and contain no whitespace or punctuation
      * characters.  It may only contain the characters [a-zA-Z0-9_].

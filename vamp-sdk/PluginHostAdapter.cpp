@@ -140,6 +140,12 @@ PluginHostAdapter::getInputDomain() const
     }
 }
 
+unsigned int
+PluginHostAdapter::getVampApiVersion() const
+{
+    return m_descriptor->vampApiVersion;
+}
+
 std::string
 PluginHostAdapter::getIdentifier() const
 {
