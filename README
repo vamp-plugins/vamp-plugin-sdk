@@ -70,10 +70,12 @@ C++ classes for straightforwardly implementing Vamp plugins and hosts.
 
 Plugins should subclass Vamp::Plugin and then use a
 Vamp::PluginAdapter to expose the correct C API for the plugin.  Read
-vamp-sdk/PluginBase.h and Plugin.h for code documentation.
+vamp-sdk/PluginBase.h and Plugin.h for code documentation.  Plugins
+should link with -lvamp-sdk.
 
 Hosts may use the Vamp::PluginHostAdapter to convert the loaded
-plugin's C API back into a Vamp::Plugin object.
+plugin's C API back into a Vamp::Plugin object.  Hosts should link
+with -lvamp-hostsdk.
 
  * examples
 

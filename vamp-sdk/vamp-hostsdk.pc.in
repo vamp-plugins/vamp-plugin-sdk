@@ -3,8 +3,8 @@ exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
 
-Name: vamp-sdk
+Name: vamp-hostsdk
 Version: 1.0.0
-Description: Development library for Vamp audio analysis plugins
-Libs: -L${libdir} -lvamp-sdk
+Description: Development library for Vamp audio analysis plugin hosts
+Libs: -L${libdir} -lvamp-hostsdk
 Cflags: -I${includedir} 
