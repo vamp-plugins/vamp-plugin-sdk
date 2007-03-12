@@ -322,15 +322,22 @@ int main(int argc, char **argv)
             }
         }
 
-        for (int c = 0; c < sfinfo.channels; ++c) {
-            int tc = c;
-            if (mix) tc = 0;
-            for (int j = 0; j < blockSize && j < count; ++j) {
-                plugbuf[tc][j] += filebuf[j * channels + c];
+        for (int j = 0; j < blockSize && j < count; ++j) {
+            int tc = 0;
+            for (int c = 0; c < sfinfo.channels; ++c) {
+                tc = c;
+                if (mix) tc = 0;
+                plugbuf[tc][j] += filebuf[j * sfinfo.channels + c];
             }
+            if (mix) {
+                plugbuf[0][j] /= sfinfo.channels;
+            }
+        }
 
-            if (plugin->getInputDomain() == Vamp::Plugin::FrequencyDomain) {
-                transformInput(plugbuf[tc], blockSize);
+        if (plugin->getInputDomain() == Vamp::Plugin::FrequencyDomain) {
+            for (int c = 0; c < sfinfo.channels; ++c) {
+                transformInput(plugbuf[c], blockSize);
+                if (mix) break;
             }
         }
 
