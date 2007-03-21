@@ -55,12 +55,10 @@ namespace Vamp {
  * input.
  *
  * Note that this class inherits several abstract methods from
- * PluginBase, that must be implemented by the subclass.
- */
-
-/**
- * Plugin Lifecycle
- * ================
+ * PluginBase.  These must be implemented by the subclass.
+ * 
+ * 
+ * PLUGIN LIFECYCLE
  *
  * Feature extraction plugins are managed differently from real-time
  * plugins (such as VST effects).  The main difference is that the
@@ -379,6 +377,11 @@ public:
      */
     virtual FeatureSet getRemainingFeatures() = 0;
 
+    /**
+     * Used to distinguish between Vamp::Plugin and other potential
+     * sibling subclasses of PluginBase.  Do not implement this
+     * function in your subclass.
+     */
     virtual std::string getType() const { return "Feature Extraction Plugin"; }
 
 protected:

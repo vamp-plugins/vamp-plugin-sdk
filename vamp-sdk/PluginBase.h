@@ -46,13 +46,14 @@ namespace Vamp {
 
 /**
  * A base class for plugins with optional configurable parameters,
- * programs, etc.
+ * programs, etc.  The Vamp::Plugin is derived from this, and
+ * individual Vamp plugins should derive from that.
  *
- * This does not provide the necessary interfaces to instantiate or
- * run a plugin -- that depends on the plugin subclass, as different
- * plugin types may have quite different operating structures.  This
- * class just specifies the necessary interface to show editable
- * controls for the plugin to the user.
+ * This class does not provide the necessary interfaces to instantiate
+ * or run a plugin.  It only specifies an interface for retrieving
+ * those controls that the host may wish to show to the user for
+ * editing.  It could meaningfully be subclassed by real-time plugins
+ * or other sorts of plugin as well as Vamp plugins.
  */
 
 class PluginBase 

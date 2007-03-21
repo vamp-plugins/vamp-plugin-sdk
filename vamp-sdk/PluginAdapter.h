@@ -45,10 +45,28 @@
 
 namespace Vamp {
 
+/**
+ * PluginAdapter and PluginAdapterBase provide a wrapper class that a
+ * plugin library can use to make its C++ Vamp::Plugin objects
+ * available through the Vamp C API.
+ * 
+ * Almost all Vamp plugin libraries will want to make use of this.  To
+ * do so, all they need to do is declare a PluginAdapter<T> for each
+ * plugin class T in their library.  It's very simple, and you need to
+ * know absolutely nothing about how it works in order to use it.
+ * Just cut and paste from an existing plugin's discovery function.
+ * @see vampGetPluginDescriptor
+ */
+
 class PluginAdapterBase
 {
 public:
     virtual ~PluginAdapterBase();
+
+    /**
+     * Return a VampPluginDescriptor describing the plugin that is
+     * wrapped by this adapter.
+     */
     const VampPluginDescriptor *getDescriptor();
 
 protected:
@@ -125,6 +143,13 @@ protected:
     void resizeFL(Plugin *plugin, int n, size_t sz);
     void resizeFV(Plugin *plugin, int n, int j, size_t sz);
 };
+
+/**
+ * PluginAdapter turns a PluginAdapterBase into a specific wrapper for
+ * a particular plugin implementation.
+ *
+ * See PluginAdapterBase.
+ */
 
 template <typename P>
 class PluginAdapter : public PluginAdapterBase

@@ -45,6 +45,21 @@
 
 namespace Vamp {
 
+/**
+ * PluginHostAdapter is a wrapper class that a Vamp host can use to
+ * make the C-language VampPluginDescriptor object appear as a C++
+ * Vamp::Plugin object.
+ *
+ * The Vamp API is defined in vamp/vamp.h as a C API.  The C++ objects
+ * used for convenience by plugins and hosts actually communicate
+ * using the C low-level API, but the details of this communication
+ * are handled seamlessly by the Vamp SDK implementation provided the
+ * plugin and host use the proper C++ wrapper objects.
+ *
+ * See also PluginAdapter, the plugin-side wrapper that makes a C++
+ * plugin object available using the C query API.
+ */
+
 class PluginHostAdapter : public Plugin
 {
 public:
