@@ -39,6 +39,11 @@
 
 #include "Plugin.h"
 
+/**
+ * Example plugin that calculates the centre of gravity of the
+ * frequency domain representation of each block of audio.
+ */
+
 class SpectralCentroid : public Vamp::Plugin
 {
 public:

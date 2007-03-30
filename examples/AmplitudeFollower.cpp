@@ -47,7 +47,7 @@ using std::vector;
 using std::cerr;
 using std::endl;
 
-/*
+/**
  * An implementation of SuperCollider's amplitude-follower algorithm
  * as a simple Vamp plugin.
  */

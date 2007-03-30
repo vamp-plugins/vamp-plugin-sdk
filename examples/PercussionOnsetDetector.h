@@ -39,6 +39,10 @@
 
 #include "Plugin.h"
 
+/**
+ * Example plugin that detects percussive events.
+ */
+
 class PercussionOnsetDetector : public Vamp::Plugin
 {
 public:

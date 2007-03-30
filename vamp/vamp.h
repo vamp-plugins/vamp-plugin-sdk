@@ -37,22 +37,6 @@
 #ifndef VAMP_HEADER_INCLUDED
 #define VAMP_HEADER_INCLUDED
 
-/*
- * C language API for Vamp plugins.
- * 
- * This is the formal plugin API for Vamp.  Plugin authors may prefer
- * to use the C++ classes provided in the Vamp plugin SDK, instead of
- * using this API directly.  There is an adapter class provided that
- * makes C++ plugins available using this C API with relatively little
- * work, and the C++ headers are more thoroughly documented.
- *
- * IMPORTANT: The comments in this file summarise the purpose of each
- * of the declared fields and functions, but do not provide a complete
- * guide to their permitted values and expected usage.  Please refer
- * to the C++ headers in the Vamp plugin SDK for further details and
- * plugin lifecycle documentation.
- */
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -67,6 +51,22 @@ extern "C" {
  * hostApiVersion argument to the vampGetPluginDescriptor function.
  */
 #define VAMP_API_VERSION 1
+
+/**
+ * C language API for Vamp plugins.
+ * 
+ * This is the formal plugin API for Vamp.  Plugin authors may prefer
+ * to use the C++ classes provided in the Vamp plugin SDK, instead of
+ * using this API directly.  There is an adapter class provided that
+ * makes C++ plugins available using this C API with relatively little
+ * work, and the C++ headers are more thoroughly documented.
+ *
+ * IMPORTANT: The comments in this file summarise the purpose of each
+ * of the declared fields and functions, but do not provide a complete
+ * guide to their permitted values and expected usage.  Please refer
+ * to the C++ headers in the Vamp plugin SDK for further details and
+ * plugin lifecycle documentation.
+ */
 
 typedef struct _VampParameterDescriptor
 {

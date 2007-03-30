@@ -39,6 +39,11 @@
 
 #include "Plugin.h"
 
+/**
+ * Example plugin that calculates the positions and density of
+ * zero-crossing points in an audio waveform.
+*/
+
 class ZeroCrossing : public Vamp::Plugin
 {
 public:

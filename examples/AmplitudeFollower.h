@@ -39,6 +39,11 @@
 
 #include "Plugin.h"
 
+/**
+ * Example plugin implementing the SuperCollider amplitude follower
+ * function.
+ */
+
 class AmplitudeFollower : public Vamp::Plugin
 {
 public:
