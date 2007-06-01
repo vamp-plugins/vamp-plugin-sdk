@@ -37,7 +37,7 @@
 #ifndef _ZERO_CROSSING_PLUGIN_H_
 #define _ZERO_CROSSING_PLUGIN_H_
 
-#include "Plugin.h"
+#include "vamp-sdk/Plugin.h"
 
 /**
  * Example plugin that calculates the positions and density of

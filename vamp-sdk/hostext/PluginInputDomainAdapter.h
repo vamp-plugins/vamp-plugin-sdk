@@ -34,82 +34,75 @@
     authorization.
 */
 
-#ifndef _VAMP_PLUGIN_HOST_ADAPTER_H_
-#define _VAMP_PLUGIN_HOST_ADAPTER_H_
+#ifndef _VAMP_PLUGIN_INPUT_DOMAIN_ADAPTER_H_
+#define _VAMP_PLUGIN_INPUT_DOMAIN_ADAPTER_H_
 
-#include <vamp/vamp.h>
-#include <vamp-sdk/Plugin.h>
-
-#include <vector>
+#include "PluginWrapper.h"
 
 namespace Vamp {
 
+namespace HostExt {
+
 /**
- * PluginHostAdapter is a wrapper class that a Vamp host can use to
- * make the C-language VampPluginDescriptor object appear as a C++
- * Vamp::Plugin object.
+ * PluginInputDomainAdapter is a Vamp plugin adapter that converts
+ * time-domain input into frequency-domain input for plugins that need
+ * it.  This permits a host to use time- and frequency-domain plugins
+ * interchangeably without needing to handle the conversion itself.
  *
- * The Vamp API is defined in vamp/vamp.h as a C API.  The C++ objects
- * used for convenience by plugins and hosts actually communicate
- * using the C low-level API, but the details of this communication
- * are handled seamlessly by the Vamp SDK implementation provided the
- * plugin and host use the proper C++ wrapper objects.
+ * This adapter uses a basic Hanning windowed FFT that supports
+ * power-of-two block sizes only.  If a frequency domain plugin
+ * requests a non-power-of-two blocksize, the adapter will adjust it
+ * to a nearby power of two instead.  Thus, getPreferredBlockSize()
+ * will always return a power of two if the wrapped plugin is a
+ * frequency domain one.  If the plugin doesn't accept the adjusted
+ * power of two block size, initialise() will fail.
  *
- * See also PluginAdapter, the plugin-side wrapper that makes a C++
- * plugin object available using the C query API.
+ * The adapter provides no way for the host to discover whether the
+ * underlying plugin is actually a time or frequency domain plugin
+ * (except that if the preferred block size is not a power of two, it
+ * must be a time domain plugin).
+ *
+ * The FFT implementation is simple and self-contained, but unlikely
+ * to be the fastest available: a host can usually do better if it
+ * cares enough.
+ *
+ * In every respect other than its input domain handling, the
+ * PluginInputDomainAdapter behaves identically to the plugin that it
+ * wraps.  The wrapped plugin will be deleted when the wrapper is
+ * deleted.
  */
 
-class PluginHostAdapter : public Plugin
+class PluginInputDomainAdapter : public PluginWrapper
 {
 public:
-    PluginHostAdapter(const VampPluginDescriptor *descriptor,
-                      float inputSampleRate);
-    virtual ~PluginHostAdapter();
+    PluginInputDomainAdapter(Plugin *plugin); // I take ownership of plugin
+    virtual ~PluginInputDomainAdapter();
     
-    static std::vector<std::string> getPluginPath();
-
     bool initialise(size_t channels, size_t stepSize, size_t blockSize);
-    void reset();
 
     InputDomain getInputDomain() const;
-
-    unsigned int getVampApiVersion() const;
-    std::string getIdentifier() const;
-    std::string getName() const;
-    std::string getDescription() const;
-    std::string getMaker() const;
-    int getPluginVersion() const;
-    std::string getCopyright() const;
-
-    ParameterList getParameterDescriptors() const;
-    float getParameter(std::string) const;
-    void setParameter(std::string, float);
-
-    ProgramList getPrograms() const;
-    std::string getCurrentProgram() const;
-    void selectProgram(std::string);
 
     size_t getPreferredStepSize() const;
     size_t getPreferredBlockSize() const;
 
-    size_t getMinChannelCount() const;
-    size_t getMaxChannelCount() const;
-
-    OutputList getOutputDescriptors() const;
-
     FeatureSet process(const float *const *inputBuffers, RealTime timestamp);
 
-    FeatureSet getRemainingFeatures();
-
 protected:
-    void convertFeatures(VampFeatureList *, FeatureSet &);
+    size_t m_channels;
+    size_t m_blockSize;
+    float **m_freqbuf;
+    double *m_ri;
+    double *m_ro;
+    double *m_io;
 
-    const VampPluginDescriptor *m_descriptor;
-    VampPluginHandle m_handle;
+    void fft(unsigned int n, bool inverse,
+             double *ri, double *ii, double *ro, double *io);
+
+    size_t makeBlockSizeAcceptable(size_t) const;
 };
 
 }
 
+}
+
 #endif
-
-

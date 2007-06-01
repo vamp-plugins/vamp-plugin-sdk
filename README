@@ -77,6 +77,28 @@ Hosts may use the Vamp::PluginHostAdapter to convert the loaded
 plugin's C API back into a Vamp::Plugin object.  Hosts should link
 with -lvamp-hostsdk.
 
+ * vamp-sdk/hostext
+
+Additional C++ classes to make a host's life easier.
+
+Vamp::HostExt::PluginLoader provides a very simple interface for a
+host to discover, load, and find out category information about the
+available plugins.  Most "casual" Vamp hosts will probably want to use
+this class.
+
+Vamp::HostExt::PluginInputDomainAdapter provides a simple means for
+hosts to handle plugins that expect frequency-domain input, without
+having to convert the input themselves.
+
+Vamp::HostExt::PluginChannelAdapter provides a simple means for hosts
+to use plugins that do not necessarily support the same number of
+audio channels as they have available, without having to apply a
+channel management / mixdown policy themselves.
+
+The PluginLoader can use the input domain and channel adapters
+automatically to make the entire conversion process transparent to the
+host if required.
+
  * examples
 
 Example plugins implemented using the C++ classes.  ZeroCrossing
@@ -92,7 +114,11 @@ Derry Fitzgerald, Eugene Coyle and Bob Lawlor, ISSC 2005.
 
 A simple command-line Vamp host, capable of loading a plugin and using
 it to process a complete audio file, with its default parameters.
-Requires libsndfile.
+Requires libsndfile (http://www.mega-nerd.com/libsndfile/).
+
+If you don't have libsndfile, you may want to edit the Makefile to
+change the default build target from "all" to "sdk" so as to compile
+only the SDK.
 
 
 Plugin Lookup and Categorisation
@@ -186,11 +212,14 @@ Authors
 =======
 
 Vamp and the Vamp SDK were designed and made at the Centre for Digital
-Music at Queen Mary, University of London.  The SDK code was written
-by Chris Cannam, copyright (c) 2005-2006 Chris Cannam.  Mark Sandler
-and Christian Landone provided ideas and direction, and Mark Levy, Dan
-Stowell, Martin Gasser and Craig Sapp provided testing and other input
-for the 1.0 API and SDK.  The API reuses some ideas from several prior
-plugin systems, notably DSSI (http://dssi.sourceforge.net) and FEAPI
-(http://feapi.sourceforge.net).
+Music at Queen Mary, University of London.
+
+The SDK was written by Chris Cannam, copyright (c) 2005-2007
+Chris Cannam and QMUL.
+
+Mark Sandler and Christian Landone provided ideas and direction, and
+Mark Levy, Dan Stowell, Martin Gasser and Craig Sapp provided testing
+and other input for the 1.0 API and SDK.  The API also uses some ideas
+from prior plugin systems, notably DSSI (http://dssi.sourceforge.net)
+and FEAPI (http://feapi.sourceforge.net).
 

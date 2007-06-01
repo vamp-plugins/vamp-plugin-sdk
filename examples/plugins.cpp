@@ -34,9 +34,9 @@
     authorization.
 */
 
-#include <vamp/vamp.h>
+#include "vamp/vamp.h"
+#include "vamp-sdk/PluginAdapter.h"
 
-#include "PluginAdapter.h"
 #include "ZeroCrossing.h"
 #include "SpectralCentroid.h"
 #include "PercussionOnsetDetector.h"

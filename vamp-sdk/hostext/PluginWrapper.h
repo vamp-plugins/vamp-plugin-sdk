@@ -34,27 +34,35 @@
     authorization.
 */
 
-#ifndef _SPECTRAL_CENTROID_PLUGIN_H_
-#define _SPECTRAL_CENTROID_PLUGIN_H_
+#ifndef _VAMP_PLUGIN_WRAPPER_H_
+#define _VAMP_PLUGIN_WRAPPER_H_
 
-#include "vamp-sdk/Plugin.h"
+#include <vamp-sdk/Plugin.h>
+
+namespace Vamp {
+
+namespace HostExt {
 
 /**
- * Example plugin that calculates the centre of gravity of the
- * frequency domain representation of each block of audio.
+ * PluginWrapper is a simple base class for adapter plugins.  It takes
+ * a pointer to a "to be wrapped" Vamp plugin on construction, and
+ * provides implementations of all the Vamp plugin methods that simply
+ * delegate through to the wrapped plugin.  A subclass can therefore
+ * override only the methods that are meaningful for the particular
+ * adapter.
  */
 
-class SpectralCentroid : public Vamp::Plugin
+class PluginWrapper : public Plugin
 {
 public:
-    SpectralCentroid(float inputSampleRate);
-    virtual ~SpectralCentroid();
-
+    virtual ~PluginWrapper();
+    
     bool initialise(size_t channels, size_t stepSize, size_t blockSize);
     void reset();
 
-    InputDomain getInputDomain() const { return FrequencyDomain; }
+    InputDomain getInputDomain() const;
 
+    unsigned int getVampApiVersion() const;
     std::string getIdentifier() const;
     std::string getName() const;
     std::string getDescription() const;
@@ -62,17 +70,33 @@ public:
     int getPluginVersion() const;
     std::string getCopyright() const;
 
+    ParameterList getParameterDescriptors() const;
+    float getParameter(std::string) const;
+    void setParameter(std::string, float);
+
+    ProgramList getPrograms() const;
+    std::string getCurrentProgram() const;
+    void selectProgram(std::string);
+
+    size_t getPreferredStepSize() const;
+    size_t getPreferredBlockSize() const;
+
+    size_t getMinChannelCount() const;
+    size_t getMaxChannelCount() const;
+
     OutputList getOutputDescriptors() const;
 
-    FeatureSet process(const float *const *inputBuffers,
-                       Vamp::RealTime timestamp);
+    FeatureSet process(const float *const *inputBuffers, RealTime timestamp);
 
     FeatureSet getRemainingFeatures();
 
 protected:
-    size_t m_stepSize;
-    size_t m_blockSize;
+    PluginWrapper(Plugin *plugin); // I take ownership of plugin
+    Plugin *m_plugin;
 };
 
+}
+
+}
 
 #endif

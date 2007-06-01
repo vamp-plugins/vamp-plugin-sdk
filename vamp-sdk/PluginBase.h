@@ -40,7 +40,7 @@
 #include <string>
 #include <vector>
 
-#define VAMP_SDK_VERSION "1.0"
+#define VAMP_SDK_VERSION "1.1"
 
 namespace Vamp {
 
@@ -217,7 +217,13 @@ public:
     typedef std::vector<std::string> ProgramList;
 
     /**
-     * Get the program settings available in this plugin.
+     * Get the program settings available in this plugin.  A program
+     * is a named shorthand for a set of parameter values; changing
+     * the program may cause the plugin to alter the values of its
+     * published parameters (and/or non-public internal processing
+     * parameters).  The host should re-read the plugin's parameter
+     * values after setting a new program.
+     *
      * The programs must have unique names.
      */
     virtual ProgramList getPrograms() const { return ProgramList(); }
