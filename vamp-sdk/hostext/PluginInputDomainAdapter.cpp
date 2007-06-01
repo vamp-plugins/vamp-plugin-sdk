@@ -219,12 +219,12 @@ PluginInputDomainAdapter::process(const float *const *inputBuffers, RealTime tim
     // particular that this means some results can differ from those
     // produced by SV.
 
-    std::cerr << "PluginInputDomainAdapter: sampleRate " << m_inputSampleRate << ", blocksize " << m_blockSize << ", adjusting time from " << timestamp;
+//    std::cerr << "PluginInputDomainAdapter: sampleRate " << m_inputSampleRate << ", blocksize " << m_blockSize << ", adjusting time from " << timestamp;
 
     timestamp = timestamp + RealTime::frame2RealTime(m_blockSize/2,
                                                      m_inputSampleRate);
 
-    std::cerr << " to " << timestamp << std::endl;
+//    std::cerr << " to " << timestamp << std::endl;
 
     for (size_t c = 0; c < m_channels; ++c) {
 

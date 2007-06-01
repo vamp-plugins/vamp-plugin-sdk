@@ -132,7 +132,7 @@ PluginChannelAdapter::FeatureSet
 PluginChannelAdapter::process(const float *const *inputBuffers,
                               RealTime timestamp)
 {
-    std::cerr << "PluginChannelAdapter::process: " << m_inputChannels << " -> " << m_pluginChannels << " channels" << std::endl;
+//    std::cerr << "PluginChannelAdapter::process: " << m_inputChannels << " -> " << m_pluginChannels << " channels" << std::endl;
 
     if (m_inputChannels < m_pluginChannels) {
 
