@@ -170,6 +170,11 @@ PluginInputDomainAdapter::makeBlockSizeAcceptable(size_t blockSize) const
     return blockSize;
 }
 
+// for some visual studii apparently
+#ifndef M_PI
+#define M_PI 3.14159265358979232846
+#endif
+
 Plugin::FeatureSet
 PluginInputDomainAdapter::process(const float *const *inputBuffers, RealTime timestamp)
 {
@@ -221,8 +226,8 @@ PluginInputDomainAdapter::process(const float *const *inputBuffers, RealTime tim
 
 //    std::cerr << "PluginInputDomainAdapter: sampleRate " << m_inputSampleRate << ", blocksize " << m_blockSize << ", adjusting time from " << timestamp;
 
-    timestamp = timestamp + RealTime::frame2RealTime(m_blockSize/2,
-                                                     m_inputSampleRate);
+    timestamp = timestamp + RealTime::frame2RealTime
+        (m_blockSize/2, int(m_inputSampleRate + 0.5));
 
 //    std::cerr << " to " << timestamp << std::endl;
 
