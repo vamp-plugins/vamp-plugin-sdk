@@ -69,7 +69,8 @@ namespace HostExt {
 class PluginLoader::Impl
 {
 public:
-    virtual ~Impl() { }
+    Impl();
+    virtual ~Impl();
 
     PluginKeyList listPlugins();
 
@@ -81,7 +82,7 @@ public:
 
     PluginCategoryHierarchy getPluginCategory(PluginKey key);
 
-    std::string getLibraryPathForPlugin(PluginKey key);
+    string getLibraryPathForPlugin(PluginKey key);
 
 protected:
     class PluginDeletionNotifyAdapter : public PluginWrapper {
@@ -94,20 +95,24 @@ protected:
 
     virtual void pluginDeleted(PluginDeletionNotifyAdapter *adapter);
 
-    std::map<PluginKey, std::string> m_pluginLibraryNameMap;
-    void generateLibraryMap();
+    map<PluginKey, string> m_pluginLibraryNameMap;
+    bool m_allPluginsEnumerated;
+    void enumeratePlugins(PluginKey forPlugin = "");
 
-    std::map<PluginKey, PluginCategoryHierarchy> m_taxonomy;
+    map<PluginKey, PluginCategoryHierarchy> m_taxonomy;
     void generateTaxonomy();
 
-    std::map<Plugin *, void *> m_pluginLibraryHandleMap;
+    map<Plugin *, void *> m_pluginLibraryHandleMap;
 
-    void *loadLibrary(std::string path);
+    bool decomposePluginKey(PluginKey key,
+                            string &libraryName, string &identifier);
+
+    void *loadLibrary(string path);
     void unloadLibrary(void *handle);
     void *lookupInLibrary(void *handle, const char *symbol);
 
-    std::string splicePath(std::string a, std::string b);
-    std::vector<std::string> listFiles(std::string dir, std::string ext);
+    string splicePath(string a, string b);
+    vector<string> listFiles(string dir, string ext);
 };
 
 PluginLoader *
@@ -161,15 +166,23 @@ PluginLoader::getLibraryPathForPlugin(PluginKey key)
 {
     return m_impl->getLibraryPathForPlugin(key);
 }
+ 
+PluginLoader::Impl::Impl() :
+    m_allPluginsEnumerated(false)
+{
+}
+
+PluginLoader::Impl::~Impl()
+{
+}
 
 vector<PluginLoader::PluginKey>
 PluginLoader::Impl::listPlugins() 
 {
-    if (m_pluginLibraryNameMap.empty()) generateLibraryMap();
+    if (!m_allPluginsEnumerated) enumeratePlugins();
 
     vector<PluginKey> plugins;
-    for (map<PluginKey, string>::iterator mi =
-             m_pluginLibraryNameMap.begin();
+    for (map<PluginKey, string>::iterator mi = m_pluginLibraryNameMap.begin();
          mi != m_pluginLibraryNameMap.end(); ++mi) {
         plugins.push_back(mi->first);
     }
@@ -178,9 +191,18 @@ PluginLoader::Impl::listPlugins()
 }
 
 void
-PluginLoader::Impl::generateLibraryMap()
+PluginLoader::Impl::enumeratePlugins(PluginKey forPlugin)
 {
     vector<string> path = PluginHostAdapter::getPluginPath();
+
+    string libraryName, identifier;
+    if (forPlugin != "") {
+        if (!decomposePluginKey(forPlugin, libraryName, identifier)) {
+            std::cerr << "WARNING: Vamp::HostExt::PluginLoader: Invalid plugin key \""
+                      << forPlugin << "\" in enumerate" << std::endl;
+            return;
+        }
+    }
 
     for (size_t i = 0; i < path.size(); ++i) {
         
@@ -189,6 +211,15 @@ PluginLoader::Impl::generateLibraryMap()
         for (vector<string>::iterator fi = files.begin();
              fi != files.end(); ++fi) {
             
+            if (libraryName != "") {
+                string::size_type pi = fi->find('.');
+                if (pi == string::npos) {
+                    if (libraryName != *fi) continue;
+                } else {
+                    if (libraryName != fi->substr(0, pi)) continue;
+                }
+            }
+
             string fullPath = path[i];
             fullPath = splicePath(fullPath, *fi);
             void *handle = loadLibrary(fullPath);
@@ -207,22 +238,30 @@ PluginLoader::Impl::generateLibraryMap()
             const VampPluginDescriptor *descriptor = 0;
             
             while ((descriptor = fn(VAMP_API_VERSION, index))) {
+                ++index;
+                if (identifier != "") {
+                    if (descriptor->identifier != identifier) continue;
+                }
                 PluginKey key = composePluginKey(*fi, descriptor->identifier);
+//                std::cerr << "enumerate: " << key << " (path: " << fullPath << ")" << std::endl;
                 if (m_pluginLibraryNameMap.find(key) ==
                     m_pluginLibraryNameMap.end()) {
                     m_pluginLibraryNameMap[key] = fullPath;
                 }
-                ++index;
             }
             
             unloadLibrary(handle);
         }
     }
+
+    if (forPlugin == "") m_allPluginsEnumerated = true;
 }
 
 PluginLoader::PluginKey
 PluginLoader::Impl::composePluginKey(string libraryName, string identifier)
 {
+    //!!! deal with case issues
+    
     string basename = libraryName;
 
     string::size_type li = basename.rfind('/');
@@ -232,6 +271,21 @@ PluginLoader::Impl::composePluginKey(string libraryName, string identifier)
     if (li != string::npos) basename = basename.substr(0, li);
 
     return basename + ":" + identifier;
+}
+
+bool
+PluginLoader::Impl::decomposePluginKey(PluginKey key,
+                                       string &libraryName,
+                                       string &identifier)
+{
+    string::size_type ki = key.find(':');
+    if (ki == string::npos) {
+        return false;
+    }
+
+    libraryName = key.substr(0, ki);
+    identifier = key.substr(ki + 1);
+    return true;
 }
 
 PluginLoader::PluginCategoryHierarchy
@@ -247,8 +301,13 @@ PluginLoader::Impl::getPluginCategory(PluginKey plugin)
 string
 PluginLoader::Impl::getLibraryPathForPlugin(PluginKey plugin)
 {
-    if (m_pluginLibraryNameMap.empty()) generateLibraryMap();
-    if (m_pluginLibraryNameMap.find(plugin) == m_pluginLibraryNameMap.end()) return "";
+    if (m_pluginLibraryNameMap.find(plugin) == m_pluginLibraryNameMap.end()) {
+        if (m_allPluginsEnumerated) return "";
+        enumeratePlugins(plugin);
+    }
+    if (m_pluginLibraryNameMap.find(plugin) == m_pluginLibraryNameMap.end()) {
+        return "";
+    }
     return m_pluginLibraryNameMap[plugin];
 }    
 
@@ -256,16 +315,15 @@ Plugin *
 PluginLoader::Impl::loadPlugin(PluginKey key,
                                float inputSampleRate, int adapterFlags)
 {
-    string fullPath = getLibraryPathForPlugin(key);
-    if (fullPath == "") return 0;
-    
-    string::size_type ki = key.find(':');
-    if (ki == string::npos) {
-        //!!! flag error
+    string libname, identifier;
+    if (!decomposePluginKey(key, libname, identifier)) {
+        std::cerr << "Vamp::HostExt::PluginLoader: Invalid plugin key \""
+                  << key << "\" in loadPlugin" << std::endl;
         return 0;
     }
-
-    string identifier = key.substr(ki + 1);
+        
+    string fullPath = getLibraryPathForPlugin(key);
+    if (fullPath == "") return 0;
     
     void *handle = loadLibrary(fullPath);
     if (!handle) return 0;
