@@ -67,7 +67,10 @@ namespace Vamp {
  *
  * 1. Host constructs the plugin, passing it the input sample rate.
  * The plugin may do basic initialisation, but should not do anything
- * computationally expensive at this point.
+ * computationally expensive at this point.  You must make sure your
+ * plugin is cheap to construct, otherwise you'll seriously affect the
+ * startup performance of almost all hosts.  If you have serious
+ * initialisation to do, the proper place is in initialise() (step 5).
  *
  * 2. Host may query the plugin's available outputs.
  *
