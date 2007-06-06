@@ -66,15 +66,61 @@ namespace Vamp {
 	
 namespace HostExt {
 
+class PluginLoader::Impl
+{
+public:
+    virtual ~Impl() { }
+
+    PluginKeyList listPlugins();
+
+    Plugin *loadPlugin(PluginKey key,
+                       float inputSampleRate,
+                       int adapterFlags);
+
+    PluginKey composePluginKey(string libraryName, string identifier);
+
+    PluginCategoryHierarchy getPluginCategory(PluginKey key);
+
+    std::string getLibraryPathForPlugin(PluginKey key);
+
+protected:
+    class PluginDeletionNotifyAdapter : public PluginWrapper {
+    public:
+        PluginDeletionNotifyAdapter(Plugin *plugin, Impl *loader);
+        virtual ~PluginDeletionNotifyAdapter();
+    protected:
+        Impl *m_loader;
+    };
+
+    virtual void pluginDeleted(PluginDeletionNotifyAdapter *adapter);
+
+    std::map<PluginKey, std::string> m_pluginLibraryNameMap;
+    void generateLibraryMap();
+
+    std::map<PluginKey, PluginCategoryHierarchy> m_taxonomy;
+    void generateTaxonomy();
+
+    std::map<Plugin *, void *> m_pluginLibraryHandleMap;
+
+    void *loadLibrary(std::string path);
+    void unloadLibrary(void *handle);
+    void *lookupInLibrary(void *handle, const char *symbol);
+
+    std::string splicePath(std::string a, std::string b);
+    std::vector<std::string> listFiles(std::string dir, std::string ext);
+};
+
 PluginLoader *
 PluginLoader::m_instance = 0;
 
 PluginLoader::PluginLoader()
 {
+    m_impl = new Impl();
 }
 
 PluginLoader::~PluginLoader()
 {
+    delete m_impl;
 }
 
 PluginLoader *
@@ -86,6 +132,38 @@ PluginLoader::getInstance()
 
 vector<PluginLoader::PluginKey>
 PluginLoader::listPlugins() 
+{
+    return m_impl->listPlugins();
+}
+
+Plugin *
+PluginLoader::loadPlugin(PluginKey key,
+                         float inputSampleRate,
+                         int adapterFlags)
+{
+    return m_impl->loadPlugin(key, inputSampleRate, adapterFlags);
+}
+
+PluginLoader::PluginKey
+PluginLoader::composePluginKey(string libraryName, string identifier) 
+{
+    return m_impl->composePluginKey(libraryName, identifier);
+}
+
+PluginLoader::PluginCategoryHierarchy
+PluginLoader::getPluginCategory(PluginKey key)
+{
+    return m_impl->getPluginCategory(key);
+}
+
+string
+PluginLoader::getLibraryPathForPlugin(PluginKey key)
+{
+    return m_impl->getLibraryPathForPlugin(key);
+}
+
+vector<PluginLoader::PluginKey>
+PluginLoader::Impl::listPlugins() 
 {
     if (m_pluginLibraryNameMap.empty()) generateLibraryMap();
 
@@ -100,7 +178,7 @@ PluginLoader::listPlugins()
 }
 
 void
-PluginLoader::generateLibraryMap()
+PluginLoader::Impl::generateLibraryMap()
 {
     vector<string> path = PluginHostAdapter::getPluginPath();
 
@@ -143,7 +221,7 @@ PluginLoader::generateLibraryMap()
 }
 
 PluginLoader::PluginKey
-PluginLoader::composePluginKey(string libraryName, string identifier)
+PluginLoader::Impl::composePluginKey(string libraryName, string identifier)
 {
     string basename = libraryName;
 
@@ -157,15 +235,17 @@ PluginLoader::composePluginKey(string libraryName, string identifier)
 }
 
 PluginLoader::PluginCategoryHierarchy
-PluginLoader::getPluginCategory(PluginKey plugin)
+PluginLoader::Impl::getPluginCategory(PluginKey plugin)
 {
     if (m_taxonomy.empty()) generateTaxonomy();
-    if (m_taxonomy.find(plugin) == m_taxonomy.end()) return PluginCategoryHierarchy();
+    if (m_taxonomy.find(plugin) == m_taxonomy.end()) {
+        return PluginCategoryHierarchy();
+    }
     return m_taxonomy[plugin];
 }
 
 string
-PluginLoader::getLibraryPathForPlugin(PluginKey plugin)
+PluginLoader::Impl::getLibraryPathForPlugin(PluginKey plugin)
 {
     if (m_pluginLibraryNameMap.empty()) generateLibraryMap();
     if (m_pluginLibraryNameMap.find(plugin) == m_pluginLibraryNameMap.end()) return "";
@@ -173,7 +253,8 @@ PluginLoader::getLibraryPathForPlugin(PluginKey plugin)
 }    
 
 Plugin *
-PluginLoader::loadPlugin(PluginKey key, float inputSampleRate, int adapterFlags)
+PluginLoader::Impl::loadPlugin(PluginKey key,
+                               float inputSampleRate, int adapterFlags)
 {
     string fullPath = getLibraryPathForPlugin(key);
     if (fullPath == "") return 0;
@@ -236,9 +317,9 @@ PluginLoader::loadPlugin(PluginKey key, float inputSampleRate, int adapterFlags)
 }
 
 void
-PluginLoader::generateTaxonomy()
+PluginLoader::Impl::generateTaxonomy()
 {
-//    cerr << "PluginLoader::generateTaxonomy" << endl;
+//    cerr << "PluginLoader::Impl::generateTaxonomy" << endl;
 
     vector<string> path = PluginHostAdapter::getPluginPath();
     string libfragment = "/lib/";
@@ -324,7 +405,7 @@ PluginLoader::generateTaxonomy()
 }    
 
 void *
-PluginLoader::loadLibrary(string path)
+PluginLoader::Impl::loadLibrary(string path)
 {
     void *handle = 0;
 #ifdef _WIN32
@@ -344,7 +425,7 @@ PluginLoader::loadLibrary(string path)
 }
 
 void
-PluginLoader::unloadLibrary(void *handle)
+PluginLoader::Impl::unloadLibrary(void *handle)
 {
 #ifdef _WIN32
     FreeLibrary((HINSTANCE)handle);
@@ -354,7 +435,7 @@ PluginLoader::unloadLibrary(void *handle)
 }
 
 void *
-PluginLoader::lookupInLibrary(void *handle, const char *symbol)
+PluginLoader::Impl::lookupInLibrary(void *handle, const char *symbol)
 {
 #ifdef _WIN32
     return (void *)GetProcAddress((HINSTANCE)handle, symbol);
@@ -364,7 +445,7 @@ PluginLoader::lookupInLibrary(void *handle, const char *symbol)
 }
 
 string
-PluginLoader::splicePath(string a, string b)
+PluginLoader::Impl::splicePath(string a, string b)
 {
 #ifdef _WIN32
     return a + "\\" + b;
@@ -374,7 +455,7 @@ PluginLoader::splicePath(string a, string b)
 }
 
 vector<string>
-PluginLoader::listFiles(string dir, string extension)
+PluginLoader::Impl::listFiles(string dir, string extension)
 {
     vector<string> files;
     size_t extlen = extension.length();
@@ -419,21 +500,21 @@ PluginLoader::listFiles(string dir, string extension)
 }
 
 void
-PluginLoader::pluginDeleted(PluginDeletionNotifyAdapter *adapter)
+PluginLoader::Impl::pluginDeleted(PluginDeletionNotifyAdapter *adapter)
 {
     void *handle = m_pluginLibraryHandleMap[adapter];
     if (handle) unloadLibrary(handle);
     m_pluginLibraryHandleMap.erase(adapter);
 }
 
-PluginLoader::PluginDeletionNotifyAdapter::PluginDeletionNotifyAdapter(Plugin *plugin,
-                                                                       PluginLoader *loader) :
+PluginLoader::Impl::PluginDeletionNotifyAdapter::PluginDeletionNotifyAdapter(Plugin *plugin,
+                                                                             Impl *loader) :
     PluginWrapper(plugin),
     m_loader(loader)
 {
 }
 
-PluginLoader::PluginDeletionNotifyAdapter::~PluginDeletionNotifyAdapter()
+PluginLoader::Impl::PluginDeletionNotifyAdapter::~PluginDeletionNotifyAdapter()
 {
     // We need to delete the plugin before calling pluginDeleted, as
     // the delete call may require calling through to the descriptor

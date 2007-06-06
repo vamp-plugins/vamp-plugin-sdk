@@ -183,30 +183,8 @@ protected:
     PluginLoader();
     virtual ~PluginLoader();
 
-    class PluginDeletionNotifyAdapter : public PluginWrapper {
-    public:
-        PluginDeletionNotifyAdapter(Plugin *plugin, PluginLoader *loader);
-        virtual ~PluginDeletionNotifyAdapter();
-    protected:
-        PluginLoader *m_loader;
-    };
-
-    virtual void pluginDeleted(PluginDeletionNotifyAdapter *adapter);
-
-    std::map<PluginKey, std::string> m_pluginLibraryNameMap;
-    void generateLibraryMap();
-
-    std::map<PluginKey, PluginCategoryHierarchy> m_taxonomy;
-    void generateTaxonomy();
-
-    std::map<Plugin *, void *> m_pluginLibraryHandleMap;
-
-    void *loadLibrary(std::string path);
-    void unloadLibrary(void *handle);
-    void *lookupInLibrary(void *handle, const char *symbol);
-
-    std::string splicePath(std::string a, std::string b);
-    std::vector<std::string> listFiles(std::string dir, std::string ext);
+    class Impl;
+    Impl *m_impl;
 
     static PluginLoader *m_instance;
 };
