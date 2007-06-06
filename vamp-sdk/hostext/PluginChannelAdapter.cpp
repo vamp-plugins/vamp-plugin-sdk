@@ -40,8 +40,51 @@ namespace Vamp {
 
 namespace HostExt {
 
+class PluginChannelAdapter::Impl
+{
+public:
+    Impl(Plugin *plugin);
+    ~Impl();
+
+    bool initialise(size_t channels, size_t stepSize, size_t blockSize);
+
+    FeatureSet process(const float *const *inputBuffers, RealTime timestamp);
+
+protected:
+    Plugin *m_plugin;
+    size_t m_blockSize;
+    size_t m_inputChannels;
+    size_t m_pluginChannels;
+    float **m_buffer;
+    const float **m_forwardPtrs;
+};
+
 PluginChannelAdapter::PluginChannelAdapter(Plugin *plugin) :
-    PluginWrapper(plugin),
+    PluginWrapper(plugin)
+{
+    m_impl = new Impl(plugin);
+}
+
+PluginChannelAdapter::~PluginChannelAdapter()
+{
+    delete m_impl;
+}
+
+bool
+PluginChannelAdapter::initialise(size_t channels, size_t stepSize, size_t blockSize)
+{
+    return m_impl->initialise(channels, stepSize, blockSize);
+}
+
+PluginChannelAdapter::FeatureSet
+PluginChannelAdapter::process(const float *const *inputBuffers,
+                              RealTime timestamp)
+{
+    return m_impl->process(inputBuffers, timestamp);
+}
+
+PluginChannelAdapter::Impl::Impl(Plugin *plugin) :
+    m_plugin(plugin),
     m_blockSize(0),
     m_inputChannels(0),
     m_pluginChannels(0),
@@ -50,8 +93,10 @@ PluginChannelAdapter::PluginChannelAdapter(Plugin *plugin) :
 {
 }
 
-PluginChannelAdapter::~PluginChannelAdapter()
+PluginChannelAdapter::Impl::~Impl()
 {
+    // the adapter will delete the plugin
+
     if (m_buffer) {
         if (m_inputChannels > m_pluginChannels) {
             delete[] m_buffer[0];
@@ -71,7 +116,7 @@ PluginChannelAdapter::~PluginChannelAdapter()
 }
 
 bool
-PluginChannelAdapter::initialise(size_t channels, size_t stepSize, size_t blockSize)
+PluginChannelAdapter::Impl::initialise(size_t channels, size_t stepSize, size_t blockSize)
 {
     m_blockSize = blockSize;
 
@@ -129,8 +174,8 @@ PluginChannelAdapter::initialise(size_t channels, size_t stepSize, size_t blockS
 }
 
 PluginChannelAdapter::FeatureSet
-PluginChannelAdapter::process(const float *const *inputBuffers,
-                              RealTime timestamp)
+PluginChannelAdapter::Impl::process(const float *const *inputBuffers,
+                                    RealTime timestamp)
 {
 //    std::cerr << "PluginChannelAdapter::process: " << m_inputChannels << " -> " << m_pluginChannels << " channels" << std::endl;
 

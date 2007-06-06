@@ -88,17 +88,8 @@ public:
     FeatureSet process(const float *const *inputBuffers, RealTime timestamp);
 
 protected:
-    size_t m_channels;
-    size_t m_blockSize;
-    float **m_freqbuf;
-    double *m_ri;
-    double *m_ro;
-    double *m_io;
-
-    void fft(unsigned int n, bool inverse,
-             double *ri, double *ii, double *ro, double *io);
-
-    size_t makeBlockSizeAcceptable(size_t) const;
+    class Impl;
+    Impl *m_impl;
 };
 
 }

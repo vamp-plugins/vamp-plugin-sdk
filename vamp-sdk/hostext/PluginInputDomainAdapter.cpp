@@ -42,20 +42,102 @@ namespace Vamp {
 
 namespace HostExt {
 
+class PluginInputDomainAdapter::Impl
+{
+public:
+    Impl(Plugin *plugin, float inputSampleRate);
+    ~Impl();
+    
+    bool initialise(size_t channels, size_t stepSize, size_t blockSize);
+
+    size_t getPreferredStepSize() const;
+    size_t getPreferredBlockSize() const;
+
+    FeatureSet process(const float *const *inputBuffers, RealTime timestamp);
+
+protected:
+    Plugin *m_plugin;
+    float m_inputSampleRate;
+    size_t m_channels;
+    size_t m_blockSize;
+    float **m_freqbuf;
+    double *m_ri;
+    double *m_ro;
+    double *m_io;
+
+    void fft(unsigned int n, bool inverse,
+             double *ri, double *ii, double *ro, double *io);
+
+    size_t makeBlockSizeAcceptable(size_t) const;
+};
+
 PluginInputDomainAdapter::PluginInputDomainAdapter(Plugin *plugin) :
-    PluginWrapper(plugin),
+    PluginWrapper(plugin)
+{
+    m_impl = new Impl(plugin, m_inputSampleRate);
+}
+
+PluginInputDomainAdapter::~PluginInputDomainAdapter()
+{
+    delete m_impl;
+}
+  
+bool
+PluginInputDomainAdapter::initialise(size_t channels, size_t stepSize, size_t blockSize)
+{
+    return m_impl->initialise(channels, stepSize, blockSize);
+}
+
+Plugin::InputDomain
+PluginInputDomainAdapter::getInputDomain() const
+{
+    return TimeDomain;
+}
+
+size_t
+PluginInputDomainAdapter::getPreferredStepSize() const
+{
+    return m_impl->getPreferredStepSize();
+}
+
+size_t
+PluginInputDomainAdapter::getPreferredBlockSize() const
+{
+    return m_impl->getPreferredBlockSize();
+}
+
+Plugin::FeatureSet
+PluginInputDomainAdapter::process(const float *const *inputBuffers, RealTime timestamp)
+{
+    return m_impl->process(inputBuffers, timestamp);
+}
+
+    PluginInputDomainAdapter::Impl::Impl(Plugin *plugin, float inputSampleRate) :
+    m_plugin(plugin),
+    m_inputSampleRate(inputSampleRate),
     m_channels(0),
     m_blockSize(0),
     m_freqbuf(0)
 {
 }
 
-PluginInputDomainAdapter::~PluginInputDomainAdapter()
+PluginInputDomainAdapter::Impl::~Impl()
 {
+    // the adapter will delete the plugin
+
+    if (m_channels > 0) {
+        for (size_t c = 0; c < m_channels; ++c) {
+            delete[] m_freqbuf[c];
+        }
+        delete[] m_freqbuf;
+        delete[] m_ri;
+        delete[] m_ro;
+        delete[] m_io;
+    }
 }
     
 bool
-PluginInputDomainAdapter::initialise(size_t channels, size_t stepSize, size_t blockSize)
+PluginInputDomainAdapter::Impl::initialise(size_t channels, size_t stepSize, size_t blockSize)
 {
     if (m_plugin->getInputDomain() == TimeDomain) {
 
@@ -66,12 +148,12 @@ PluginInputDomainAdapter::initialise(size_t channels, size_t stepSize, size_t bl
     }
 
     if (blockSize < 2) {
-        std::cerr << "ERROR: Vamp::HostExt::PluginInputDomainAdapter::initialise: blocksize < 2 not supported" << std::endl;
+        std::cerr << "ERROR: Vamp::HostExt::PluginInputDomainAdapter::Impl::initialise: blocksize < 2 not supported" << std::endl;
         return false;
     }                
         
     if (blockSize & (blockSize-1)) {
-        std::cerr << "ERROR: Vamp::HostExt::PluginInputDomainAdapter::initialise: non-power-of-two\nblocksize " << blockSize << " not supported" << std::endl;
+        std::cerr << "ERROR: Vamp::HostExt::PluginInputDomainAdapter::Impl::initialise: non-power-of-two\nblocksize " << blockSize << " not supported" << std::endl;
         return false;
     }
 
@@ -99,14 +181,8 @@ PluginInputDomainAdapter::initialise(size_t channels, size_t stepSize, size_t bl
     return m_plugin->initialise(channels, stepSize, blockSize);
 }
 
-Plugin::InputDomain
-PluginInputDomainAdapter::getInputDomain() const
-{
-    return TimeDomain;
-}
-
 size_t
-PluginInputDomainAdapter::getPreferredStepSize() const
+PluginInputDomainAdapter::Impl::getPreferredStepSize() const
 {
     size_t step = m_plugin->getPreferredStepSize();
 
@@ -118,7 +194,7 @@ PluginInputDomainAdapter::getPreferredStepSize() const
 }
 
 size_t
-PluginInputDomainAdapter::getPreferredBlockSize() const
+PluginInputDomainAdapter::Impl::getPreferredBlockSize() const
 {
     size_t block = m_plugin->getPreferredBlockSize();
 
@@ -134,11 +210,11 @@ PluginInputDomainAdapter::getPreferredBlockSize() const
 }
 
 size_t
-PluginInputDomainAdapter::makeBlockSizeAcceptable(size_t blockSize) const
+PluginInputDomainAdapter::Impl::makeBlockSizeAcceptable(size_t blockSize) const
 {
     if (blockSize < 2) {
 
-        std::cerr << "WARNING: Vamp::HostExt::PluginInputDomainAdapter::initialise: blocksize < 2 not" << std::endl
+        std::cerr << "WARNING: Vamp::HostExt::PluginInputDomainAdapter::Impl::initialise: blocksize < 2 not" << std::endl
                   << "supported, increasing from " << blockSize << " to 2" << std::endl;
         blockSize = 2;
         
@@ -163,7 +239,7 @@ PluginInputDomainAdapter::makeBlockSizeAcceptable(size_t blockSize) const
             nearest = nearest*2;
         }
         
-        std::cerr << "WARNING: Vamp::HostExt::PluginInputDomainAdapter::initialise: non-power-of-two\nblocksize " << blockSize << " not supported, using blocksize " << nearest << " instead" << std::endl;
+        std::cerr << "WARNING: Vamp::HostExt::PluginInputDomainAdapter::Impl::initialise: non-power-of-two\nblocksize " << blockSize << " not supported, using blocksize " << nearest << " instead" << std::endl;
         blockSize = nearest;
     }
 
@@ -176,7 +252,8 @@ PluginInputDomainAdapter::makeBlockSizeAcceptable(size_t blockSize) const
 #endif
 
 Plugin::FeatureSet
-PluginInputDomainAdapter::process(const float *const *inputBuffers, RealTime timestamp)
+PluginInputDomainAdapter::Impl::process(const float *const *inputBuffers,
+                                        RealTime timestamp)
 {
     if (m_plugin->getInputDomain() == TimeDomain) {
         return m_plugin->process(inputBuffers, timestamp);
@@ -259,8 +336,8 @@ PluginInputDomainAdapter::process(const float *const *inputBuffers, RealTime tim
 }
 
 void
-PluginInputDomainAdapter::fft(unsigned int n, bool inverse,
-                              double *ri, double *ii, double *ro, double *io)
+PluginInputDomainAdapter::Impl::fft(unsigned int n, bool inverse,
+                                    double *ri, double *ii, double *ro, double *io)
 {
     if (!ri || !ro || !io) return;
 

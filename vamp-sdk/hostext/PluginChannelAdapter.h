@@ -113,11 +113,8 @@ public:
     FeatureSet process(const float *const *inputBuffers, RealTime timestamp);
 
 protected:
-    size_t m_blockSize;
-    size_t m_inputChannels;
-    size_t m_pluginChannels;
-    float **m_buffer;
-    const float **m_forwardPtrs;
+    class Impl;
+    Impl *m_impl;
 };
 
 }
