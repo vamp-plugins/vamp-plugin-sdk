@@ -75,13 +75,22 @@ public:
     /**
      * PluginKey is a string type that is used to identify a plugin
      * uniquely within the scope of "the current system".  It consists
-     * of the base name of the plugin library, a colon separator, and
-     * the identifier string for the plugin.  It is only meaningful in
-     * the context of a given plugin path (the one returned by
-     * PluginHostAdapter::getPluginPath()).
+     * of the lower-cased base name of the plugin library, a colon
+     * separator, and the identifier string for the plugin.  It is
+     * only meaningful in the context of a given plugin path (the one
+     * returned by PluginHostAdapter::getPluginPath()).
      *
      * Use composePluginKey to construct a plugin key from a known
      * plugin library name and identifier.
+     *
+     * Note: the fact that the library component of the key is
+     * lower-cased implies that library names are matched
+     * case-insensitively by the PluginLoader class, regardless of the
+     * case sensitivity of the underlying filesystem.  (Plugin
+     * identifiers _are_ case sensitive, however.)  Also, it is not
+     * possible to portably extract a working library name from a
+     * plugin key, as the result may fail on case-sensitive
+     * filesystems.  Use getLibraryPathForPlugin instead.
      */
     typedef std::string PluginKey;
 

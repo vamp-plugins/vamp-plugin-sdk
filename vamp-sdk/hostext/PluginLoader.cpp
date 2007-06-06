@@ -212,11 +212,17 @@ PluginLoader::Impl::enumeratePlugins(PluginKey forPlugin)
              fi != files.end(); ++fi) {
             
             if (libraryName != "") {
-                string::size_type pi = fi->find('.');
+                // libraryName is lowercased and lacking an extension,
+                // as it came from the plugin key
+                string temp = *fi;
+                for (size_t i = 0; i < temp.length(); ++i) {
+                    temp[i] = std::tolower(temp[i]);
+                }
+                string::size_type pi = temp.find('.');
                 if (pi == string::npos) {
-                    if (libraryName != *fi) continue;
+                    if (libraryName != temp) continue;
                 } else {
-                    if (libraryName != fi->substr(0, pi)) continue;
+                    if (libraryName != temp.substr(0, pi)) continue;
                 }
             }
 
@@ -260,8 +266,6 @@ PluginLoader::Impl::enumeratePlugins(PluginKey forPlugin)
 PluginLoader::PluginKey
 PluginLoader::Impl::composePluginKey(string libraryName, string identifier)
 {
-    //!!! deal with case issues
-    
     string basename = libraryName;
 
     string::size_type li = basename.rfind('/');
@@ -269,6 +273,10 @@ PluginLoader::Impl::composePluginKey(string libraryName, string identifier)
 
     li = basename.find('.');
     if (li != string::npos) basename = basename.substr(0, li);
+
+    for (size_t i = 0; i < basename.length(); ++i) {
+        basename[i] = std::tolower(basename[i]);
+    }
 
     return basename + ":" + identifier;
 }
