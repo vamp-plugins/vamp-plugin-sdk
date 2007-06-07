@@ -44,6 +44,8 @@ namespace Vamp {
 namespace HostExt {
 
 /**
+ * \class PluginChannelAdapter PluginChannelAdapter.h <vamp-sdk/hostext/PluginChannelAdapter.h>
+ *
  * PluginChannelAdapter is a Vamp plugin adapter that implements a
  * policy for management of plugins that expect a different number of
  * input channels from the number actually available in the source
@@ -101,7 +103,7 @@ namespace HostExt {
  * wraps.  The wrapped plugin will be deleted when the wrapper is
  * deleted.
  *
- * \note This class was introduced version 1.1 of the Vamp plugin SDK.
+ * \note This class was introduced in version 1.1 of the Vamp plugin SDK.
  */
 
 class PluginChannelAdapter : public PluginWrapper

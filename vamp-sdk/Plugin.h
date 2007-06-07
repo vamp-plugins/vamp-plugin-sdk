@@ -47,6 +47,8 @@
 namespace Vamp {
 
 /**
+ * \class Plugin Plugin.h <vamp-sdk/Plugin.h>
+ * 
  * Vamp::Plugin is a base class for plugin instance classes
  * that provide feature extraction from audio or related data.
  *

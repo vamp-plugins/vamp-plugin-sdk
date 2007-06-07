@@ -46,6 +46,8 @@
 namespace Vamp {
 
 /**
+ * \class PluginAdapterBase PluginAdapter.h <vamp-sdk/PluginAdapter.h>
+ * 
  * PluginAdapter and PluginAdapterBase provide a wrapper class that a
  * plugin library can use to make its C++ Vamp::Plugin objects
  * available through the Vamp C API.
@@ -55,7 +57,7 @@ namespace Vamp {
  * plugin class T in their library.  It's very simple, and you need to
  * know absolutely nothing about how it works in order to use it.
  * Just cut and paste from an existing plugin's discovery function.
- * @see vampGetPluginDescriptor
+ * \see vampGetPluginDescriptor
  */
 
 class PluginAdapterBase
@@ -74,77 +76,13 @@ protected:
 
     virtual Plugin *createPlugin(float inputSampleRate) = 0;
 
-    static VampPluginHandle vampInstantiate(const VampPluginDescriptor *desc,
-                                          float inputSampleRate);
-
-    static void vampCleanup(VampPluginHandle handle);
-
-    static int vampInitialise(VampPluginHandle handle, unsigned int channels,
-                             unsigned int stepSize, unsigned int blockSize);
-
-    static void vampReset(VampPluginHandle handle);
-
-    static float vampGetParameter(VampPluginHandle handle, int param);
-    static void vampSetParameter(VampPluginHandle handle, int param, float value);
-
-    static unsigned int vampGetCurrentProgram(VampPluginHandle handle);
-    static void vampSelectProgram(VampPluginHandle handle, unsigned int program);
-
-    static unsigned int vampGetPreferredStepSize(VampPluginHandle handle);
-    static unsigned int vampGetPreferredBlockSize(VampPluginHandle handle);
-    static unsigned int vampGetMinChannelCount(VampPluginHandle handle);
-    static unsigned int vampGetMaxChannelCount(VampPluginHandle handle);
-
-    static unsigned int vampGetOutputCount(VampPluginHandle handle);
-
-    static VampOutputDescriptor *vampGetOutputDescriptor(VampPluginHandle handle,
-                                                       unsigned int i);
-
-    static void vampReleaseOutputDescriptor(VampOutputDescriptor *desc);
-
-    static VampFeatureList *vampProcess(VampPluginHandle handle,
-                                        const float *const *inputBuffers,
-                                        int sec,
-                                        int nsec);
-
-    static VampFeatureList *vampGetRemainingFeatures(VampPluginHandle handle);
-
-    static void vampReleaseFeatureSet(VampFeatureList *fs);
-
-    void cleanup(Plugin *plugin);
-    void checkOutputMap(Plugin *plugin);
-    unsigned int getOutputCount(Plugin *plugin);
-    VampOutputDescriptor *getOutputDescriptor(Plugin *plugin,
-                                             unsigned int i);
-    VampFeatureList *process(Plugin *plugin,
-                             const float *const *inputBuffers,
-                             int sec, int nsec);
-    VampFeatureList *getRemainingFeatures(Plugin *plugin);
-    VampFeatureList *convertFeatures(Plugin *plugin,
-                                     const Plugin::FeatureSet &features);
-    
-    // maps both plugins and descriptors to adapters
-    typedef std::map<const void *, PluginAdapterBase *> AdapterMap;
-    static AdapterMap *m_adapterMap;
-    static PluginAdapterBase *lookupAdapter(VampPluginHandle);
-
-    bool m_populated;
-    VampPluginDescriptor m_descriptor;
-    Plugin::ParameterList m_parameters;
-    Plugin::ProgramList m_programs;
-    
-    typedef std::map<Plugin *, Plugin::OutputList *> OutputMap;
-    OutputMap m_pluginOutputs;
-
-    std::map<Plugin *, VampFeatureList *> m_fs;
-    std::map<Plugin *, std::vector<size_t> > m_fsizes;
-    std::map<Plugin *, std::vector<std::vector<size_t> > > m_fvsizes;
-    void resizeFS(Plugin *plugin, int n);
-    void resizeFL(Plugin *plugin, int n, size_t sz);
-    void resizeFV(Plugin *plugin, int n, int j, size_t sz);
+    class Impl;
+    Impl *m_impl;
 };
 
 /**
+ * \class PluginAdapter PluginAdapter.h <vamp-sdk/PluginAdapter.h>
+ * 
  * PluginAdapter turns a PluginAdapterBase into a specific wrapper for
  * a particular plugin implementation.
  *

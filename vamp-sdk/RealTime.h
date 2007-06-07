@@ -52,6 +52,8 @@ struct timeval;
 namespace Vamp {
 
 /**
+ * \class RealTime RealTime.h <vamp-sdk/RealTime.h>
+ * 
  * RealTime represents time values to nanosecond precision
  * with accurate arithmetic and frame-rate conversion functions.
  */

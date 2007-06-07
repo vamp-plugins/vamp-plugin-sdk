@@ -45,6 +45,8 @@
 namespace Vamp {
 
 /**
+ * \class PluginHostAdapter PluginHostAdapter.h <vamp-sdk/PluginHostAdapter.h>
+ * 
  * PluginHostAdapter is a wrapper class that a Vamp host can use to
  * make the C-language VampPluginDescriptor object appear as a C++
  * Vamp::Plugin object.

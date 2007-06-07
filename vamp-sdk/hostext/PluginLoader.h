@@ -50,6 +50,8 @@ class Plugin;
 namespace HostExt {
 
 /**
+ * \class PluginLoader PluginLoader.h <vamp-sdk/hostext/PluginLoader.h>
+ * 
  * Vamp::HostExt::PluginLoader is a convenience class for discovering
  * and loading Vamp plugins using the typical plugin-path, library
  * naming, and categorisation conventions described in the Vamp SDK
@@ -61,7 +63,7 @@ namespace HostExt {
  * class, and are certainly not required to use this actual class.
  * But we do strongly recommend it.
  *
- * \note This class was introduced version 1.1 of the Vamp plugin SDK.
+ * \note This class was introduced in version 1.1 of the Vamp plugin SDK.
  */
 
 class PluginLoader
