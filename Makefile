@@ -27,7 +27,7 @@ default:	all
 
 # Compile flags
 #
-CXXFLAGS	:= $(CXXFLAGS) -g -Wall -I.
+CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -I.
 
 # Libraries required for the plugins.
 # (Note that it is desirable to statically link libstdc++ if possible,
