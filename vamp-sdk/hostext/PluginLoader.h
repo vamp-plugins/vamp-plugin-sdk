@@ -59,16 +59,17 @@ namespace HostExt {
  * Hosts are not required by the Vamp specification to use the same
  * plugin search path and naming conventions as implemented by this
  * class, and are certainly not required to use this actual class.
- * But it's recommended, for sound practical reasons.
+ * But we do strongly recommend it.
+ *
+ * \note This class was introduced version 1.1 of the Vamp plugin SDK.
  */
 
 class PluginLoader
 {
 public:
     /**
-     * PluginLoader is a singleton class.  This function returns a
-     * pointer to the single instance of it.  Use this to obtain your
-     * loader object.
+     * Obtain a pointer to the singleton instance of PluginLoader.
+     * Use this to obtain your loader object.
      */
     static PluginLoader *getInstance();
 
@@ -80,7 +81,7 @@ public:
      * only meaningful in the context of a given plugin path (the one
      * returned by PluginHostAdapter::getPluginPath()).
      *
-     * Use composePluginKey to construct a plugin key from a known
+     * Use composePluginKey() to construct a plugin key from a known
      * plugin library name and identifier.
      *
      * Note: the fact that the library component of the key is
@@ -90,13 +91,13 @@ public:
      * identifiers _are_ case sensitive, however.)  Also, it is not
      * possible to portably extract a working library name from a
      * plugin key, as the result may fail on case-sensitive
-     * filesystems.  Use getLibraryPathForPlugin instead.
+     * filesystems.  Use getLibraryPathForPlugin() instead.
      */
     typedef std::string PluginKey;
 
     /**
      * PluginKeyList is a sequence of plugin keys, such as returned by
-     * a plugin lookup function.
+     * listPlugins().
      */
     typedef std::vector<PluginKey> PluginKeyList;
 
@@ -107,6 +108,8 @@ public:
      * category forest, containing the human-readable names of the
      * plugin's category tree root, followed by each of the nodes down
      * to the leaf containing the plugin.
+     *
+     * \see getPluginCategory()
      */
     typedef std::vector<std::string> PluginCategoryHierarchy;
 
@@ -136,6 +139,8 @@ public:
      * This enables a host to use plugins that may require the input
      * to be mixed down to mono, etc., without having to worry about
      * doing that itself.
+     *
+     * ADAPT_ALL - Perform all available adaptations, where meaningful.
      * 
      * See PluginInputDomainAdapter and PluginChannelAdapter for more
      * details of the classes that the loader may use if these flags
@@ -151,14 +156,18 @@ public:
      * Load a Vamp plugin, given its identifying key.  If the plugin
      * could not be loaded, returns 0.
      *
-     * adapterFlags is a bitwise OR of the values in the AdapterFlags
-     * enum, indicating under which circumstances an adapter should be
-     * used to wrap the original plugin.  See AdapterFlags for more
-     * details.  If adapterFlags is 0, no optional adapters will be
-     * used.
-     *
      * The returned plugin should be deleted (using the standard C++
-     * delete) after use.
+     * delete keyword) after use.
+     *
+     * \param adapterFlags a bitwise OR of the values in the AdapterFlags
+     * enumeration, indicating under which circumstances an adapter should be
+     * used to wrap the original plugin.  If adapterFlags is 0, no
+     * optional adapters will be used.  Otherwise, the returned plugin
+     * may be of an adapter class type which will behave identically
+     * to the original plugin, apart from any particular features
+     * implemented by the adapter itself.
+     * 
+     * \see AdapterFlags, PluginInputDomainAdapter, PluginChannelAdapter
      */
     Plugin *loadPlugin(PluginKey key,
                        float inputSampleRate,
@@ -167,18 +176,19 @@ public:
     /**
      * Given a Vamp plugin library name and plugin identifier, return
      * the corresponding plugin key in a form suitable for passing in to
-     * loadPlugin.
+     * loadPlugin().
      */
     PluginKey composePluginKey(std::string libraryName,
                                std::string identifier);
 
     /**
      * Return the category hierarchy for a Vamp plugin, given its
-     * identifying key.  See PluginCategoryHierarchy documentation for
-     * more details.
+     * identifying key.
      *
      * If the plugin has no category information, return an empty
      * hierarchy.
+     *
+     * \see PluginCategoryHierarchy
      */
     PluginCategoryHierarchy getPluginCategory(PluginKey plugin);
 

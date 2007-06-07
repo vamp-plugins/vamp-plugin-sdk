@@ -55,27 +55,27 @@ namespace HostExt {
  *
  * PluginChannelAdapter implements the following policy:
  *
- * -- If the plugin supports the provided number of channels directly,
- * PluginChannelAdapter will just run the plugin as normal.
+ *  - If the plugin supports the provided number of channels directly,
+ *  PluginChannelAdapter will just run the plugin as normal.
  *
- * -- If the plugin only supports exactly one channel but more than
- * one channel is provided, PluginChannelAdapter will use the mean of
- * the channels.  This ensures that the resulting values remain within
- * the same magnitude range as expected for mono data.
+ *  - If the plugin only supports exactly one channel but more than
+ *  one channel is provided, PluginChannelAdapter will use the mean of
+ *  the channels.  This ensures that the resulting values remain
+ *  within the same magnitude range as expected for mono data.
  *
- * -- If the plugin requires more than one channel but exactly one is
- * provided, the provided channel will be duplicated across all the
- * plugin input channels.
+ *  - If the plugin requires more than one channel but exactly one is
+ *  provided, the provided channel will be duplicated across all the
+ *  plugin input channels.
  *
  * If none of the above apply:
  * 
- * -- If the plugin requires more channels than are provided, the
- * minimum acceptable number of channels will be produced by adding
- * empty (zero valued) channels to those provided.
+ *  - If the plugin requires more channels than are provided, the
+ *  minimum acceptable number of channels will be produced by adding
+ *  empty (zero valued) channels to those provided.
  *
- * -- If the plugin requires fewer channels than are provided, the
- * maximum acceptable number of channels will be produced by
- * discarding the excess channels.
+ *  - If the plugin requires fewer channels than are provided, the
+ *  maximum acceptable number of channels will be produced by
+ *  discarding the excess channels.
  *
  * Hosts requiring a different channel policy from the above will need
  * to implement it themselves, instead of using PluginChannelAdapter.
@@ -100,6 +100,8 @@ namespace HostExt {
  * PluginChannelAdapter behaves identically to the plugin that it
  * wraps.  The wrapped plugin will be deleted when the wrapper is
  * deleted.
+ *
+ * \note This class was introduced version 1.1 of the Vamp plugin SDK.
  */
 
 class PluginChannelAdapter : public PluginWrapper

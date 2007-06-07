@@ -44,10 +44,36 @@ The following example plugins are provided:
 
 \section hosts For Hosts
 
-Hosts will usually want to use a Vamp::PluginHostAdapter to convert
-each plugin's exposed C API back into a useful Vamp::Plugin object.
+Hosts will normally use a Vamp::PluginHostAdapter to convert each
+plugin's exposed C API back into a useful Vamp::Plugin C++ object.
+
+Starting with version 1.1 of the Vamp SDK, there are several classes
+in the Vamp::HostExt namespace that aim to make the host's life as
+easy as possible:
+
+ - Vamp::HostExt::PluginLoader provides a very simple interface for a
+ host to discover, load, and find out category information about the
+ available plugins.  Most "casual" Vamp hosts will probably want to
+ use this class.
+
+ - Vamp::HostExt::PluginInputDomainAdapter provides a simple means for
+ hosts to handle plugins that expect frequency-domain input, without
+ having to convert the input themselves.
+
+ - Vamp::HostExt::PluginChannelAdapter provides a simple means for
+ hosts to use plugins that do not necessarily support the same number
+ of audio channels as they have available, without having to apply a
+ channel management / mixdown policy themselves.
+
+The PluginLoader class can also use the input domain and channel
+adapters automatically to make the entire conversion process
+transparent to the host if required.
 
 Hosts should link with -lvamp-hostsdk.
+
+(The following notes in this section are mostly relevant for
+developers that are not using the HostExt classes, or that wish to
+know more about the policy they implement.)
 
 The Vamp API does not officially specify how to load plugin libraries
 or where to find them.  However, the SDK does include a function
@@ -78,8 +104,8 @@ advanced users may also choose to set up their own preferred category
 trees, which is why this information is not queried as part of the
 Vamp API itself.
 
-There is an example host in the "host" directory from
-which code may be drawn.
+There is an example host in the "host" directory from which code may
+be drawn.
 
 \section license License
 

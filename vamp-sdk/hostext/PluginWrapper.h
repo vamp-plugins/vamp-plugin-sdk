@@ -50,6 +50,8 @@ namespace HostExt {
  * delegate through to the wrapped plugin.  A subclass can therefore
  * override only the methods that are meaningful for the particular
  * adapter.
+ *
+ * \note This class was introduced version 1.1 of the Vamp plugin SDK.
  */
 
 class PluginWrapper : public Plugin

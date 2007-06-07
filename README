@@ -79,7 +79,8 @@ with -lvamp-hostsdk.
 
  * vamp-sdk/hostext
 
-Additional C++ classes to make a host's life easier.
+Additional C++ classes to make a host's life easier (introduced in
+version 1.1 of the Vamp SDK).
 
 Vamp::HostExt::PluginLoader provides a very simple interface for a
 host to discover, load, and find out category information about the
@@ -95,9 +96,9 @@ to use plugins that do not necessarily support the same number of
 audio channels as they have available, without having to apply a
 channel management / mixdown policy themselves.
 
-The PluginLoader can use the input domain and channel adapters
-automatically to make the entire conversion process transparent to the
-host if required.
+The PluginLoader class can also use the input domain and channel
+adapters automatically to make the entire conversion process
+transparent to the host if required.
 
  * examples
 
@@ -117,8 +118,8 @@ it to process a complete audio file, with its default parameters.
 Requires libsndfile (http://www.mega-nerd.com/libsndfile/).
 
 If you don't have libsndfile, you may want to edit the Makefile to
-change the default build target from "all" to "sdk" so as to compile
-only the SDK.
+change the default build target from "all" to "sdk", so as to compile
+only the SDK and not the host.
 
 
 Plugin Lookup and Categorisation
@@ -127,14 +128,20 @@ Plugin Lookup and Categorisation
 The Vamp API does not officially specify how to load plugin libraries
 or where to find them.  However, the SDK does include a function
 (Vamp::PluginHostAdapter::getPluginPath()) that returns a recommended
-directory search path that hosts may use for plugin libraries.
+directory search path that hosts may use for plugin libraries, and a
+class (Vamp::HostExt::PluginLoader) that implements a sensible
+cross-platform lookup policy using this path.  We recommend using this
+class in your host unless you have a good reason not to want to.  This
+implementation also permits the user to set the environment variable
+VAMP_PATH to override the default path if desired.
 
-Our suggestion for a host is to search each directory in this path for
-.DLL (on Windows), .so (on Linux, Solaris, BSD etc) or .dylib (on
-OS/X) files, then to load each one and perform a dynamic name lookup
-on the vampGetPluginDescriptor function to enumerate the plugins in
-the library.  The example host has some code that may help, but this
-operation will necessarily be system-dependent.
+The policy used by Vamp::HostExt::PluginLoader -- and our
+recommendation for any host -- is to search each directory in the path
+returned by getPluginPath for .DLL (on Windows), .so (on Linux,
+Solaris, BSD etc) or .dylib (on OS/X) files, then to load each one and
+perform a dynamic name lookup on the vampGetPluginDescriptor function
+to enumerate the plugins in the library.  This operation will
+necessarily be system-dependent.
 
 Vamp also has an informal convention for sorting plugins into
 functional categories.  In addition to the library file itself, a
@@ -149,7 +156,8 @@ which a host may read and use to assign plugins a location within a
 category tree for display to the user.  The expectation is that
 advanced users may also choose to set up their own preferred category
 trees, which is why this information is not queried as part of the
-Vamp API itself.
+Vamp plugin's API itself.  The Vamp::HostExt::PluginLoader class also
+provides support for plugin category lookup using this scheme.
 
 
 Building and Installing the SDK and Examples

@@ -450,7 +450,7 @@ WARN_LOGFILE           = docs/doxygen/warning.log
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = vamp vamp-sdk examples host
+INPUT                  = vamp vamp-sdk vamp-sdk/hostext examples host
 
 # If the value of the INPUT tag contains directories, you can use the
 # FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp

@@ -70,6 +70,8 @@ namespace HostExt {
  * PluginInputDomainAdapter behaves identically to the plugin that it
  * wraps.  The wrapped plugin will be deleted when the wrapper is
  * deleted.
+ *
+ * \note This class was introduced version 1.1 of the Vamp plugin SDK.
  */
 
 class PluginInputDomainAdapter : public PluginWrapper

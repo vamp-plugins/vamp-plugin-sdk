@@ -40,6 +40,7 @@
 #include "PluginChannelAdapter.h"
 
 #include <fstream>
+#include <cctype> // tolower
 
 #ifdef _WIN32
 
@@ -216,7 +217,7 @@ PluginLoader::Impl::enumeratePlugins(PluginKey forPlugin)
                 // as it came from the plugin key
                 string temp = *fi;
                 for (size_t i = 0; i < temp.length(); ++i) {
-                    temp[i] = std::tolower(temp[i]);
+                    temp[i] = tolower(temp[i]);
                 }
                 string::size_type pi = temp.find('.');
                 if (pi == string::npos) {
@@ -275,7 +276,7 @@ PluginLoader::Impl::composePluginKey(string libraryName, string identifier)
     if (li != string::npos) basename = basename.substr(0, li);
 
     for (size_t i = 0; i < basename.length(); ++i) {
-        basename[i] = std::tolower(basename[i]);
+        basename[i] = tolower(basename[i]);
     }
 
     return basename + ":" + identifier;
