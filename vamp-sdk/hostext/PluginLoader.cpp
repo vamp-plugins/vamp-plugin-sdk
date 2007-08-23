@@ -525,7 +525,6 @@ vector<string>
 PluginLoader::Impl::listFiles(string dir, string extension)
 {
     vector<string> files;
-    size_t extlen = extension.length();
 
 #ifdef _WIN32
 
@@ -543,6 +542,8 @@ PluginLoader::Impl::listFiles(string dir, string extension)
     FindClose(fh);
 
 #else
+
+    size_t extlen = extension.length();
     DIR *d = opendir(dir.c_str());
     if (!d) return files;
             

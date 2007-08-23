@@ -361,14 +361,14 @@ public:
      * will point to one array of floats per input channel, and each
      * of these arrays will contain blockSize/2+1 consecutive pairs of
      * real and imaginary component floats corresponding to bins
-     * 0..(blockSize/2) of the FFT output, where bin 0 contains the DC
-     * output and bin blockSize/2 corresponds to the Nyquist output.
-     * There will therefore be blockSize+2 floats per channel in total.
-     * The timestamp will be the real time in seconds of the centre of
-     * the FFT input window (i.e. the very first block passed to
-     * process might contain the FFT of half a block of zero samples
-     * and the first half-block of the actual data, with a timestamp
-     * of zero).
+     * 0..(blockSize/2) of the FFT output.  That is, bin 0 (the first
+     * pair of floats) contains the DC output, up to bin blockSize/2
+     * which contains the Nyquist-frequency output.  There will
+     * therefore be blockSize+2 floats per channel in total.  The
+     * timestamp will be the real time in seconds of the centre of the
+     * FFT input window (i.e. the very first block passed to process
+     * might contain the FFT of half a block of zero samples and the
+     * first half-block of the actual data, with a timestamp of zero).
      *
      * Return any features that have become available after this
      * process call.  (These do not necessarily have to fall within
