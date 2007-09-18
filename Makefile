@@ -27,7 +27,7 @@ default:	all
 
 # Compile flags
 #
-CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -I.
+CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -I. -fpic
 
 # Libraries required for the plugins.
 # (Note that it is desirable to statically link libstdc++ if possible,
@@ -35,18 +35,11 @@ CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -I.
 # compatibility problems.)
 #
 PLUGIN_LIBS	= $(SDKDIR)/libvamp-sdk.a
-#PLUGIN_LIBS	= vamp-sdk/libvamp-sdk.a $(shell g++ -print-file-name=libstdc++.a)
-
-# Flags required to tell the compiler to link to a dynamically loadable object
-#
-PLUGIN_LDFLAGS	= -shared -Wl,-Bsymbolic -static-libgcc
+#PLUGIN_LIBS	= $(SDKDIR)/libvamp-sdk.a $(shell g++ -print-file-name=libstdc++.a)
 
 # File extension for a dynamically loadable object
 #
 PLUGIN_EXT	= .so
-
-## For OS/X with g++:
-#PLUGIN_LDFLAGS	= -dynamiclib
 #PLUGIN_EXT	= .dylib
 
 # Libraries required for the host.
@@ -63,19 +56,30 @@ INSTALL_SDK_HEADERS	  := $(INSTALL_PREFIX)/include/vamp-sdk
 INSTALL_HOSTEXT_HEADERS	  := $(INSTALL_PREFIX)/include/vamp-sdk/hostext
 INSTALL_SDK_LIBS	  := $(INSTALL_PREFIX)/lib
 
-INSTALL_SDK_LIBNAME	  := libvamp-sdk.so.1.0.0
+INSTALL_SDK_LIBNAME	  := libvamp-sdk.so.1.1.0
 INSTALL_SDK_LINK_ABI	  := libvamp-sdk.so.1
 INSTALL_SDK_LINK_DEV	  := libvamp-sdk.so
 INSTALL_SDK_STATIC        := libvamp-sdk.a
 INSTALL_SDK_LA            := libvamp-sdk.la
 
-INSTALL_HOSTSDK_LIBNAME   := libvamp-hostsdk.so.1.0.0
-INSTALL_HOSTSDK_LINK_ABI  := libvamp-hostsdk.so.1
+INSTALL_HOSTSDK_LIBNAME   := libvamp-hostsdk.so.2.0.0
+INSTALL_HOSTSDK_LINK_ABI  := libvamp-hostsdk.so.2
 INSTALL_HOSTSDK_LINK_DEV  := libvamp-hostsdk.so
 INSTALL_HOSTSDK_STATIC    := libvamp-hostsdk.a
 INSTALL_HOSTSDK_LA        := libvamp-hostsdk.la
 
 INSTALL_PKGCONFIG	  := $(INSTALL_PREFIX)/lib/pkgconfig
+
+# Flags required to tell the compiler to create a dynamically loadable object
+#
+DYNAMIC_LDFLAGS		= -shared -Wl,-Bsymbolic
+PLUGIN_LDFLAGS		= $(DYNAMIC_LDFLAGS)
+SDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS) -Wl,-soname=$(INSTALL_SDK_LIBNAME)
+HOSTSDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS) -Wl,-soname=$(INSTALL_SDK_LIBNAME)
+
+## For OS/X with g++:
+#PLUGIN_LDFLAGS	= -dynamiclib
+
 
 ### End of user-serviceable parts
 
@@ -168,10 +172,10 @@ $(HOSTSDK_STATIC):	$(HOSTSDK_OBJECTS) $(API_HEADERS) $(HOSTSDK_HEADERS) $(HOSTEX
 		$(AR) r $@ $(HOSTSDK_OBJECTS)
 
 $(SDK_DYNAMIC):	$(SDK_OBJECTS) $(API_HEADERS) $(SDK_HEADERS)
-		$(CXX) $(LDFLAGS) $(PLUGIN_LDFLAGS) -o $@ $(SDK_OBJECTS)
+		$(CXX) $(LDFLAGS) $(SDK_DYNAMIC_LDFLAGS) -o $@ $(SDK_OBJECTS)
 
 $(HOSTSDK_DYNAMIC):	$(HOSTSDK_OBJECTS) $(API_HEADERS) $(HOSTSDK_HEADERS) $(HOSTEXT_HEADERS)
-		$(CXX) $(LDFLAGS) $(PLUGIN_LDFLAGS) -o $@ $(HOSTSDK_OBJECTS)
+		$(CXX) $(LDFLAGS) $(HOSTSDK_DYNAMIC_LDFLAGS) -o $@ $(HOSTSDK_OBJECTS)
 
 $(PLUGIN_TARGET):	$(PLUGIN_OBJECTS) $(SDK_STATIC) $(PLUGIN_HEADERS)
 		$(CXX) $(LDFLAGS) $(PLUGIN_LDFLAGS) -o $@ $(PLUGIN_OBJECTS) $(PLUGIN_LIBS)
