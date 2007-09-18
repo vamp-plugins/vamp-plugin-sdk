@@ -95,9 +95,9 @@ namespace Vamp {
  * (although if possible it should accept the new values).  Any
  * computationally expensive setup code should take place here.
  *
- * 6. Host finally checks the number of values per output (which may
- * vary depending on the number of channels, step size and block size
- * as well as the parameter values).
+ * 6. Host finally checks the number of values, resolution, extents
+ * etc per output (which may vary depending on the number of channels,
+ * step size and block size as well as the parameter values).
  *
  * 7. Host will repeatedly call the process method to pass in blocks
  * of input data.  This method may return features extracted from that

@@ -54,7 +54,10 @@ using std::cerr;
 using std::endl;
 
 #include "RealTime.h"
+
+#ifndef _WIN32
 #include "sys/time.h"
+#endif
 
 namespace Vamp {
 
@@ -96,11 +99,13 @@ RealTime::fromMilliseconds(int msec)
     return RealTime(msec / 1000, (msec % 1000) * 1000000);
 }
 
+#ifndef _WIN32
 RealTime
 RealTime::fromTimeval(const struct timeval &tv)
 {
     return RealTime(tv.tv_sec, tv.tv_usec * 1000);
 }
+#endif
 
 std::ostream &operator<<(std::ostream &out, const RealTime &rt)
 {

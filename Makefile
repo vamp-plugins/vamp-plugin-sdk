@@ -57,7 +57,7 @@ HOST_LIBS	= $(SDKDIR)/libvamp-hostsdk.a -lsndfile -ldl
 # editing for non-Linux platforms.  Of course you don't necessarily
 # have to use "make install".
 #
-INSTALL_PREFIX	 	  := /usr/local
+INSTALL_PREFIX	 	  := /usr
 INSTALL_API_HEADERS	  := $(INSTALL_PREFIX)/include/vamp
 INSTALL_SDK_HEADERS	  := $(INSTALL_PREFIX)/include/vamp-sdk
 INSTALL_HOSTEXT_HEADERS	  := $(INSTALL_PREFIX)/include/vamp-sdk/hostext

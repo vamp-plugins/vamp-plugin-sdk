@@ -47,7 +47,9 @@
 #include <iostream>
 #include <string>
 
+#ifndef _WIN32
 struct timeval;
+#endif
 
 namespace Vamp {
 
@@ -74,7 +76,10 @@ struct RealTime
 
     static RealTime fromSeconds(double sec);
     static RealTime fromMilliseconds(int msec);
+
+#ifndef _WIN32
     static RealTime fromTimeval(const struct timeval &);
+#endif
 
     RealTime &operator=(const RealTime &r) {
 	sec = r.sec; nsec = r.nsec; return *this;
