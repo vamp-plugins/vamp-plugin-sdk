@@ -56,7 +56,7 @@ using std::endl;
 #include "RealTime.h"
 
 #ifndef _WIN32
-#include "sys/time.h"
+#include <sys/time.h>
 #endif
 
 namespace Vamp {

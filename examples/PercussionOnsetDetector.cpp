@@ -239,6 +239,7 @@ PercussionOnsetDetector::process(const float *const *inputBuffers,
 
         float real = inputBuffers[0][i*2];
         float imag = inputBuffers[0][i*2 + 1];
+
         float sqrmag = real * real + imag * imag;
 
         if (m_priorMagnitudes[i] > 0.f) {

@@ -17,6 +17,7 @@ HOSTDIR		= host
 # Targets are:
 #   all       -- build everything
 #   sdk       -- build all the Vamp SDK libraries for plugins and hosts
+#   sdkstatic -- build only the static versions of the SDK libraries
 #   plugins   -- build the example plugins (and the SDK if required)
 #   host      -- build the simple Vamp plugin host (and the SDK if required)
 #   test      -- build the host and example plugins, and run a quick test
@@ -158,6 +159,8 @@ HOST_TARGET	= \
 		$(HOSTDIR)/vamp-simple-host
 
 sdk:		$(SDK_STATIC) $(SDK_DYNAMIC) $(HOSTSDK_STATIC) $(HOSTSDK_DYNAMIC)
+
+sdkstatic:	$(SDK_STATIC) $(HOSTSDK_STATIC)
 
 plugins:	$(PLUGIN_TARGET)
 
