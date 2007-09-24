@@ -198,6 +198,15 @@ int runPlugin(string myname, string soname, string id,
     int blockSize = plugin->getPreferredBlockSize();
     int stepSize = plugin->getPreferredStepSize();
 
+    if (blockSize == 0) blockSize = 1024;
+    if (stepSize == 0) {
+        if (plugin->getInputDomain() == Vamp::Plugin::FrequencyDomain) {
+            stepSize = blockSize/2;
+        } else {
+            stepSize = blockSize;
+        }
+    }
+
     int channels = sfinfo.channels;
 
     float *filebuf = new float[blockSize * channels];
