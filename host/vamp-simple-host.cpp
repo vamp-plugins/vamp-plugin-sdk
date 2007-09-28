@@ -162,6 +162,10 @@ int main(int argc, char **argv)
         usage(name);
     }
 
+    if (output == "" && outputNo == -1) {
+        outputNo = 0;
+    }
+
     return runPlugin(name, soname, plugid, output, outputNo, wavname);
 }
 
