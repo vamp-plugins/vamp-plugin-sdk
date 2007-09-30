@@ -133,6 +133,9 @@ HOSTSDK_DYNAMIC	= \
 SDK_LA		= \
 		$(SDKDIR)/libvamp-sdk.la
 
+HOSTSDK_LA	= \
+		$(SDKDIR)/libvamp-hostsdk.la
+
 PLUGIN_HEADERS	= \
 		$(EXAMPLEDIR)/SpectralCentroid.h \
 		$(EXAMPLEDIR)/PercussionOnsetDetector.h \
@@ -233,6 +236,6 @@ install:	$(SDK_STATIC) $(SDK_DYNAMIC) $(HOSTSDK_STATIC) $(HOSTSDK_DYNAMIC) $(PLU
 		    -e "s,%LINK_ABI%,$(INSTALL_HOSTSDK_LINK_ABI),g" \
 		    -e "s,%LINK_DEV%,$(INSTALL_HOSTSDK_LINK_DEV),g" \
 		    -e "s,%STATIC%,$(INSTALL_HOSTSDK_STATIC),g" \
-		    -e "s,%LIBS%,$(INSTALL_SDK_LIBS),g" $(SDK_LA).in \
+		    -e "s,%LIBS%,$(INSTALL_SDK_LIBS),g" $(HOSTSDK_LA).in \
 		> $(INSTALL_SDK_LIBS)/$(INSTALL_HOSTSDK_LA)
 

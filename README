@@ -76,12 +76,16 @@ Plugins should subclass Vamp::Plugin and then use Vamp::PluginAdapter
 to expose the correct C API for the plugin.  Plugin authors should
 read vamp-sdk/PluginBase.h and Plugin.h for code documentation, and
 refer to the example plugin code in the examples directory.  Plugins
-should link with -lvamp-sdk.
+should link with -lvampsdk.  [*NOTE: this has changed from vamp-sdk in
+previous versions, to avoid conflict with the use of hyphens for
+library versioning schemes on some platforms.]
 
 Hosts may use the Vamp::PluginHostAdapter to convert the loaded
 plugin's C API back into a Vamp::Plugin object.  Host authors should
 refer to the example host code in the host directory.  Hosts should
-link with -lvamp-hostsdk.
+link with -lvamphostsdk.  [*NOTE: this has changed from vamp-hostsdk
+in previous versions, to avoid conflict with the use of hyphens for
+library versioning schemes on some platforms.]
 
  * vamp-sdk/hostext
 
