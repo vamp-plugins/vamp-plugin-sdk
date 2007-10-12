@@ -30,6 +30,11 @@ default:	all
 #
 CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -I. -fpic
 
+# ar, ranlib
+#
+AR		:= ar
+RANLIB		:= ranlib
+
 # Libraries required for the plugins.
 # (Note that it is desirable to statically link libstdc++ if possible,
 # because our plugin exposes only a C API so there are no boundary
@@ -41,6 +46,7 @@ PLUGIN_LIBS	= $(SDKDIR)/libvamp-sdk.a
 # File extension for a dynamically loadable object
 #
 PLUGIN_EXT	= .so
+#PLUGIN_EXT	= .dll
 #PLUGIN_EXT	= .dylib
 
 # Libraries required for the host.
@@ -161,9 +167,11 @@ HOST_OBJECTS	= \
 HOST_TARGET	= \
 		$(HOSTDIR)/vamp-simple-host
 
-sdk:		$(SDK_STATIC) $(SDK_DYNAMIC) $(HOSTSDK_STATIC) $(HOSTSDK_DYNAMIC)
+sdk:		sdkstatic $(SDK_DYNAMIC) $(HOSTSDK_DYNAMIC)
 
 sdkstatic:	$(SDK_STATIC) $(HOSTSDK_STATIC)
+		$(RANLIB) $(SDK_STATIC)
+		$(RANLIB) $(HOSTSDK_STATIC)
 
 plugins:	$(PLUGIN_TARGET)
 
