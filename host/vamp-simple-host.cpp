@@ -42,6 +42,7 @@
 #include "vamp/vamp.h"
 
 #include <iostream>
+#include <fstream>
 #include <sndfile.h>
 
 #include "system.h"
@@ -53,19 +54,21 @@ using std::cerr;
 using std::endl;
 using std::string;
 using std::vector;
+using std::ofstream;
+using std::ios;
 
 using Vamp::HostExt::PluginLoader;
 
 #define HOST_VERSION "1.1"
 
-void printFeatures(int, int, int, Vamp::Plugin::FeatureSet);
+void printFeatures(int, int, int, Vamp::Plugin::FeatureSet, ofstream *);
 void transformInput(float *, size_t);
 void fft(unsigned int, bool, double *, double *, double *, double *);
 void printPluginPath(bool verbose);
 void enumeratePlugins();
 void listPluginsInLibrary(string soname);
 int runPlugin(string myname, string soname, string id, string output,
-              int outputNo, string inputFile);
+              int outputNo, string inputFile, string outfilename);
 
 void usage(const char *name)
 {
@@ -75,12 +78,12 @@ void usage(const char *name)
         "Copyright 2006-2007 Chris Cannam and QMUL.\n"
         "Freely redistributable; published under a BSD-style license.\n\n"
         "Usage:\n\n"
-        "  " << name << " pluginlibrary[." << PLUGIN_SUFFIX << "]:plugin[:output] file.wav\n"
-        "  " << name << " pluginlibrary[." << PLUGIN_SUFFIX << "]:plugin file.wav [outputno]\n\n"
+        "  " << name << " pluginlibrary[." << PLUGIN_SUFFIX << "]:plugin[:output] file.wav [-o outfile.txt]\n"
+        "  " << name << " pluginlibrary[." << PLUGIN_SUFFIX << "]:plugin file.wav [outputno] [-o outfile.txt]\n\n"
         "    -- Load plugin id \"plugin\" from \"pluginlibrary\" and run it on the\n"
         "       audio data in \"file.wav\", retrieving the named \"output\", or output\n"
         "       number \"outputno\" (the first output by default) and dumping it to\n"
-        "       standard output.\n\n"
+        "       standard output, or to \"outfile.txt\" if the -o option is given.\n\n"
         "       \"pluginlibrary\" should be a library name, not a file path; the\n"
         "       standard Vamp library search path will be used to locate it.  If\n"
         "       a file path is supplied, the directory part(s) will be ignored.\n\n"
@@ -104,40 +107,65 @@ int main(int argc, char **argv)
     }
     if (!name || !*name) name = argv[0];
     
-    if (argc < 2 || argc > 4 ||
-        (argc == 2 &&
-         (!strcmp(argv[1], "-?") ||
-          !strcmp(argv[1], "-h") ||
-          !strcmp(argv[1], "--help")))) {
+    if (argc < 2) usage(name);
 
-        usage(name); // does not return
+    if (argc == 2) {
+
+        if (!strcmp(argv[1], "-v")) {
+
+            cout << "Simple Vamp plugin host version: " << HOST_VERSION << endl
+                 << "Vamp API version: " << VAMP_API_VERSION << endl
+                 << "Vamp SDK version: " << VAMP_SDK_VERSION << endl;
+            return 0;
+
+        } else if (!strcmp(argv[1], "-l")) {
+
+            printPluginPath(true);
+            enumeratePlugins();
+            return 0;
+
+        } else if (!strcmp(argv[1], "-p")) {
+
+            printPluginPath(false);
+            return 0;
+
+        } else usage(name);
     }
 
-    if (argc == 2 && !strcmp(argv[1], "-v")) {
-	cout << "Simple Vamp plugin host version: " << HOST_VERSION << endl
-	     << "Vamp API version: " << VAMP_API_VERSION << endl
-	     << "Vamp SDK version: " << VAMP_SDK_VERSION << endl;
-	return 0;
-    }
-    
-    if (argc == 2 && !strcmp(argv[1], "-l")) {
-        printPluginPath(true);
-        enumeratePlugins();
-        return 0;
-    }
-    if (argc == 2 && !strcmp(argv[1], "-p")) {
-        printPluginPath(false);
-        return 0;
+    if (argc < 3) usage(name);
+
+    string soname = argv[1];
+    string wavname = argv[2];
+    string plugid = "";
+    string output = "";
+    int outputNo = -1;
+    string outfilename;
+
+    if (argc >= 4) {
+
+        int idx = 3;
+
+        if (isdigit(*argv[idx])) {
+            outputNo = atoi(argv[idx++]);
+        }
+
+        if (argc == idx + 2) {
+            if (!strcmp(argv[idx], "-o")) {
+                outfilename = argv[idx+1];
+            } else usage(name);
+        } else if (argc != idx) {
+            (usage(name));
+        }
     }
 
     cerr << endl << name << ": Running..." << endl;
 
-    string soname = argv[1];
-    string plugid = "";
-    string output = "";
-    int outputNo = -1;
-    string wavname;
-    if (argc >= 3) wavname = argv[2];
+    cerr << "Reading file: \"" << wavname << "\", writing to ";
+    if (outfilename == "") {
+        cerr << "standard output" << endl;
+    } else {
+        cerr << "\"" << outfilename << "\"" << endl;
+    }
 
     string::size_type sep = soname.find(':');
 
@@ -156,8 +184,6 @@ int main(int argc, char **argv)
         usage(name);
     }
 
-    if (argc == 4) outputNo = atoi(argv[3]);
-
     if (output != "" && outputNo != -1) {
         usage(name);
     }
@@ -166,12 +192,14 @@ int main(int argc, char **argv)
         outputNo = 0;
     }
 
-    return runPlugin(name, soname, plugid, output, outputNo, wavname);
+    return runPlugin(name, soname, plugid, output, outputNo,
+                     wavname, outfilename);
 }
 
 
 int runPlugin(string myname, string soname, string id,
-              string output, int outputNo, string wavname)
+              string output, int outputNo, string wavname,
+              string outfilename)
 {
     PluginLoader *loader = PluginLoader::getInstance();
 
@@ -188,12 +216,27 @@ int runPlugin(string myname, string soname, string id,
 	return 1;
     }
 
+    ofstream *out = 0;
+    if (outfilename != "") {
+        out = new ofstream(outfilename.c_str(), ios::out);
+        if (!*out) {
+            cerr << myname << ": ERROR: Failed to open output file \""
+                 << outfilename << "\" for writing" << endl;
+            delete out;
+            return 1;
+        }
+    }
+
     Vamp::Plugin *plugin = loader->loadPlugin
         (key, sfinfo.samplerate, PluginLoader::ADAPT_ALL);
     if (!plugin) {
         cerr << myname << ": ERROR: Failed to load plugin \"" << id
              << "\" from library \"" << soname << "\"" << endl;
         sf_close(sndfile);
+        if (out) {
+            out->close();
+            delete out;
+        }
         return 1;
     }
 
@@ -229,6 +272,7 @@ int runPlugin(string myname, string soname, string id,
     Vamp::Plugin::OutputDescriptor od;
 
     int returnValue = 1;
+    int progress = 0;
 
     if (outputs.empty()) {
 	cerr << "ERROR: Plugin has no outputs!" << endl;
@@ -295,16 +339,28 @@ int runPlugin(string myname, string soname, string id,
 
         printFeatures
             (i, sfinfo.samplerate, outputNo, plugin->process
-             (plugbuf, Vamp::RealTime::frame2RealTime(i, sfinfo.samplerate)));
+             (plugbuf, Vamp::RealTime::frame2RealTime(i, sfinfo.samplerate)),
+             out);
+
+        int pp = progress;
+        progress = lrintf((float(i) / sfinfo.frames) * 100.f);
+        if (progress != pp && out) {
+            cerr << "\r" << progress << "%";
+        }
     }
+    if (out) cerr << "\rDone" << endl;
 
     printFeatures(sfinfo.frames, sfinfo.samplerate, outputNo,
-                  plugin->getRemainingFeatures());
+                  plugin->getRemainingFeatures(), out);
 
     returnValue = 0;
 
 done:
     delete plugin;
+    if (out) {
+        out->close();
+        delete out;
+    }
     sf_close(sndfile);
     return returnValue;
 }
@@ -411,18 +467,24 @@ enumeratePlugins()
 }
 
 void
-printFeatures(int frame, int sr, int output, Vamp::Plugin::FeatureSet features)
+printFeatures(int frame, int sr, int output,
+              Vamp::Plugin::FeatureSet features, ofstream *out)
 {
     for (unsigned int i = 0; i < features[output].size(); ++i) {
+
         Vamp::RealTime rt = Vamp::RealTime::frame2RealTime(frame, sr);
+
         if (features[output][i].hasTimestamp) {
             rt = features[output][i].timestamp;
         }
-        cout << rt.toString() << ":";
+
+        (out ? *out : cout) << rt.toString() << ":";
+
         for (unsigned int j = 0; j < features[output][i].values.size(); ++j) {
-            cout << " " << features[output][i].values[j];
+            (out ? *out : cout) << " " << features[output][i].values[j];
         }
-        cout << endl;
+
+        (out ? *out : cout) << endl;
     }
 }
 
