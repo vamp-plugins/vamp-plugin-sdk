@@ -49,7 +49,7 @@ processing plugin system such as VST are:
 About this SDK
 ==============
 
-This is version 1.1 of the Vamp plugin Software Development Kit.
+This is version 1.1b of the Vamp plugin Software Development Kit.
 Plugins and hosts built with this SDK are binary compatible with those
 built using version 1.0 of the SDK.
 
