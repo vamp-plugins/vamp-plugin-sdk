@@ -245,13 +245,23 @@ int runPlugin(string myname, string soname, string id,
     int blockSize = plugin->getPreferredBlockSize();
     int stepSize = plugin->getPreferredStepSize();
 
-    if (blockSize == 0) blockSize = 1024;
+    if (blockSize == 0) {
+        blockSize = 1024;
+    }
     if (stepSize == 0) {
         if (plugin->getInputDomain() == Vamp::Plugin::FrequencyDomain) {
             stepSize = blockSize/2;
         } else {
             stepSize = blockSize;
         }
+    } else if (stepSize > blockSize) {
+        cerr << "WARNING: stepSize " << stepSize << " > blockSize " << blockSize << ", resetting blockSize to ";
+        if (plugin->getInputDomain() == Vamp::Plugin::FrequencyDomain) {
+            blockSize = stepSize * 2;
+        } else {
+            blockSize = stepSize;
+        }
+        cerr << blockSize << endl;
     }
 
     int channels = sfinfo.channels;
