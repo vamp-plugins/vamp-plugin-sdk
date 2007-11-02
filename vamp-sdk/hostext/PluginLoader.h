@@ -154,10 +154,7 @@ public:
      * ADAPT_ALL_SAFE - Perform all available adaptations that are
      * meaningful for the plugin and "safe".  Currently this means to
      * ADAPT_INPUT_DOMAIN if the plugin wants FrequencyDomain input;
-     * ADAPT_CHANNEL_COUNT always; and ADAPT_BUFFER_SIZE only if the
-     * input domain is being adapted but the plugin's preferred block
-     * size is not a power of two (the PluginInputDomainAdapter cannot
-     * handle non-power-of-two block sizes).
+     * ADAPT_CHANNEL_COUNT always; and ADAPT_BUFFER_SIZE never.
      * 
      * ADAPT_ALL - Perform all available adaptations that are
      * meaningful for the plugin.
@@ -172,7 +169,7 @@ public:
         ADAPT_CHANNEL_COUNT = 0x02,
         ADAPT_BUFFER_SIZE   = 0x04,
 
-        ADAPT_ALL_SAFE      = 0x80,
+        ADAPT_ALL_SAFE      = 0x03,
 
         ADAPT_ALL           = 0xff
     };
