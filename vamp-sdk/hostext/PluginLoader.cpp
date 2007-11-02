@@ -38,6 +38,7 @@
 #include "PluginLoader.h"
 #include "PluginInputDomainAdapter.h"
 #include "PluginChannelAdapter.h"
+#include "PluginBufferingAdapter.h"
 
 #include <fstream>
 #include <cctype> // tolower
@@ -364,6 +365,10 @@ PluginLoader::Impl::loadPlugin(PluginKey key,
                 if (adapter->getInputDomain() == Plugin::FrequencyDomain) {
                     adapter = new PluginInputDomainAdapter(adapter);
                 }
+            }
+
+            if (adapterFlags & ADAPT_BUFFER_SIZE) {
+                adapter = new PluginBufferingAdapter(adapter);
             }
 
             if (adapterFlags & ADAPT_CHANNEL_COUNT) {

@@ -40,8 +40,8 @@ RANLIB		:= ranlib
 # because our plugin exposes only a C API so there are no boundary
 # compatibility problems.)
 #
-PLUGIN_LIBS	= $(SDKDIR)/libvamp-sdk.a
-#PLUGIN_LIBS	= $(SDKDIR)/libvamp-sdk.a $(shell g++ -print-file-name=libstdc++.a)
+#PLUGIN_LIBS	= $(SDKDIR)/libvamp-sdk.a
+PLUGIN_LIBS	= $(SDKDIR)/libvamp-sdk.a $(shell g++ -print-file-name=libstdc++.a)
 
 # File extension for a dynamically loadable object
 #
@@ -79,7 +79,7 @@ INSTALL_PKGCONFIG	  := $(INSTALL_PREFIX)/lib/pkgconfig
 
 # Flags required to tell the compiler to create a dynamically loadable object
 #
-DYNAMIC_LDFLAGS		= -shared -Wl,-Bsymbolic
+DYNAMIC_LDFLAGS		= --static-libgcc -shared -Wl,-Bsymbolic
 PLUGIN_LDFLAGS		= $(DYNAMIC_LDFLAGS)
 SDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS) -Wl,-soname=$(INSTALL_SDK_LIBNAME)
 HOSTSDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS) -Wl,-soname=$(INSTALL_HOSTSDK_LIBNAME)
@@ -107,6 +107,7 @@ HOSTSDK_HEADERS	= \
 		$(SDKDIR)/RealTime.h
 
 HOSTEXT_HEADERS = \
+		$(HOSTEXTDIR)/PluginBufferingAdapter.h \
 		$(HOSTEXTDIR)/PluginChannelAdapter.h \
 		$(HOSTEXTDIR)/PluginInputDomainAdapter.h \
 		$(HOSTEXTDIR)/PluginLoader.h \
@@ -118,6 +119,7 @@ SDK_OBJECTS	= \
 
 HOSTSDK_OBJECTS	= \
 		$(SDKDIR)/PluginHostAdapter.o \
+		$(HOSTEXTDIR)/PluginBufferingAdapter.o \
 		$(HOSTEXTDIR)/PluginChannelAdapter.o \
 		$(HOSTEXTDIR)/PluginInputDomainAdapter.o \
 		$(HOSTEXTDIR)/PluginLoader.o \

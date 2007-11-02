@@ -228,7 +228,7 @@ int runPlugin(string myname, string soname, string id,
     }
 
     Vamp::Plugin *plugin = loader->loadPlugin
-        (key, sfinfo.samplerate, PluginLoader::ADAPT_ALL);
+        (key, sfinfo.samplerate, PluginLoader::ADAPT_ALL_SAFE);
     if (!plugin) {
         cerr << myname << ": ERROR: Failed to load plugin \"" << id
              << "\" from library \"" << soname << "\"" << endl;
