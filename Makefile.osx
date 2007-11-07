@@ -2,6 +2,22 @@
 # Makefile for the Vamp plugin SDK.  This builds the SDK objects,
 # libraries, example plugins, and the test host.  Please adjust to
 # suit your operating system requirements.
+#
+# This version of the Makefile is approximately correct for OS/X.
+# Note that it has no "install" target; the following are the
+# library and related files that may be of interest resulting from
+# the build:
+# 
+#   vamp-sdk/libvamp-sdk.dylib            [SDK dynamic library for plugins]
+#   vamp-sdk/libvamp-hostsdk.dylib        [SDK dynamic library for hosts]
+#
+#   vamp-sdk/libvamp-sdk.a                [SDK static library for plugins]
+#   vamp-sdk/libvamp-hostsdk.a            [SDK static library for hosts]
+#
+#   examples/vamp-example-plugins.cat     [copy this to your Vamp plugin dir]
+#   examples/vamp-example-plugins.dylib   [copy this to your Vamp plugin dir]
+#
+#   host/vamp-simple-host                 [requires libsndfile to build]
 
 APIDIR		= vamp
 SDKDIR		= vamp-sdk
@@ -28,7 +44,7 @@ default:	all
 
 # Compile flags
 #
-CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -I. -fpic
+CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -I. -fPIC
 
 # ar, ranlib
 #
@@ -40,55 +56,22 @@ RANLIB		:= ranlib
 # because our plugin exposes only a C API so there are no boundary
 # compatibility problems.)
 #
-#PLUGIN_LIBS	= $(SDKDIR)/libvamp-sdk.a
-PLUGIN_LIBS	= $(SDKDIR)/libvamp-sdk.a $(shell g++ -print-file-name=libstdc++.a)
+PLUGIN_LIBS	= $(SDKDIR)/libvamp-sdk.a
 
 # File extension for a dynamically loadable object
 #
-PLUGIN_EXT	= .so
-#PLUGIN_EXT	= .dll
-#PLUGIN_EXT	= .dylib
+PLUGIN_EXT	= .dylib
 
 # Libraries required for the host.
 #
 HOST_LIBS	= $(SDKDIR)/libvamp-hostsdk.a -lsndfile -ldl
 
-# Locations for "make install".  This will need quite a bit of 
-# editing for non-Linux platforms.  Of course you don't necessarily
-# have to use "make install".
-#
-INSTALL_PREFIX	 	  := /usr
-INSTALL_API_HEADERS	  := $(INSTALL_PREFIX)/include/vamp
-INSTALL_SDK_HEADERS	  := $(INSTALL_PREFIX)/include/vamp-sdk
-INSTALL_HOSTEXT_HEADERS	  := $(INSTALL_PREFIX)/include/vamp-sdk/hostext
-INSTALL_SDK_LIBS	  := $(INSTALL_PREFIX)/lib
-
-INSTALL_SDK_LIBNAME	  := libvamp-sdk.so.1.1.0
-INSTALL_SDK_LINK_ABI	  := libvamp-sdk.so.1
-INSTALL_SDK_LINK_DEV	  := libvamp-sdk.so
-INSTALL_SDK_STATIC        := libvamp-sdk.a
-INSTALL_SDK_LA            := libvamp-sdk.la
-
-INSTALL_HOSTSDK_LIBNAME   := libvamp-hostsdk.so.2.0.0
-INSTALL_HOSTSDK_LINK_ABI  := libvamp-hostsdk.so.2
-INSTALL_HOSTSDK_LINK_DEV  := libvamp-hostsdk.so
-INSTALL_HOSTSDK_STATIC    := libvamp-hostsdk.a
-INSTALL_HOSTSDK_LA        := libvamp-hostsdk.la
-
-INSTALL_PKGCONFIG	  := $(INSTALL_PREFIX)/lib/pkgconfig
-
 # Flags required to tell the compiler to create a dynamically loadable object
 #
-DYNAMIC_LDFLAGS		= --static-libgcc -shared -Wl,-Bsymbolic
+DYNAMIC_LDFLAGS		= -dynamiclib
 PLUGIN_LDFLAGS		= $(DYNAMIC_LDFLAGS)
-SDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS) -Wl,-soname=$(INSTALL_SDK_LIBNAME)
-HOSTSDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS) -Wl,-soname=$(INSTALL_HOSTSDK_LIBNAME)
-
-## For OS/X with g++:
-#DYNAMIC_LDFLAGS		= -dynamiclib
-#PLUGIN_LDFLAGS			= $(DYNAMIC_LDFLAGS)
-#SDK_DYNAMIC_LDFLAGS		= $(DYNAMIC_LDFLAGS)
-#HOSTSDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS)
+SDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS)
+HOSTSDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS)
 
 
 ### End of user-serviceable parts
@@ -210,45 +193,4 @@ clean:
 
 distclean:	clean
 		rm -f $(SDK_STATIC) $(SDK_DYNAMIC) $(HOSTSDK_STATIC) $(HOSTSDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET) *~ */*~
-
-install:	$(SDK_STATIC) $(SDK_DYNAMIC) $(HOSTSDK_STATIC) $(HOSTSDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET)
-		mkdir -p $(INSTALL_API_HEADERS)
-		mkdir -p $(INSTALL_SDK_HEADERS)
-		mkdir -p $(INSTALL_HOSTEXT_HEADERS)
-		mkdir -p $(INSTALL_SDK_LIBS)
-		mkdir -p $(INSTALL_PKGCONFIG)
-		cp $(API_HEADERS) $(INSTALL_API_HEADERS)
-		cp $(SDK_HEADERS) $(INSTALL_SDK_HEADERS)
-		cp $(HOSTSDK_HEADERS) $(INSTALL_SDK_HEADERS)
-		cp $(HOSTEXT_HEADERS) $(INSTALL_HOSTEXT_HEADERS)
-		cp $(SDK_STATIC) $(INSTALL_SDK_LIBS)
-		cp $(HOSTSDK_STATIC) $(INSTALL_SDK_LIBS)
-		cp $(SDK_DYNAMIC) $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LIBNAME)
-		cp $(HOSTSDK_DYNAMIC) $(INSTALL_SDK_LIBS)/$(INSTALL_HOSTSDK_LIBNAME)
-		rm -f $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LINK_ABI)
-		ln -s $(INSTALL_SDK_LIBNAME) $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LINK_ABI)
-		rm -f $(INSTALL_SDK_LIBS)/$(INSTALL_HOSTSDK_LINK_ABI)
-		ln -s $(INSTALL_HOSTSDK_LIBNAME) $(INSTALL_SDK_LIBS)/$(INSTALL_HOSTSDK_LINK_ABI)
-		rm -f $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LINK_DEV)
-		ln -s $(INSTALL_SDK_LIBNAME) $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LINK_DEV)
-		rm -f $(INSTALL_SDK_LIBS)/$(INSTALL_HOSTSDK_LINK_DEV)
-		ln -s $(INSTALL_HOSTSDK_LIBNAME) $(INSTALL_SDK_LIBS)/$(INSTALL_HOSTSDK_LINK_DEV)
-		sed "s,%PREFIX%,$(INSTALL_PREFIX)," $(APIDIR)/vamp.pc.in \
-		> $(INSTALL_PKGCONFIG)/vamp.pc
-		sed "s,%PREFIX%,$(INSTALL_PREFIX)," $(SDKDIR)/vamp-sdk.pc.in \
-		> $(INSTALL_PKGCONFIG)/vamp-sdk.pc
-		sed "s,%PREFIX%,$(INSTALL_PREFIX)," $(SDKDIR)/vamp-hostsdk.pc.in \
-		> $(INSTALL_PKGCONFIG)/vamp-hostsdk.pc
-		sed -e "s,%LIBNAME%,$(INSTALL_SDK_LIBNAME),g" \
-		    -e "s,%LINK_ABI%,$(INSTALL_SDK_LINK_ABI),g" \
-		    -e "s,%LINK_DEV%,$(INSTALL_SDK_LINK_DEV),g" \
-		    -e "s,%STATIC%,$(INSTALL_SDK_STATIC),g" \
-		    -e "s,%LIBS%,$(INSTALL_SDK_LIBS),g" $(SDK_LA).in \
-		> $(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LA)
-		sed -e "s,%LIBNAME%,$(INSTALL_HOSTSDK_LIBNAME),g" \
-		    -e "s,%LINK_ABI%,$(INSTALL_HOSTSDK_LINK_ABI),g" \
-		    -e "s,%LINK_DEV%,$(INSTALL_HOSTSDK_LINK_DEV),g" \
-		    -e "s,%STATIC%,$(INSTALL_HOSTSDK_STATIC),g" \
-		    -e "s,%LIBS%,$(INSTALL_SDK_LIBS),g" $(HOSTSDK_LA).in \
-		> $(INSTALL_SDK_LIBS)/$(INSTALL_HOSTSDK_LA)
 

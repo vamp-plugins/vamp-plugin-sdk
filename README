@@ -179,6 +179,9 @@ To build the SDK, the simple host, and the example plugins, edit the
 Makefile to suit your platform according to the comments in it, then
 run "make".
 
+There is a ready-tweaked Makefile for use on OS/X; to use it, run
+"make -f Makefile.osx".
+
 To use an IDE to build a plugin or host using the Vamp SDK, simply add
 the .cpp files in the vamp-sdk directory to your project.
 
