@@ -61,11 +61,17 @@ using Vamp::HostExt::PluginLoader;
 
 #define HOST_VERSION "1.1"
 
+enum Verbosity {
+    PluginIds,
+    PluginOutputIds,
+    PluginInformation
+};
+
 void printFeatures(int, int, int, Vamp::Plugin::FeatureSet, ofstream *);
 void transformInput(float *, size_t);
 void fft(unsigned int, bool, double *, double *, double *, double *);
 void printPluginPath(bool verbose);
-void enumeratePlugins();
+void enumeratePlugins(Verbosity);
 void listPluginsInLibrary(string soname);
 int runPlugin(string myname, string soname, string id, string output,
               int outputNo, string inputFile, string outfilename);
@@ -78,21 +84,28 @@ void usage(const char *name)
         "Copyright 2006-2007 Chris Cannam and QMUL.\n"
         "Freely redistributable; published under a BSD-style license.\n\n"
         "Usage:\n\n"
-        "  " << name << " pluginlibrary[." << PLUGIN_SUFFIX << "]:plugin[:output] file.wav [-o outfile.txt]\n"
-        "  " << name << " pluginlibrary[." << PLUGIN_SUFFIX << "]:plugin file.wav [outputno] [-o outfile.txt]\n\n"
+        "  " << name << " pluginlibrary[." << PLUGIN_SUFFIX << "]:plugin[:output] file.wav [-o out.txt]\n"
+        "  " << name << " pluginlibrary[." << PLUGIN_SUFFIX << "]:plugin file.wav [outputno] [-o out.txt]\n\n"
         "    -- Load plugin id \"plugin\" from \"pluginlibrary\" and run it on the\n"
         "       audio data in \"file.wav\", retrieving the named \"output\", or output\n"
         "       number \"outputno\" (the first output by default) and dumping it to\n"
-        "       standard output, or to \"outfile.txt\" if the -o option is given.\n\n"
+        "       standard output, or to \"out.txt\" if the -o option is given.\n\n"
         "       \"pluginlibrary\" should be a library name, not a file path; the\n"
         "       standard Vamp library search path will be used to locate it.  If\n"
         "       a file path is supplied, the directory part(s) will be ignored.\n\n"
         "  " << name << " -l\n\n"
-        "    -- List the plugin libraries and Vamp plugins in the library search path.\n\n"
+        "    -- List the plugin libraries and Vamp plugins in the library search path\n"
+        "       in a verbose human-readable format.\n\n"
+        "  " << name << " --list-ids\n\n"
+        "    -- List the plugins in the search path in a terse machine-readable format,\n"
+        "       in the form vamp:soname:identifier.\n\n"
+        "  " << name << " --list-outputs\n\n"
+        "    -- List the outputs for plugins in the search path in a machine-readable\n"
+        "       format, in the form vamp:soname:identifier:output.\n\n"
         "  " << name << " -p\n\n"
         "    -- Print out the Vamp library search path.\n\n"
         "  " << name << " -v\n\n"
-        "    -- Display version information only.\n\n"
+        "    -- Display version information only.\n"
          << endl;
     exit(2);
 }
@@ -121,12 +134,22 @@ int main(int argc, char **argv)
         } else if (!strcmp(argv[1], "-l")) {
 
             printPluginPath(true);
-            enumeratePlugins();
+            enumeratePlugins(PluginInformation);
             return 0;
 
         } else if (!strcmp(argv[1], "-p")) {
 
             printPluginPath(false);
+            return 0;
+
+        } else if (!strcmp(argv[1], "--list-ids")) {
+
+            enumeratePlugins(PluginIds);
+            return 0;
+
+        } else if (!strcmp(argv[1], "--list-outputs")) {
+
+            enumeratePlugins(PluginOutputIds);
             return 0;
 
         } else usage(name);
@@ -395,11 +418,13 @@ printPluginPath(bool verbose)
 }
 
 void
-enumeratePlugins()
+enumeratePlugins(Verbosity verbosity)
 {
     PluginLoader *loader = PluginLoader::getInstance();
 
-    cout << "\nVamp plugin libraries found in search path:" << endl;
+    if (verbosity == PluginInformation) {
+        cout << "\nVamp plugin libraries found in search path:" << endl;
+    }
 
     std::vector<PluginLoader::PluginKey> plugins = loader->listPlugins();
     typedef std::multimap<std::string, PluginLoader::PluginKey>
@@ -423,7 +448,9 @@ enumeratePlugins()
         if (path != prevPath) {
             prevPath = path;
             index = 0;
-            cout << "\n  " << path << ":" << endl;
+            if (verbosity == PluginInformation) {
+                cout << "\n  " << path << ":" << endl;
+            }
         }
 
         Vamp::Plugin *plugin = loader->loadPlugin(key, 48000);
@@ -432,37 +459,48 @@ enumeratePlugins()
             char c = char('A' + index);
             if (c > 'Z') c = char('a' + (index - 26));
 
-            cout << "    [" << c << "] [v"
-                 << plugin->getVampApiVersion() << "] "
-                 << plugin->getName() << ", \""
-                 << plugin->getIdentifier() << "\"" << " ["
-                 << plugin->getMaker() << "]" << endl;
+            if (verbosity == PluginInformation) {
 
-            PluginLoader::PluginCategoryHierarchy category =
-                loader->getPluginCategory(key);
-            if (!category.empty()) {
-                cout << "       ";
-                for (size_t ci = 0; ci < category.size(); ++ci) {
-                    cout << " > " << category[ci];
+                cout << "    [" << c << "] [v"
+                     << plugin->getVampApiVersion() << "] "
+                     << plugin->getName() << ", \""
+                     << plugin->getIdentifier() << "\"" << " ["
+                     << plugin->getMaker() << "]" << endl;
+
+                PluginLoader::PluginCategoryHierarchy category =
+                    loader->getPluginCategory(key);
+
+                if (!category.empty()) {
+                    cout << "       ";
+                    for (size_t ci = 0; ci < category.size(); ++ci) {
+                        cout << " > " << category[ci];
+                    }
+                    cout << endl;
                 }
-                cout << endl;
-            }
 
-            if (plugin->getDescription() != "") {
-                cout << "        - " << plugin->getDescription() << endl;
-            }
+                if (plugin->getDescription() != "") {
+                    cout << "        - " << plugin->getDescription() << endl;
+                }
 
+            } else if (verbosity == PluginIds) {
+                cout << "vamp:" << key << endl;
+            }
+            
             Vamp::Plugin::OutputList outputs =
                 plugin->getOutputDescriptors();
 
-            if (outputs.size() > 1) {
+            if (outputs.size() > 1 || verbosity == PluginOutputIds) {
                 for (size_t j = 0; j < outputs.size(); ++j) {
-                    cout << "         (" << j << ") "
-                         << outputs[j].name << ", \""
-                         << outputs[j].identifier << "\"" << endl;
-                    if (outputs[j].description != "") {
-                        cout << "             - " 
-                             << outputs[j].description << endl;
+                    if (verbosity == PluginInformation) {
+                        cout << "         (" << j << ") "
+                             << outputs[j].name << ", \""
+                             << outputs[j].identifier << "\"" << endl;
+                        if (outputs[j].description != "") {
+                            cout << "             - " 
+                                 << outputs[j].description << endl;
+                        }
+                    } else if (verbosity == PluginOutputIds) {
+                        cout << "vamp:" << key << ":" << outputs[j].identifier << endl;
                     }
                 }
             }
@@ -473,7 +511,9 @@ enumeratePlugins()
         }
     }
 
-    cout << endl;
+    if (verbosity == PluginInformation) {
+        cout << endl;
+    }
 }
 
 void
