@@ -86,6 +86,8 @@ public:
 
     string getLibraryPathForPlugin(PluginKey key);
 
+    static void setInstanceToClean(PluginLoader *instance);
+
 protected:
     class PluginDeletionNotifyAdapter : public PluginWrapper {
     public:
@@ -93,6 +95,15 @@ protected:
         virtual ~PluginDeletionNotifyAdapter();
     protected:
         Impl *m_loader;
+    };
+
+    class InstanceCleaner {
+    public:
+        InstanceCleaner() : m_instance(0) { }
+        ~InstanceCleaner() { delete m_instance; }
+        void setInstance(PluginLoader *instance) { m_instance = instance; }
+    protected:
+        PluginLoader *m_instance;
     };
 
     virtual void pluginDeleted(PluginDeletionNotifyAdapter *adapter);
@@ -115,10 +126,15 @@ protected:
 
     string splicePath(string a, string b);
     vector<string> listFiles(string dir, string ext);
+    
+    static InstanceCleaner m_cleaner;
 };
 
 PluginLoader *
 PluginLoader::m_instance = 0;
+
+PluginLoader::Impl::InstanceCleaner
+PluginLoader::Impl::m_cleaner;
 
 PluginLoader::PluginLoader()
 {
@@ -133,7 +149,13 @@ PluginLoader::~PluginLoader()
 PluginLoader *
 PluginLoader::getInstance()
 {
-    if (!m_instance) m_instance = new PluginLoader();
+    if (!m_instance) {
+        // The cleaner doesn't own the instance, because we leave the
+        // instance pointer in the base class for binary backwards
+        // compatibility reasons and to avoid waste
+        m_instance = new PluginLoader();
+        Impl::setInstanceToClean(m_instance);
+    }
     return m_instance;
 }
 
@@ -176,6 +198,12 @@ PluginLoader::Impl::Impl() :
 
 PluginLoader::Impl::~Impl()
 {
+}
+
+void
+PluginLoader::Impl::setInstanceToClean(PluginLoader *instance)
+{
+    m_cleaner.setInstance(instance);
 }
 
 vector<PluginLoader::PluginKey>
