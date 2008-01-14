@@ -43,20 +43,18 @@
 
 #include <iostream>
 #include <fstream>
+#include <set>
 #include <sndfile.h>
 
 #include "system.h"
 
 #include <cmath>
 
-using std::cout;
-using std::cerr;
-using std::endl;
-using std::string;
-using std::vector;
-using std::ofstream;
-using std::ios;
+using namespace std;
 
+using Vamp::Plugin;
+using Vamp::PluginHostAdapter;
+using Vamp::RealTime;
 using Vamp::HostExt::PluginLoader;
 
 #define HOST_VERSION "1.1"
@@ -67,10 +65,11 @@ enum Verbosity {
     PluginInformation
 };
 
-void printFeatures(int, int, int, Vamp::Plugin::FeatureSet, ofstream *);
+void printFeatures(int, int, int, Plugin::FeatureSet, ofstream *);
 void transformInput(float *, size_t);
 void fft(unsigned int, bool, double *, double *, double *, double *);
 void printPluginPath(bool verbose);
+void printPluginCategoryList();
 void enumeratePlugins(Verbosity);
 void listPluginsInLibrary(string soname);
 int runPlugin(string myname, string soname, string id, string output,
@@ -102,6 +101,9 @@ void usage(const char *name)
         "  " << name << " --list-outputs\n\n"
         "    -- List the outputs for plugins in the search path in a machine-readable\n"
         "       format, in the form vamp:soname:identifier:output.\n\n"
+        "  " << name << " --list-by-category\n\n"
+        "    -- List the plugins as a plugin index by category, in a machine-readable\n"
+        "       format.  The format may change in future releases.\n\n"
         "  " << name << " -p\n\n"
         "    -- Print out the Vamp library search path.\n\n"
         "  " << name << " -v\n\n"
@@ -150,6 +152,11 @@ int main(int argc, char **argv)
         } else if (!strcmp(argv[1], "--list-outputs")) {
 
             enumeratePlugins(PluginOutputIds);
+            return 0;
+
+        } else if (!strcmp(argv[1], "--list-by-category")) {
+
+            printPluginCategoryList();
             return 0;
 
         } else usage(name);
@@ -250,7 +257,7 @@ int runPlugin(string myname, string soname, string id,
         }
     }
 
-    Vamp::Plugin *plugin = loader->loadPlugin
+    Plugin *plugin = loader->loadPlugin
         (key, sfinfo.samplerate, PluginLoader::ADAPT_ALL_SAFE);
     if (!plugin) {
         cerr << myname << ": ERROR: Failed to load plugin \"" << id
@@ -272,14 +279,14 @@ int runPlugin(string myname, string soname, string id,
         blockSize = 1024;
     }
     if (stepSize == 0) {
-        if (plugin->getInputDomain() == Vamp::Plugin::FrequencyDomain) {
+        if (plugin->getInputDomain() == Plugin::FrequencyDomain) {
             stepSize = blockSize/2;
         } else {
             stepSize = blockSize;
         }
     } else if (stepSize > blockSize) {
         cerr << "WARNING: stepSize " << stepSize << " > blockSize " << blockSize << ", resetting blockSize to ";
-        if (plugin->getInputDomain() == Vamp::Plugin::FrequencyDomain) {
+        if (plugin->getInputDomain() == Plugin::FrequencyDomain) {
             blockSize = stepSize * 2;
         } else {
             blockSize = stepSize;
@@ -301,8 +308,8 @@ int runPlugin(string myname, string soname, string id,
     cerr << "Plugin accepts " << minch << " -> " << maxch << " channel(s)" << endl;
     cerr << "Sound file has " << channels << " (will mix/augment if necessary)" << endl;
 
-    Vamp::Plugin::OutputList outputs = plugin->getOutputDescriptors();
-    Vamp::Plugin::OutputDescriptor od;
+    Plugin::OutputList outputs = plugin->getOutputDescriptors();
+    Plugin::OutputDescriptor od;
 
     int returnValue = 1;
     int progress = 0;
@@ -372,7 +379,7 @@ int runPlugin(string myname, string soname, string id,
 
         printFeatures
             (i, sfinfo.samplerate, outputNo, plugin->process
-             (plugbuf, Vamp::RealTime::frame2RealTime(i, sfinfo.samplerate)),
+             (plugbuf, RealTime::frame2RealTime(i, sfinfo.samplerate)),
              out);
 
         int pp = progress;
@@ -399,13 +406,35 @@ done:
 }
 
 void
+printFeatures(int frame, int sr, int output,
+              Plugin::FeatureSet features, ofstream *out)
+{
+    for (unsigned int i = 0; i < features[output].size(); ++i) {
+
+        RealTime rt = RealTime::frame2RealTime(frame, sr);
+
+        if (features[output][i].hasTimestamp) {
+            rt = features[output][i].timestamp;
+        }
+
+        (out ? *out : cout) << rt.toString() << ":";
+
+        for (unsigned int j = 0; j < features[output][i].values.size(); ++j) {
+            (out ? *out : cout) << " " << features[output][i].values[j];
+        }
+
+        (out ? *out : cout) << endl;
+    }
+}
+
+void
 printPluginPath(bool verbose)
 {
     if (verbose) {
         cout << "\nVamp plugin search path: ";
     }
 
-    vector<string> path = Vamp::PluginHostAdapter::getPluginPath();
+    vector<string> path = PluginHostAdapter::getPluginPath();
     for (size_t i = 0; i < path.size(); ++i) {
         if (verbose) {
             cout << "[" << path[i] << "]";
@@ -426,23 +455,23 @@ enumeratePlugins(Verbosity verbosity)
         cout << "\nVamp plugin libraries found in search path:" << endl;
     }
 
-    std::vector<PluginLoader::PluginKey> plugins = loader->listPlugins();
-    typedef std::multimap<std::string, PluginLoader::PluginKey>
+    vector<PluginLoader::PluginKey> plugins = loader->listPlugins();
+    typedef multimap<string, PluginLoader::PluginKey>
         LibraryMap;
     LibraryMap libraryMap;
 
     for (size_t i = 0; i < plugins.size(); ++i) {
-        std::string path = loader->getLibraryPathForPlugin(plugins[i]);
+        string path = loader->getLibraryPathForPlugin(plugins[i]);
         libraryMap.insert(LibraryMap::value_type(path, plugins[i]));
     }
 
-    std::string prevPath = "";
+    string prevPath = "";
     int index = 0;
 
     for (LibraryMap::iterator i = libraryMap.begin();
          i != libraryMap.end(); ++i) {
         
-        std::string path = i->first;
+        string path = i->first;
         PluginLoader::PluginKey key = i->second;
 
         if (path != prevPath) {
@@ -453,7 +482,7 @@ enumeratePlugins(Verbosity verbosity)
             }
         }
 
-        Vamp::Plugin *plugin = loader->loadPlugin(key, 48000);
+        Plugin *plugin = loader->loadPlugin(key, 48000);
         if (plugin) {
 
             char c = char('A' + index);
@@ -486,7 +515,7 @@ enumeratePlugins(Verbosity verbosity)
                 cout << "vamp:" << key << endl;
             }
             
-            Vamp::Plugin::OutputList outputs =
+            Plugin::OutputList outputs =
                 plugin->getOutputDescriptors();
 
             if (outputs.size() > 1 || verbosity == PluginOutputIds) {
@@ -517,26 +546,39 @@ enumeratePlugins(Verbosity verbosity)
 }
 
 void
-printFeatures(int frame, int sr, int output,
-              Vamp::Plugin::FeatureSet features, ofstream *out)
+printPluginCategoryList()
 {
-    for (unsigned int i = 0; i < features[output].size(); ++i) {
+    PluginLoader *loader = PluginLoader::getInstance();
 
-        Vamp::RealTime rt = Vamp::RealTime::frame2RealTime(frame, sr);
+    vector<PluginLoader::PluginKey> plugins = loader->listPlugins();
 
-        if (features[output][i].hasTimestamp) {
-            rt = features[output][i].timestamp;
+    set<string> printedcats;
+
+    for (size_t i = 0; i < plugins.size(); ++i) {
+
+        PluginLoader::PluginKey key = plugins[i];
+        
+        PluginLoader::PluginCategoryHierarchy category =
+            loader->getPluginCategory(key);
+
+        Plugin *plugin = loader->loadPlugin(key, 48000);
+        if (!plugin) continue;
+
+        string catstr = "";
+
+        if (category.empty()) catstr = '|';
+        else {
+            for (size_t j = 0; j < category.size(); ++j) {
+                catstr += category[j];
+                catstr += '|';
+                if (printedcats.find(catstr) == printedcats.end()) {
+                    std::cout << catstr << std::endl;
+                    printedcats.insert(catstr);
+                }
+            }
         }
 
-        (out ? *out : cout) << rt.toString() << ":";
-
-        for (unsigned int j = 0; j < features[output][i].values.size(); ++j) {
-            (out ? *out : cout) << " " << features[output][i].values[j];
-        }
-
-        (out ? *out : cout) << endl;
+        std::cout << catstr << key << ":::" << plugin->getName() << ":::" << plugin->getMaker() << ":::" << plugin->getDescription() << std::endl;
     }
 }
 
-
-        

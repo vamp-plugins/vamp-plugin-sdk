@@ -28,7 +28,7 @@ default:	all
 
 # Compile flags
 #
-CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -I. -fpic
+CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -I. -fPIC
 
 # ar, ranlib
 #
@@ -40,8 +40,8 @@ RANLIB		:= ranlib
 # because our plugin exposes only a C API so there are no boundary
 # compatibility problems.)
 #
-#PLUGIN_LIBS	= $(SDKDIR)/libvamp-sdk.a
-PLUGIN_LIBS	= $(SDKDIR)/libvamp-sdk.a $(shell g++ -print-file-name=libstdc++.a)
+PLUGIN_LIBS	= $(SDKDIR)/libvamp-sdk.a
+#PLUGIN_LIBS	= $(SDKDIR)/libvamp-sdk.a $(shell g++ -print-file-name=libstdc++.a)
 
 # File extension for a dynamically loadable object
 #
