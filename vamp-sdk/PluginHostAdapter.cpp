@@ -394,9 +394,11 @@ PluginHostAdapter::convertFeatures(VampFeatureList *features,
 
         if (list.featureCount > 0) {
 
+            Feature feature;
+            feature.values.reserve(list.features[0].valueCount);
+
             for (unsigned int j = 0; j < list.featureCount; ++j) {
-                
-                Feature feature;
+
                 feature.hasTimestamp = list.features[j].hasTimestamp;
                 feature.timestamp = RealTime(list.features[j].sec,
                                              list.features[j].nsec);
@@ -410,6 +412,14 @@ PluginHostAdapter::convertFeatures(VampFeatureList *features,
                 }
 
                 fs[i].push_back(feature);
+
+                if (list.features[j].valueCount > 0) {
+                    feature.values.clear();
+                }
+
+                if (list.features[j].label) {
+                    feature.label = "";
+                }
             }
         }
     }

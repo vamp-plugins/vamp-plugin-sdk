@@ -537,9 +537,9 @@ PluginAdapterBase::Impl::vampReleaseOutputDescriptor(VampOutputDescriptor *desc)
 
 VampFeatureList *
 PluginAdapterBase::Impl::vampProcess(VampPluginHandle handle,
-                               const float *const *inputBuffers,
-                               int sec,
-                               int nsec)
+                                     const float *const *inputBuffers,
+                                     int sec,
+                                     int nsec)
 {
 #ifdef DEBUG_PLUGIN_ADAPTER
     std::cerr << "PluginAdapterBase::Impl::vampProcess(" << handle << ", " << sec << ", " << nsec << ")" << std::endl;
@@ -686,8 +686,8 @@ PluginAdapterBase::Impl::getOutputDescriptor(Plugin *plugin,
     
 VampFeatureList *
 PluginAdapterBase::Impl::process(Plugin *plugin,
-                           const float *const *inputBuffers,
-                           int sec, int nsec)
+                                 const float *const *inputBuffers,
+                                 int sec, int nsec)
 {
 //    std::cerr << "PluginAdapterBase::Impl::process" << std::endl;
     RealTime rt(sec, nsec);
