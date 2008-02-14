@@ -65,7 +65,7 @@ enum Verbosity {
     PluginInformation
 };
 
-void printFeatures(int, int, int, Plugin::FeatureSet, ofstream *);
+void printFeatures(int, int, int, Plugin::FeatureSet, ofstream *, bool frames);
 void transformInput(float *, size_t);
 void fft(unsigned int, bool, double *, double *, double *, double *);
 void printPluginPath(bool verbose);
@@ -73,7 +73,7 @@ void printPluginCategoryList();
 void enumeratePlugins(Verbosity);
 void listPluginsInLibrary(string soname);
 int runPlugin(string myname, string soname, string id, string output,
-              int outputNo, string inputFile, string outfilename);
+              int outputNo, string inputFile, string outfilename, bool frames);
 
 void usage(const char *name)
 {
@@ -83,8 +83,8 @@ void usage(const char *name)
         "Copyright 2006-2007 Chris Cannam and QMUL.\n"
         "Freely redistributable; published under a BSD-style license.\n\n"
         "Usage:\n\n"
-        "  " << name << " pluginlibrary[." << PLUGIN_SUFFIX << "]:plugin[:output] file.wav [-o out.txt]\n"
-        "  " << name << " pluginlibrary[." << PLUGIN_SUFFIX << "]:plugin file.wav [outputno] [-o out.txt]\n\n"
+        "  " << name << " [-s] pluginlibrary[." << PLUGIN_SUFFIX << "]:plugin[:output] file.wav [-o out.txt]\n"
+        "  " << name << " [-s] pluginlibrary[." << PLUGIN_SUFFIX << "]:plugin file.wav [outputno] [-o out.txt]\n\n"
         "    -- Load plugin id \"plugin\" from \"pluginlibrary\" and run it on the\n"
         "       audio data in \"file.wav\", retrieving the named \"output\", or output\n"
         "       number \"outputno\" (the first output by default) and dumping it to\n"
@@ -92,6 +92,9 @@ void usage(const char *name)
         "       \"pluginlibrary\" should be a library name, not a file path; the\n"
         "       standard Vamp library search path will be used to locate it.  If\n"
         "       a file path is supplied, the directory part(s) will be ignored.\n\n"
+        "       If the -s option is given, results will be labelled with the audio\n"
+        "       sample frame at which they occur. Otherwise, they will be labelled\n"
+        "       with time in seconds.\n\n"
         "  " << name << " -l\n\n"
         "    -- List the plugin libraries and Vamp plugins in the library search path\n"
         "       in a verbose human-readable format.\n\n"
@@ -164,16 +167,24 @@ int main(int argc, char **argv)
 
     if (argc < 3) usage(name);
 
-    string soname = argv[1];
-    string wavname = argv[2];
+    bool useFrames = false;
+    
+    int base = 1;
+    if (!strcmp(argv[1], "-s")) {
+        useFrames = true;
+        base = 2;
+    }
+
+    string soname = argv[base];
+    string wavname = argv[base+1];
     string plugid = "";
     string output = "";
     int outputNo = -1;
     string outfilename;
 
-    if (argc >= 4) {
+    if (argc >= base+3) {
 
-        int idx = 3;
+        int idx = base+2;
 
         if (isdigit(*argv[idx])) {
             outputNo = atoi(argv[idx++]);
@@ -223,13 +234,13 @@ int main(int argc, char **argv)
     }
 
     return runPlugin(name, soname, plugid, output, outputNo,
-                     wavname, outfilename);
+                     wavname, outfilename, useFrames);
 }
 
 
 int runPlugin(string myname, string soname, string id,
               string output, int outputNo, string wavname,
-              string outfilename)
+              string outfilename, bool useFrames)
 {
     PluginLoader *loader = PluginLoader::getInstance();
 
@@ -380,7 +391,7 @@ int runPlugin(string myname, string soname, string id,
         printFeatures
             (i, sfinfo.samplerate, outputNo, plugin->process
              (plugbuf, RealTime::frame2RealTime(i, sfinfo.samplerate)),
-             out);
+             out, useFrames);
 
         int pp = progress;
         progress = lrintf((float(i) / sfinfo.frames) * 100.f);
@@ -391,7 +402,7 @@ int runPlugin(string myname, string soname, string id,
     if (out) cerr << "\rDone" << endl;
 
     printFeatures(sfinfo.frames, sfinfo.samplerate, outputNo,
-                  plugin->getRemainingFeatures(), out);
+                  plugin->getRemainingFeatures(), out, useFrames);
 
     returnValue = 0;
 
@@ -407,17 +418,31 @@ done:
 
 void
 printFeatures(int frame, int sr, int output,
-              Plugin::FeatureSet features, ofstream *out)
+              Plugin::FeatureSet features, ofstream *out, bool useFrames)
 {
     for (unsigned int i = 0; i < features[output].size(); ++i) {
 
-        RealTime rt = RealTime::frame2RealTime(frame, sr);
+        if (useFrames) {
 
-        if (features[output][i].hasTimestamp) {
-            rt = features[output][i].timestamp;
+            int displayFrame = frame;
+
+            if (features[output][i].hasTimestamp) {
+                displayFrame = RealTime::realTime2Frame
+                    (features[output][i].timestamp, sr);
+            }
+
+            (out ? *out : cout) << displayFrame << ":";
+
+        } else {
+
+            RealTime rt = RealTime::frame2RealTime(frame, sr);
+
+            if (features[output][i].hasTimestamp) {
+                rt = features[output][i].timestamp;
+            }
+
+            (out ? *out : cout) << rt.toString() << ":";
         }
-
-        (out ? *out : cout) << rt.toString() << ":";
 
         for (unsigned int j = 0; j < features[output][i].values.size(); ++j) {
             (out ? *out : cout) << " " << features[output][i].values[j];
