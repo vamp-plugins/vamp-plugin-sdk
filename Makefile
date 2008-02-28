@@ -63,13 +63,13 @@ INSTALL_SDK_HEADERS	  := $(INSTALL_PREFIX)/include/vamp-sdk
 INSTALL_HOSTEXT_HEADERS	  := $(INSTALL_PREFIX)/include/vamp-sdk/hostext
 INSTALL_SDK_LIBS	  := $(INSTALL_PREFIX)/lib
 
-INSTALL_SDK_LIBNAME	  := libvamp-sdk.so.1.1.0
+INSTALL_SDK_LIBNAME	  := libvamp-sdk.so.1.1.1
 INSTALL_SDK_LINK_ABI	  := libvamp-sdk.so.1
 INSTALL_SDK_LINK_DEV	  := libvamp-sdk.so
 INSTALL_SDK_STATIC        := libvamp-sdk.a
 INSTALL_SDK_LA            := libvamp-sdk.la
 
-INSTALL_HOSTSDK_LIBNAME   := libvamp-hostsdk.so.2.0.0
+INSTALL_HOSTSDK_LIBNAME   := libvamp-hostsdk.so.2.1.0
 INSTALL_HOSTSDK_LINK_ABI  := libvamp-hostsdk.so.2
 INSTALL_HOSTSDK_LINK_DEV  := libvamp-hostsdk.so
 INSTALL_HOSTSDK_STATIC    := libvamp-hostsdk.a

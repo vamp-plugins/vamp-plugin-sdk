@@ -49,7 +49,7 @@ processing plugin system such as VST are:
 About this SDK
 ==============
 
-This is version 1.1b of the Vamp plugin Software Development Kit.
+This is version 1.2 of the Vamp plugin Software Development Kit.
 Plugins and hosts built with this SDK are binary compatible with those
 built using version 1.0 of the SDK.
 
@@ -90,7 +90,7 @@ library versioning schemes on some platforms.]
  * vamp-sdk/hostext
 
 Additional C++ classes to make a host's life easier (introduced in
-version 1.1 of the Vamp SDK).
+versions 1.1 and 1.2 of the Vamp SDK).
 
 Vamp::HostExt::PluginLoader provides a very easy interface for a host
 to discover, load, and find out category information about the
@@ -105,6 +105,14 @@ Vamp::HostExt::PluginChannelAdapter provides a means for hosts to use
 plugins that do not necessarily support the same number of audio
 channels as they have available, without having to worry about
 applying a channel management / mixdown policy themselves.
+
+Vamp::HostExt::PluginBufferingAdapter provides a means for hosts to
+avoid having to negotiate the input step and block size, instead
+permitting the host to use any block size they desire (and a step size
+equal to it).  This is particularly useful for "streaming" hosts that
+cannot seek backwards in the input audio stream and so would otherwise
+need to implement an additional buffer to support step sizes smaller
+than the block size.
 
 The PluginLoader class can also use the input domain and channel
 adapters automatically to make the entire conversion process
