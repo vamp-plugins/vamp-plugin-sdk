@@ -65,6 +65,14 @@ easy as possible:
  of audio channels as they have available, without having to apply a
  channel management / mixdown policy themselves.
 
+ - Vamp::HostExt::PluginBufferingAdapter (new in version 1.2) provides
+ a means for hosts to avoid having to negotiate the input step and
+ block size, instead permitting the host to use any block size they
+ desire (and a step size equal to it).  This is particularly useful
+ for "streaming" hosts that cannot seek backwards in the input audio
+ stream and so would otherwise need to implement an additional buffer
+ to support step sizes smaller than the block size.
+
 The PluginLoader class can also use the input domain and channel
 adapters automatically to make the entire conversion process
 transparent to the host if required.
