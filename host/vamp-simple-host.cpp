@@ -46,6 +46,9 @@
 #include <set>
 #include <sndfile.h>
 
+#include <cstring>
+#include <cstdlib>
+
 #include "system.h"
 
 #include <cmath>

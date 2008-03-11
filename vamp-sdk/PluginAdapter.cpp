@@ -36,8 +36,10 @@
 
 #include "PluginAdapter.h"
 
-//#define DEBUG_PLUGIN_ADAPTER 1
+#include <cstring>
+#include <cstdlib>
 
+//#define DEBUG_PLUGIN_ADAPTER 1
 
 namespace Vamp {
 
