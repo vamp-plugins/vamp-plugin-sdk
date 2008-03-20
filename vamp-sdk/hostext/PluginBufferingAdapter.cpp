@@ -229,7 +229,8 @@ protected:
     float m_inputSampleRate;
     RealTime m_timestamp;
     bool m_unrun;
-    OutputList m_outputs;
+    mutable OutputList m_outputs;
+    mutable std::map<int, bool> m_rewriteOutputTimes;
 		
     void processBlock(FeatureSet& allFeatureSets, RealTime timestamp);
 };
@@ -289,7 +290,7 @@ PluginBufferingAdapter::Impl::Impl(Plugin *plugin, float inputSampleRate) :
     m_timestamp(RealTime::zeroTime),
     m_unrun(true)
 {
-    m_outputs = plugin->getOutputDescriptors();
+    (void)getOutputDescriptors(); // set up m_outputs and m_rewriteOutputTimes
 }
 		
 PluginBufferingAdapter::Impl::~Impl()
@@ -365,13 +366,39 @@ PluginBufferingAdapter::Impl::initialise(size_t channels, size_t stepSize, size_
 PluginBufferingAdapter::OutputList
 PluginBufferingAdapter::Impl::getOutputDescriptors() const
 {
-    OutputList outs = m_plugin->getOutputDescriptors();
-    for (size_t i = 0; i < outs.size(); ++i) {
-        if (outs[i].sampleType == OutputDescriptor::OneSamplePerStep) {
-            outs[i].sampleRate = 1.f / m_stepSize;
-        }
-        outs[i].sampleType = OutputDescriptor::VariableSampleRate;
+    if (m_outputs.empty()) {
+        m_outputs = m_plugin->getOutputDescriptors();
     }
+
+    PluginBufferingAdapter::OutputList outs;
+
+    for (size_t i = 0; i < outs.size(); ++i) {
+
+        switch (outs[i].sampleType) {
+
+        case OutputDescriptor::OneSamplePerStep:
+            outs[i].sampleType = OutputDescriptor::FixedSampleRate;
+            outs[i].sampleRate = 1.f / m_stepSize;
+            m_rewriteOutputTimes[i] = true;
+            break;
+            
+        case OutputDescriptor::FixedSampleRate:
+            if (outs[i].sampleRate == 0.f) {
+                outs[i].sampleRate = 1.f / m_stepSize;
+            }
+            // We actually only need to rewrite output times for
+            // features that don't have timestamps already, but we
+            // can't tell from here whether our features will have
+            // timestamps or not
+            m_rewriteOutputTimes[i] = true;
+            break;
+
+        case OutputDescriptor::VariableSampleRate:
+            m_rewriteOutputTimes[i] = false;
+            break;
+        }
+    }
+
     return outs;
 }
 
@@ -463,35 +490,48 @@ PluginBufferingAdapter::Impl::processBlock(FeatureSet& allFeatureSets,
 
     FeatureSet featureSet = m_plugin->process(m_buffers, m_timestamp);
     
-    for (map<int, FeatureList>::iterator iter = featureSet.begin();
+    for (FeatureSet::iterator iter = featureSet.begin();
          iter != featureSet.end(); ++iter) {
-	
-        FeatureList featureList = iter->second;
+
         int outputNo = iter->first;
+
+        if (m_rewriteOutputTimes[outputNo]) {
+            
+            // Make sure the timestamp is always set
 	
-        for (size_t i = 0; i < featureList.size(); ++i) {
+            FeatureList featureList = iter->second;
+	
+            for (size_t i = 0; i < featureList.size(); ++i) {
+
+                switch (m_outputs[outputNo].sampleType) {
+
+                case OutputDescriptor::OneSamplePerStep:
+                    // use our internal timestamp, always
+                    featureList[i].timestamp = m_timestamp;
+                    featureList[i].hasTimestamp = true;
+                    break;
+
+                case OutputDescriptor::FixedSampleRate:
+                    // use our internal timestamp if feature lacks one
+                    if (!featureList[i].hasTimestamp) {
+                        featureList[i].timestamp = m_timestamp;
+                        featureList[i].hasTimestamp = true;
+                    }
+                    break;
+
+                case OutputDescriptor::VariableSampleRate:
+                    break;		// plugin must set timestamp
+
+                default:
+                    break;
+                }
             
-            // make sure the timestamp is set
-            switch (m_outputs[outputNo].sampleType) {
-
-            case OutputDescriptor::OneSamplePerStep:
-		// use our internal timestamp - OK????
-                featureList[i].timestamp = m_timestamp;
-                break;
-
-            case OutputDescriptor::FixedSampleRate:
-		// use our internal timestamp
-                featureList[i].timestamp = m_timestamp;
-                break;
-
-            case OutputDescriptor::VariableSampleRate:
-                break;		// plugin must set timestamp
-
-            default:
-                break;
+                allFeatureSets[outputNo].push_back(featureList[i]);
             }
-            
-            allFeatureSets[outputNo].push_back(featureList[i]);		
+        } else {
+            for (size_t i = 0; i < iter->second.size(); ++i) {
+                allFeatureSets[outputNo].push_back(iter->second[i]);
+            }
         }
     }
     

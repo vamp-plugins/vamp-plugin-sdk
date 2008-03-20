@@ -58,11 +58,11 @@ namespace HostExt {
  * stepSize should be equal to the blockSize.
  *
  * If the internal step size used for the plugin differs from that
- * supplied by the host, the adapter will modify the sample rate
- * specifications for the plugin outputs (setting them all to
- * VariableSampleRate) and set timestamps on the output features for
- * outputs that formerly used a different sample rate specification.
- * This is necessary in order to obtain correct time stamping.
+ * supplied by the host, the adapter will modify the sample type and
+ * rate specifications for the plugin outputs appropriately, and set
+ * timestamps on the output features for outputs that formerly used a
+ * different sample rate specification.  This is necessary in order to
+ * obtain correct time stamping.
  * 
  * In other respects, the PluginBufferingAdapter behaves identically
  * to the plugin that it wraps. The wrapped plugin will be deleted
