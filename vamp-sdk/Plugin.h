@@ -200,7 +200,7 @@ public:
 	/**
 	 * The name of the output, in computer-usable form.  Should be
 	 * reasonably short and without whitespace or punctuation, using
-         * the characters [a-zA-Z0-9_] only.
+         * the characters [a-zA-Z0-9_-] only.
          * Example: "zero_crossing_count"
 	 */
 	std::string identifier;

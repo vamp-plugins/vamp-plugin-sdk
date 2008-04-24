@@ -227,12 +227,12 @@ protected:
     vector<RingBuffer *> m_queue;
     float **m_buffers;
     float m_inputSampleRate;
-    RealTime m_timestamp;
+    long m_frame;
     bool m_unrun;
     mutable OutputList m_outputs;
     mutable std::map<int, bool> m_rewriteOutputTimes;
 		
-    void processBlock(FeatureSet& allFeatureSets, RealTime timestamp);
+    void processBlock(FeatureSet& allFeatureSets);
 };
 		
 PluginBufferingAdapter::PluginBufferingAdapter(Plugin *plugin) :
@@ -287,7 +287,7 @@ PluginBufferingAdapter::Impl::Impl(Plugin *plugin, float inputSampleRate) :
     m_queue(0),
     m_buffers(0),
     m_inputSampleRate(inputSampleRate),
-    m_timestamp(RealTime::zeroTime),
+    m_frame(0),
     m_unrun(true)
 {
     (void)getOutputDescriptors(); // set up m_outputs and m_rewriteOutputTimes
@@ -370,7 +370,7 @@ PluginBufferingAdapter::Impl::getOutputDescriptors() const
         m_outputs = m_plugin->getOutputDescriptors();
     }
 
-    PluginBufferingAdapter::OutputList outs;
+    PluginBufferingAdapter::OutputList outs = m_outputs;
 
     for (size_t i = 0; i < outs.size(); ++i) {
 
@@ -378,13 +378,13 @@ PluginBufferingAdapter::Impl::getOutputDescriptors() const
 
         case OutputDescriptor::OneSamplePerStep:
             outs[i].sampleType = OutputDescriptor::FixedSampleRate;
-            outs[i].sampleRate = 1.f / m_stepSize;
+            outs[i].sampleRate = (1.f / m_inputSampleRate) * m_stepSize;
             m_rewriteOutputTimes[i] = true;
             break;
             
         case OutputDescriptor::FixedSampleRate:
             if (outs[i].sampleRate == 0.f) {
-                outs[i].sampleRate = 1.f / m_stepSize;
+                outs[i].sampleRate = (1.f / m_inputSampleRate) * m_stepSize;
             }
             // We actually only need to rewrite output times for
             // features that don't have timestamps already, but we
@@ -405,7 +405,7 @@ PluginBufferingAdapter::Impl::getOutputDescriptors() const
 void
 PluginBufferingAdapter::Impl::reset()
 {
-    m_timestamp = RealTime::zeroTime;
+    m_frame = 0;
     m_unrun = true;
 
     for (size_t i = 0; i < m_queue.size(); ++i) {
@@ -420,7 +420,8 @@ PluginBufferingAdapter::Impl::process(const float *const *inputBuffers,
     FeatureSet allFeatureSets;
 
     if (m_unrun) {
-        m_timestamp = timestamp;
+        m_frame = RealTime::realTime2Frame(timestamp,
+                                           int(m_inputSampleRate + 0.5));
         m_unrun = false;
     }
 			
@@ -441,7 +442,7 @@ PluginBufferingAdapter::Impl::process(const float *const *inputBuffers,
     // process as much as we can
 
     while (m_queue[0]->getReadSpace() >= int(m_blockSize)) {
-        processBlock(allFeatureSets, timestamp);
+        processBlock(allFeatureSets);
     }	
     
     return allFeatureSets;
@@ -454,7 +455,7 @@ PluginBufferingAdapter::Impl::getRemainingFeatures()
     
     // process remaining samples in queue
     while (m_queue[0]->getReadSpace() >= int(m_blockSize)) {
-        processBlock(allFeatureSets, m_timestamp);
+        processBlock(allFeatureSets);
     }
     
     // pad any last samples remaining and process
@@ -462,7 +463,7 @@ PluginBufferingAdapter::Impl::getRemainingFeatures()
         for (size_t i = 0; i < m_channels; ++i) {
             m_queue[i]->zero(m_blockSize - m_queue[i]->getReadSpace());
         }
-        processBlock(allFeatureSets, m_timestamp);
+        processBlock(allFeatureSets);
     }			
     
     // get remaining features			
@@ -481,14 +482,17 @@ PluginBufferingAdapter::Impl::getRemainingFeatures()
 }
     
 void
-PluginBufferingAdapter::Impl::processBlock(FeatureSet& allFeatureSets,
-                                           RealTime timestamp)
+PluginBufferingAdapter::Impl::processBlock(FeatureSet& allFeatureSets)
 {
     for (size_t i = 0; i < m_channels; ++i) {
         m_queue[i]->peek(m_buffers[i], m_blockSize);
     }
 
-    FeatureSet featureSet = m_plugin->process(m_buffers, m_timestamp);
+    long frame = m_frame;
+    RealTime timestamp = RealTime::frame2RealTime
+        (frame, int(m_inputSampleRate + 0.5));
+
+    FeatureSet featureSet = m_plugin->process(m_buffers, timestamp);
     
     for (FeatureSet::iterator iter = featureSet.begin();
          iter != featureSet.end(); ++iter) {
@@ -497,8 +501,6 @@ PluginBufferingAdapter::Impl::processBlock(FeatureSet& allFeatureSets,
 
         if (m_rewriteOutputTimes[outputNo]) {
             
-            // Make sure the timestamp is always set
-	
             FeatureList featureList = iter->second;
 	
             for (size_t i = 0; i < featureList.size(); ++i) {
@@ -507,14 +509,14 @@ PluginBufferingAdapter::Impl::processBlock(FeatureSet& allFeatureSets,
 
                 case OutputDescriptor::OneSamplePerStep:
                     // use our internal timestamp, always
-                    featureList[i].timestamp = m_timestamp;
+                    featureList[i].timestamp = timestamp;
                     featureList[i].hasTimestamp = true;
                     break;
 
                 case OutputDescriptor::FixedSampleRate:
                     // use our internal timestamp if feature lacks one
                     if (!featureList[i].hasTimestamp) {
-                        featureList[i].timestamp = m_timestamp;
+                        featureList[i].timestamp = timestamp;
                         featureList[i].hasTimestamp = true;
                     }
                     break;
@@ -541,12 +543,8 @@ PluginBufferingAdapter::Impl::processBlock(FeatureSet& allFeatureSets,
         m_queue[i]->skip(m_stepSize);
     }
     
-    // fake up the timestamp each time we step forward
-
-    long frame = RealTime::realTime2Frame(m_timestamp,
-                                          int(m_inputSampleRate + 0.5));
-    m_timestamp = RealTime::frame2RealTime(frame + m_stepSize,
-                                           int(m_inputSampleRate + 0.5));
+    // increment internal frame counter each time we step forward
+    m_frame += m_stepSize;
 }
 
 }

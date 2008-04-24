@@ -69,7 +69,7 @@ public:
     /**
      * Get the computer-usable name of the plugin.  This should be
      * reasonably short and contain no whitespace or punctuation
-     * characters.  It may only contain the characters [a-zA-Z0-9_].
+     * characters.  It may only contain the characters [a-zA-Z0-9_-].
      * This is the authoritative way for a program to identify a
      * plugin within a given library.
      *
@@ -127,7 +127,7 @@ public:
 	/**
 	 * The name of the parameter, in computer-usable form.  Should
 	 * be reasonably short, and may only contain the characters
-	 * [a-zA-Z0-9_].
+	 * [a-zA-Z0-9_-].
 	 */
 	std::string identifier;
 
