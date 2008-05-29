@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:af="http://purl.org/ontology/af/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:event="http://purl.org/NET/c4dm/event.owl#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:list="http://www.w3.org/2000/10/swap/list#" xmlns:mo="http://purl.org/ontology/mo/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:tl="http://purl.org/NET/c4dm/timeline.owl#" xmlns:vamp="http://purl.org/ontology/vamp/" xmlns:vs="http://www.w3.org/2003/06/sw-vocab-status/ns#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns="file:///home/david/km-rdf/vamp-n3/vamp.n3">
+  <owl:Ontology rdf:about="">
+    <dc:title>Vamp Plugins Ontology</dc:title>
+    <rdfs:label>Vamp Plugins Ontology</rdfs:label>
+    <rdfs:comment>
+			added comments from Cannam
+	</rdfs:comment>
+    <foaf:maker>Chris Cannam</foaf:maker>
+    <foaf:maker>Chris Sutton</foaf:maker>
+    <foaf:maker>Yves Raimond</foaf:maker>
+    <foaf:maker>David Pastor Escuredo</foaf:maker>
+    <dc:date>$Date: 2008/05/21 17:05:11 $</dc:date>
+  </owl:Ontology>
+  <owl:AnnotationProperty rdf:about="http://www.w3.org/2003/06/sw-vocab-status/ns#term_status"/>
+  <owl:Class rdf:about="http://purl.org/ontology/vamp/Plugin">
+    <rdfs:label>Vamp Plugin</rdfs:label>
+    <rdfs:comment>
+		Vamp plugin is an implementation of a feature extraction algorithm based on the Vamp API. 
+	</rdfs:comment>
+    <vs:term_status>stable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/vamp/PluginLibrary">
+    <rdfs:label>Vamp Plugin Library</rdfs:label>
+    <rdfs:comment>
+			Library of Vamp Plugins
+	</rdfs:comment>
+    <vs:term_status>stable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/vamp/PluginDescription">
+    <rdfs:label>Vamp Plugin Descriptor</rdfs:label>
+    <rdfs:comment>
+			The plugin descriptor provides basic metadata of the plugin. We may remove this and link directly to the plugin instance
+	</rdfs:comment>
+    <vs:term_status>unstable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/vamp/ParameterDescriptor">
+    <rdfs:label>Vamp Plugin Parameter Descriptor</rdfs:label>
+    <rdfs:comment>
+			Descriptior of a plugin parameter
+	</rdfs:comment>
+    <vs:term_status>stable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/vamp/PluginOutput">
+    <rdfs:label>Vamp Plugin output descriptor</rdfs:label>
+    <rdfs:comment>
+		Descriptior of the plugin output. This descriptor provides necessary information to interpret correctly the output features.
+		Each plugin will be bound to one of the subclasses.
+	</rdfs:comment>
+    <vs:term_status>unstable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/vamp/DenseOutput">
+    <rdfs:subClassOf rdf:resource="http://purl.org/ontology/vamp/PluginOutput"/>
+    <rdfs:comment>
+			Large binary data as output.
+	</rdfs:comment>
+    <vs:term_status>unstable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/vamp/SparseOutput">
+    <rdfs:subClassOf rdf:resource="http://purl.org/ontology/vamp/PluginOutput"/>
+    <rdfs:comment>
+			The output defines events with no large data associated.
+	</rdfs:comment>
+    <vs:term_status>unstable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/vamp/TrackLevelOutput">
+    <rdfs:subClassOf rdf:resource="http://purl.org/ontology/vamp/PluginOutput"/>
+    <rdfs:comment>
+			We obtain track metadata?
+	</rdfs:comment>
+    <vs:term_status>unstable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/vamp/PluginProgram">
+    <rdfs:label>Plugin program</rdfs:label>
+    <rdfs:comment>
+			Plugin program defines a predefined context of parameters.
+	</rdfs:comment>
+    <vs:term_status>stable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/vamp/Feature">
+    <rdfs:label>Vamp Feature</rdfs:label>
+    <rdfs:comment>This may be removed mighty soon as we rely on the Audio Features Ontology for this</rdfs:comment>
+    <vs:term_status>deprecated</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/vamp/InputDomain">
+    <rdfs:label>Plugin input domain</rdfs:label>
+    <rdfs:comment>Plugin input domain</rdfs:comment>
+    <vs:term_status>stable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/vamp/SampleType">
+    <rdfs:label>sample type</rdfs:label>
+    <rdfs:comment>sample type for the plugin output</rdfs:comment>
+    <vs:term_status>stable</vs:term_status>
+  </owl:Class>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/plugin_descriptor">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>plugin descriptor</rdfs:label>
+    <rdfs:comment>
+			Links the plugin descriptor to the plugin (it may be redundant for an RDF decription to have a plugin descriptor).
+	</rdfs:comment>
+    <rdfs:range rdf:resource="http://purl.org/ontology/vamp/PluginDescription"/>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/Plugin"/>
+    <vs:term_status>stable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/parameter_descriptor">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>parameter descriptor</rdfs:label>
+    <rdfs:comment>
+			Links each parameter descriptor to the plugin.
+	</rdfs:comment>
+    <rdfs:range rdf:resource="http://purl.org/ontology/vamp/ParameterDescriptor"/>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/Plugin"/>
+    <vs:term_status>stable</vs:term_status>
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>parameter descriptor</rdfs:label>
+    <vs:term_status>stable</vs:term_status>
+    <rdfs:comment>
+			Specifies exactly the type of descriptor to set in the transform by linking it.
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/Parameter"/>
+    <rdfs:range rdf:resource="http://purl.org/ontology/vamp/ParameterDescriptor"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/output_descriptor">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>output descriptor</rdfs:label>
+    <rdfs:comment>
+			Links each output descriptor to the plugin.
+	</rdfs:comment>
+    <rdfs:range rdf:resource="http://purl.org/ontology/vamp/PluginOutput"/>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/Plugin"/>
+    <vs:term_status>stable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/available_plugin">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>available plugin</rdfs:label>
+    <rdfs:comment>
+			Available plugins in the library
+	</rdfs:comment>
+    <rdfs:range rdf:resource="http://purl.org/ontology/vamp/Plugin"/>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginLibrary"/>
+    <vs:term_status>stable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/parameter">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>parameter</rdfs:label>
+    <rdfs:comment>
+			Actual parameter used in the plugin transform to run the plugin
+	</rdfs:comment>
+    <rdfs:range rdf:resource="http://purl.org/ontology/vamp/Plugin"/>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginTransform"/>
+    <vs:term_status>stable</vs:term_status>
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>parameter</rdfs:label>
+    <vs:term_status>stable</vs:term_status>
+    <rdfs:comment>
+			Specifies the parameter to set the plugin in execution. 
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginTransform"/>
+    <rdfs:range rdf:resource="http://purl.org/ontology/vamp/Parameter"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/identifier">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:label>plugin identifier</rdfs:label>
+    <rdfs:comment>
+		Machine-readable identifier for Vamp plugin classes.
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginDescription"/>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginProgram"/>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginOutput"/>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/ParameterDescriptor"/>
+    <vs:term_status>stable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/name">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:label>plugin name</rdfs:label>
+    <rdfs:comment>
+		Human-readable identifier for the plugin.
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginDescription"/>
+    <vs:term_status>stable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/vamp_API_version">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:label>vamp API version</rdfs:label>
+    <rdfs:comment>
+			Version of the Vamp API used for the plugin.
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginDescription"/>
+    <vs:term_status>stable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/input_domain">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:label>input domain</rdfs:label>
+    <rdfs:comment>
+			Input domain for the plugin (time or frequency).
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/Plugin"/>
+    <rdfs:range rdf:resource="http://purl.org/ontology/vamp/InputDomain"/>
+    <vs:term_status>stable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/max_value">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label>max value</rdfs:label>
+    <rdfs:comment>Maximum value of the parameter</rdfs:comment>
+    <rdfs:range rdf:resource="http://purl.org/ontology/vamp/ParameterDescriptor"/>
+    <rdfs:range rdf:resource="http://purl.org/ontology/vamp/PluginOutput"/>
+    <vs:term_status>unstable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/min_value">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label>min value</rdfs:label>
+    <rdfs:comment>Minimum value of the parameter</rdfs:comment>
+    <rdfs:range rdf:resource="http://purl.org/ontology/vamp/ParameterDescriptor"/>
+    <rdfs:range rdf:resource="http://purl.org/ontology/vamp/PluginOutput"/>
+    <vs:term_status>unstable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/default_value">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label>default value</rdfs:label>
+    <rdfs:comment>Default value of the parameter</rdfs:comment>
+    <rdfs:range rdf:resource="http://purl.org/ontology/vamp/ParameterDescriptor"/>
+    <vs:term_status>unstable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/fixed_bin_count">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:label>fixed bin count</rdfs:label>
+    <rdfs:comment>fixed bin count</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginOutput"/>
+    <vs:term_status>unstable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/unit">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label>unit</rdfs:label>
+    <rdfs:comment>unit of the output</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginOutput"/>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/ParameterDescriptor"/>
+    <vs:term_status>unstable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/sample_rate">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:label>sample rate</rdfs:label>
+    <rdfs:comment>sample rate of the output</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginOutput"/>
+    <vs:term_status>unstable</vs:term_status>
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label>sample rate</rdfs:label>
+    <vs:term_status>stable</vs:term_status>
+    <rdfs:comment>
+			Specifies the sample rate if it is not constant.
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginTransform"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/quantized_step">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:label>quantized step</rdfs:label>
+    <rdfs:comment>quantized step (if any)</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginOutput"/>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/ParameterDescriptor"/>
+    <vs:term_status>unstable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/bin_count">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:label>bin count</rdfs:label>
+    <rdfs:comment>bin count</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginOutput"/>
+    <vs:term_status>unstable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/bin_names">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:label>bin names</rdfs:label>
+    <rdfs:comment>bin names</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginOutput"/>
+    <vs:term_status>unstable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/sample_type">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label>sample type</rdfs:label>
+    <rdfs:comment>sample type</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginOutput"/>
+    <rdfs:range rdf:resource="http://purl.org/ontology/vamp/SampleType"/>
+    <vs:term_status>unstable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/computes_feature_type">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>feature type</rdfs:label>
+    <rdfs:comment>
+			Feature Types output by the plugin
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginOutput"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+    <vs:term_status>unstable</vs:term_status>
+  </rdf:Property>
+  <vamp:InputDomain rdf:about="http://purl.org/ontology/vamp/time_domain"/>
+  <vamp:InputDomain rdf:about="http://purl.org/ontology/vamp/frequency_domain"/>
+  <vamp:SampleType rdf:about="http://purl.org/ontology/vamp/OneSamplePerStep"/>
+  <vamp:SampleType rdf:about="http://purl.org/ontology/vamp/FixedSampleRate"/>
+  <vamp:SampleType rdf:about="http://purl.org/ontology/vamp/VariableSampleRate"/>
+  <owl:Class rdf:about="http://purl.org/ontology/vamp/Transform">
+    <rdfs:label>Plugin Transform</rdfs:label>
+    <vs:term_status>stable</vs:term_status>
+    <rdfs:comment>
+			The plugin transform defines the context of the feature extraction process. 
+	</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="http://purl.org/ontology/vamp/Parameter">
+    <rdfs:label>Parameter</rdfs:label>
+    <vs:term_status>unstable</vs:term_status>
+    <rdfs:comment>
+			Parameter used by the plugin transform to set up the plugin.
+	</rdfs:comment>
+  </owl:Class>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/plugin">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>plugin</rdfs:label>
+    <vs:term_status>stable</vs:term_status>
+    <rdfs:comment>
+			Specifies the plugin in execution. 
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginTransform"/>
+    <rdfs:range rdf:resource="http://purl.org/ontology/vamp/Plugin"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/program">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label>program</rdfs:label>
+    <vs:term_status>stable</vs:term_status>
+    <rdfs:comment>
+			Specifies the program to set the plugin in execution. 
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/Transform"/>
+    <rdfs:range rdf:resource="http://purl.org/ontology/vamp/PluginProgram"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/step_size">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label>step size</rdfs:label>
+    <vs:term_status>stable</vs:term_status>
+    <rdfs:comment>
+			Specifies the step size for the framing. 
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginTransform"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/block_size">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label>block size</rdfs:label>
+    <vs:term_status>stable</vs:term_status>
+    <rdfs:comment>
+			Specifies the block size for the framing. 
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginTransform"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/transform_type">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label>transform type</rdfs:label>
+    <vs:term_status>unstable</vs:term_status>
+    <rdfs:comment>
+			Specifies the transform type (they should be individuals). 
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginTransform"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/window_type">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label>window type</rdfs:label>
+    <vs:term_status>unstable</vs:term_status>
+    <rdfs:comment>
+			Specifies the window type (they should be individuals and clearly not here). 
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/PluginTransform"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/ontology/vamp/value">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+    <rdfs:label>value</rdfs:label>
+    <vs:term_status>stable</vs:term_status>
+    <rdfs:comment>
+			Specifies the current value of the parameter. 
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="http://purl.org/ontology/vamp/Parameter"/>
+  </rdf:Property>
+</rdf:RDF>
+

@@ -1,0 +1,574 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+@prefix vs: <http://www.w3.org/2003/06/sw-vocab-status/ns#>.
+@prefix list: <http://www.w3.org/2000/10/swap/list#>.
+@prefix dc: <http://purl.org/dc/elements/1.1/>.
+@prefix mo: <http://purl.org/ontology/mo/>.
+@prefix event: <http://purl.org/NET/c4dm/event.owl#>.
+@prefix af: <http://purl.org/ontology/af/>.
+@prefix tl: <http://purl.org/NET/c4dm/timeline.owl#>.
+@prefix vamp: <http://purl.org/ontology/vamp/>.
+@prefix :         <> .
+
+<> 
+	a owl:Ontology;
+	dc:title "Vamp Plugins Ontology";
+	rdfs:label "Vamp Plugins Ontology";
+	rdfs:comment """
+			added comments from Cannam
+	""";
+	foaf:maker "Chris Cannam";
+	foaf:maker "Chris Sutton";
+	foaf:maker "Yves Raimond";
+	foaf:maker "David Pastor Escuredo";
+        dc:date "$Date: 2008/05/21 17:05:11 $";
+	.
+
+vs:term_status a owl:AnnotationProperty.
+
+#Authors foaf
+
+#############################################
+# Part 1: Classes to describe the plugin
+#############################################
+
+#Note: we don't include Feature concept because we rely on the Audio Feature ontology
+#Note: we additionaly define a PluginTransform concept to link the running context
+
+vamp:Plugin
+	a owl:Class;
+	rdfs:label "Vamp Plugin";
+	rdfs:comment """
+		Vamp plugin is an implementation of a feature extraction algorithm based on the Vamp API. 
+	""";
+	vs:term_status "stable";
+	.
+
+vamp:PluginLibrary
+	a owl:Class;
+	rdfs:label "Vamp Plugin Library";
+	rdfs:comment """
+			Library of Vamp Plugins
+	""";
+	vs:term_status "stable";
+	.
+
+vamp:PluginDescription
+	a owl:Class;
+	rdfs:label "Vamp Plugin Descriptor";
+	rdfs:comment """
+			The plugin descriptor provides basic metadata of the plugin. We may remove this and link directly to the plugin instance
+	""";
+	vs:term_status "unstable";
+	.
+
+vamp:ParameterDescriptor
+	a owl:Class;
+	rdfs:label "Vamp Plugin Parameter Descriptor";
+	rdfs:comment """
+			Descriptior of a plugin parameter
+	""";
+	vs:term_status "stable";
+	.
+
+vamp:PluginOutput
+	a owl:Class;
+	rdfs:label "Vamp Plugin output descriptor";
+	rdfs:comment """
+		Descriptior of the plugin output. This descriptor provides necessary information to interpret correctly the output features.
+		Each plugin will be bound to one of the subclasses.
+	""";
+	vs:term_status "unstable";
+	.
+
+vamp:DenseOutput
+	a owl:Class;
+	rdfs:subClassOf vamp:PluginOutput;
+	rdfs:comment """
+			Large binary data as output.
+	""";
+	vs:term_status "unstable";
+	.
+
+vamp:SparseOutput 
+	a owl:Class;
+	rdfs:subClassOf vamp:PluginOutput;
+	rdfs:comment """
+			The output defines events with no large data associated.
+	""";
+	vs:term_status "unstable";
+	.
+
+vamp:TrackLevelOutput
+	a owl:Class;
+	rdfs:subClassOf vamp:PluginOutput;
+	rdfs:comment """
+			We obtain track metadata?
+	""";
+	vs:term_status "unstable";
+	.
+
+vamp:PluginProgram
+	a owl:Class;
+	rdfs:label "Plugin program";
+	rdfs:comment """
+			Plugin program defines a predefined context of parameters.
+	""";
+	vs:term_status "stable";
+	.
+
+vamp:Feature
+	a owl:Class;
+	rdfs:label "Vamp Feature";
+	rdfs:comment "This may be removed mighty soon as we rely on the Audio Features Ontology for this";
+	vs:term_status "deprecated";
+	.
+
+#Classes for enumerations in the Vamp API
+
+vamp:InputDomain
+	a owl:Class;
+	rdfs:label "Plugin input domain";
+	rdfs:comment "Plugin input domain";
+	vs:term_status "stable";
+	.
+
+vamp:SampleType
+	a owl:Class;
+	rdfs:label "sample type";
+	rdfs:comment "sample type for the plugin output";
+	vs:term_status "stable";
+	.
+
+
+
+
+##################################################################
+# PROPERTIES. Some of them can be declared as builtins.
+##################################################################
+
+##### Plugin properties
+
+vamp:plugin_descriptor
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "plugin descriptor";
+	rdfs:comment """
+			Links the plugin descriptor to the plugin (it may be redundant for an RDF decription to have a plugin descriptor).
+	""";
+	rdfs:range vamp:PluginDescription;
+	rdfs:domain vamp:Plugin;
+	vs:term_status "stable";
+	.
+
+vamp:parameter_descriptor
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "parameter descriptor";
+	rdfs:comment """
+			Links each parameter descriptor to the plugin.
+	""";
+	rdfs:range vamp:ParameterDescriptor;
+	rdfs:domain vamp:Plugin;
+	vs:term_status "stable";
+	.
+
+vamp:output_descriptor
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "output descriptor";
+	rdfs:comment """
+			Links each output descriptor to the plugin.
+	""";
+	rdfs:range vamp:PluginOutput;
+	rdfs:domain vamp:Plugin;
+	vs:term_status "stable";
+	.
+
+##### Plugin Library properties
+
+vamp:available_plugin 
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "available plugin";
+	rdfs:comment """
+			Available plugins in the library
+	""";
+	rdfs:range vamp:Plugin;
+	rdfs:domain vamp:PluginLibrary;
+	vs:term_status "stable";
+	.
+
+##### Plugin Transform
+
+vamp:parameter
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "parameter";
+	rdfs:comment """
+			Actual parameter used in the plugin transform to run the plugin
+	""";
+	rdfs:range vamp:Plugin;
+	rdfs:domain vamp:PluginTransform;
+	vs:term_status "stable";
+	.
+
+##### Plugin Descriptor properties
+
+vamp:identifier
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	rdfs:label "plugin identifier";
+	rdfs:comment """
+		Machine-readable identifier for Vamp plugin classes.
+	""";
+	rdfs:domain vamp:PluginDescription;
+	rdfs:domain vamp:PluginProgram;
+	rdfs:domain vamp:PluginOutput;
+	rdfs:domain vamp:ParameterDescriptor;
+	vs:term_status "stable";
+	.
+
+vamp:name
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	rdfs:label "plugin name";
+	rdfs:comment """
+		Human-readable identifier for the plugin.
+	""";
+	rdfs:domain vamp:PluginDescription;
+	vs:term_status "stable";
+	.
+
+vamp:vamp_API_version
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	rdfs:label "vamp API version";
+	rdfs:comment """
+			Version of the Vamp API used for the plugin.
+	""";
+	rdfs:domain vamp:PluginDescription;
+	vs:term_status "stable";
+	.
+
+vamp:input_domain
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	rdfs:label "input domain";
+	rdfs:comment """
+			Input domain for the plugin (time or frequency).
+	""";
+	rdfs:domain vamp:Plugin;
+	rdfs:range vamp:InputDomain;
+	vs:term_status "stable";
+	.
+
+#Note that other properties like maker can be linked to the plugin descriptor using other namespaces
+
+##### Parameter Descriptor properties
+
+#Note: Identifier has been already defined
+
+vamp:max_value
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	a owl:FunctionalProperty;
+	rdfs:label "max value";
+	rdfs:comment "Maximum value of the parameter";
+	rdfs:range vamp:ParameterDescriptor;
+	rdfs:range vamp:PluginOutput;
+	vs:term_status "unstable";
+	.
+
+vamp:min_value
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	a owl:FunctionalProperty;
+	rdfs:label "min value";
+	rdfs:comment "Minimum value of the parameter";
+	rdfs:range vamp:ParameterDescriptor;
+	rdfs:range vamp:PluginOutput;
+	vs:term_status "unstable";
+	.
+
+vamp:default_value
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	a owl:FunctionalProperty;
+	rdfs:label "default value";
+	rdfs:comment "Default value of the parameter";
+	rdfs:range vamp:ParameterDescriptor;
+	vs:term_status "unstable";
+	.
+
+########Output Descriptor properties
+
+vamp:fixed_bin_count 
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	rdfs:label "fixed bin count";
+	rdfs:comment "fixed bin count";
+	rdfs:domain vamp:PluginOutput;
+	vs:term_status "unstable";
+	.
+
+vamp:unit 
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	a owl:FunctionalProperty;
+	rdfs:label "unit";
+	rdfs:comment "unit of the output";
+	rdfs:domain vamp:PluginOutput;
+	rdfs:domain vamp:ParameterDescriptor;
+	vs:term_status "unstable";
+	.
+
+vamp:sample_rate
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	rdfs:label "sample rate";
+	rdfs:comment "sample rate of the output";
+	rdfs:domain vamp:PluginOutput;
+	vs:term_status "unstable";
+	.
+
+vamp:quantized_step
+	a rdf:Property;
+	a owl:FunctionalProperty;
+	a owl:DatatypeProperty;
+	rdfs:label "quantized step";
+	rdfs:comment "quantized step (if any)";
+	rdfs:domain vamp:PluginOutput;
+	rdfs:domain vamp:ParameterDescriptor;
+	vs:term_status "unstable";
+	.
+	
+vamp:bin_count      
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	rdfs:label "bin count";
+	rdfs:comment "bin count";
+	rdfs:domain vamp:PluginOutput;
+	vs:term_status "unstable";
+	.
+
+vamp:bin_names  
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	rdfs:label "bin names";
+	rdfs:comment "bin names";
+	rdfs:domain vamp:PluginOutput;
+	vs:term_status "unstable";
+	.
+
+vamp:sample_type  
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	a owl:FunctionalProperty;
+	rdfs:label "sample type";
+	rdfs:comment "sample type";
+	rdfs:domain vamp:PluginOutput;
+	rdfs:range vamp:SampleType;
+	vs:term_status "unstable";
+	.
+
+vamp:computes_feature_type
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "feature type";
+	rdfs:comment """
+			Feature Types output by the plugin
+	""";
+	rdfs:domain vamp:PluginOutput;
+	rdfs:range rdfs:Literal;
+	#This should be substituted by af:Feature i think. Definitely Literal is not right here.
+	vs:term_status "unstable";
+	.
+	
+########################
+# INDIVIDUALS
+########################
+
+vamp:time_domain 
+	a vamp:InputDomain;
+	.
+
+vamp:frequency_domain
+	a vamp:InputDomain;
+	.
+
+vamp:OneSamplePerStep
+	a vamp:SampleType;
+	.
+
+vamp:FixedSampleRate
+	a vamp:SampleType;
+	.
+
+vamp:VariableSampleRate
+	a vamp:SampleType; 
+	.
+
+################################################### END OF THE VAMP API DESCRIPTION ############################################################
+
+
+#############################################
+# Part 2: Classes to describe de execution (to move somewhere else)
+#############################################
+
+#Note: we need to define this part of the ontology to give a minimun common standard for hosts.
+#Note: this may split up in some other ontology (cool)
+
+vamp:Transform
+	a owl:Class;
+	rdfs:label "Plugin Transform";
+	vs:term_status "stable";
+	rdfs:comment """
+			The plugin transform defines the context of the feature extraction process. 
+	""";
+	.
+
+vamp:Parameter
+	a owl:Class;
+	rdfs:label "Parameter";
+	vs:term_status "unstable";
+	rdfs:comment """
+			Parameter used by the plugin transform to set up the plugin.
+	""";
+	.
+
+################
+# Properties
+################
+
+##### Plugin Transform properties
+
+vamp:plugin
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "plugin";
+	vs:term_status "stable";
+	rdfs:comment """
+			Specifies the plugin in execution. 
+	""";
+	rdfs:domain vamp:PluginTransform;
+	rdfs:range vamp:Plugin;
+	.
+
+vamp:program
+	a rdf:Property;
+	a owl:ObjectProperty;
+	a owl:FunctionalProperty;
+	rdfs:label "program";
+	vs:term_status "stable";
+	rdfs:comment """
+			Specifies the program to set the plugin in execution. 
+	""";
+	rdfs:domain vamp:Transform;
+	rdfs:range vamp:PluginProgram;
+	.
+
+vamp:parameter
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "parameter";
+	vs:term_status "stable";
+	rdfs:comment """
+			Specifies the parameter to set the plugin in execution. 
+	""";
+	rdfs:domain vamp:PluginTransform;
+	rdfs:range vamp:Parameter;
+	.
+
+vamp:step_size
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	a owl:FunctionalProperty;
+	rdfs:label "step size";
+	vs:term_status "stable";
+	rdfs:comment """
+			Specifies the step size for the framing. 
+	""";
+	rdfs:domain vamp:PluginTransform;
+	.
+
+vamp:block_size
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	a owl:FunctionalProperty;
+	rdfs:label "block size";
+	vs:term_status "stable";
+	rdfs:comment """
+			Specifies the block size for the framing. 
+	""";
+	rdfs:domain vamp:PluginTransform;
+	.
+
+vamp:sample_rate
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	a owl:FunctionalProperty;
+	rdfs:label "sample rate";
+	vs:term_status "stable";
+	rdfs:comment """
+			Specifies the sample rate if it is not constant.
+	""";
+	rdfs:domain vamp:PluginTransform;
+	.
+
+vamp:transform_type
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	a owl:FunctionalProperty;
+	rdfs:label "transform type";
+	vs:term_status "unstable";
+	rdfs:comment """
+			Specifies the transform type (they should be individuals). 
+	""";
+	rdfs:domain vamp:PluginTransform;
+	.
+
+vamp:window_type
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	a owl:FunctionalProperty;
+	rdfs:label "window type";
+	vs:term_status "unstable";
+	rdfs:comment """
+			Specifies the window type (they should be individuals and clearly not here). 
+	""";
+	rdfs:domain vamp:PluginTransform;
+	.
+
+##### Parameter properties
+
+vamp:value
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	a owl:FunctionalProperty;
+	rdfs:label "value";
+	vs:term_status "stable";
+	rdfs:comment """
+			Specifies the current value of the parameter. 
+	""";
+	rdfs:domain vamp:Parameter;
+	.
+
+vamp:parameter_descriptor
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "parameter descriptor";
+	vs:term_status "stable";
+	rdfs:comment """
+			Specifies exactly the type of descriptor to set in the transform by linking it.
+	""";
+	rdfs:domain vamp:Parameter;
+	rdfs:range vamp:ParameterDescriptor;
+	.
+
+
+
+
