@@ -1,0 +1,59 @@
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+@prefix vamp:     <http://www.purl.org/ontology/vamp/> .
+@prefix vampex:   <http://www.purl.org/ontology/vamp/examples/> .
+@prefix plugbase: <http://purl.org/ontology/vamp/examples/> .
+@prefix owl:      <http://www.w3.org/2002/07/owl#> .
+@prefix dc:       <http://purl.org/dc/elements/1.1/> .
+@prefix af:       <http://purl.org/ontology/af/> .
+@prefix foaf:     <http://xmlns.com/foaf/0.1/> .
+@prefix cc:       <http://web.resource.org/cc/> .
+@prefix thisplug: <http://purl.org/ontology/vamp/examples/spectralcentroid#> .
+@prefix :         <> .
+
+<>  a   vamp:PluginDescription ;
+     foaf:maker          <http://www.vamp-plugins.org/> ;
+     foaf:maker          <http://www.vamp-plugins.org/doap.rdf#template-generator> ;
+     foaf:primaryTopic   plugbase:spectralcentroid .
+
+plugbase:spectralcentroid a   vamp:Plugin ;
+    dc:title              "Spectral Centroid" ;
+    vamp:name             "Spectral Centroid" ;
+    dc:description        "Calculate the centroid frequency of the spectrum of the input signal" ;
+    foaf:maker            [ foaf:name "Vamp SDK Example Plugins"] ; # FIXME could give plugin author's URI here
+    cc:license            <FIXME license for the plugin> ; 
+    vamp:identifier       "spectralcentroid" ;
+    vamp:vamp_API_version vamp:api_version_1 ;
+    owl:versionInfo       "2" ;
+    vamp:input_domain     vamp:TimeDomain ;
+
+
+    vamp:output_descriptor      thisplug:output_logcentroid ;
+    vamp:output_descriptor      thisplug:output_linearcentroid ;
+    .
+thisplug:output_logcentroid a  vamp:DenseOutput ;
+    vamp:identifier       "logcentroid" ;
+    dc:title              "Log Frequency Centroid" ;
+    dc:description        "Centroid of the log weighted frequency spectrum"  ;
+    vamp:fixed_bin_count  "true" ;
+    vamp:is_quantised     "false"  ;
+    vamp:unit             "Hz" ;
+    vamp:bin_count          1 ;
+    vamp:bin_names          ( "");
+    vamp:sample_type       vamp:OneSamplePerStep ;
+    vamp:computes_feature_type  <FIXME feature type URI> ;
+    vamp:computes_event_type    <FIXME event type URI> ;
+    .
+thisplug:output_linearcentroid a  vamp:DenseOutput ;
+    vamp:identifier       "linearcentroid" ;
+    dc:title              "Linear Frequency Centroid" ;
+    dc:description        "Centroid of the linear frequency spectrum"  ;
+    vamp:fixed_bin_count  "true" ;
+    vamp:is_quantised     "false"  ;
+    vamp:unit             "Hz" ;
+    vamp:bin_count          1 ;
+    vamp:bin_names          ( "");
+    vamp:sample_type       vamp:OneSamplePerStep ;
+    vamp:computes_feature_type  <FIXME feature type URI> ;
+    vamp:computes_event_type    <FIXME event type URI> ;
+    .

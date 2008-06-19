@@ -68,15 +68,6 @@ vamp:PluginLibrary
 	vs:term_status "stable";
 	.
 
-vamp:PluginDescription
-	a owl:Class;
-	rdfs:label "Vamp Plugin Descriptor";
-	rdfs:comment """
-			The plugin descriptor provides basic metadata of the plugin. We may remove this and link directly to the plugin instance.
-	""";
-	vs:term_status "unstable";
-	.
-
 vamp:ParameterDescriptor
 	a owl:Class;
 	rdfs:label "Vamp Plugin Parameter Descriptor";
@@ -167,18 +158,6 @@ vamp:SampleType
 
 ##### Plugin properties
 
-vamp:plugin_description
-	a rdf:Property;
-	a owl:ObjectProperty;
-	rdfs:label "plugin description";
-	rdfs:comment """
-			Links the plugin descriptor to the plugin (it may be redundant for an RDF decription to have a plugin descriptor in between an actual plugin and its properties).
-	""";
-	rdfs:range vamp:PluginDescription;
-	rdfs:domain vamp:Plugin;
-	vs:term_status "stable";
-	.
-
 vamp:parameter_descriptor
 	a rdf:Property;
 	a owl:ObjectProperty;
@@ -226,7 +205,7 @@ vamp:identifier
 	rdfs:comment """
 		Machine-readable identifier for Vamp plugin classes (and Transform).
 	""";
-	rdfs:domain vamp:PluginDescription;
+	rdfs:domain vamp:Plugin;
 	rdfs:domain vamp:PluginProgram;
 	rdfs:domain vamp:PluginOutput;
 	rdfs:domain vamp:ParameterDescriptor;
@@ -240,7 +219,7 @@ vamp:name
 	rdfs:comment """
 		Human-readable identifier for the plugin.
 	""";
-	rdfs:domain vamp:PluginDescription;
+	rdfs:domain vamp:Plugin;
 	vs:term_status "stable";
 	.
 
@@ -251,7 +230,7 @@ vamp:vamp_API_version
 	rdfs:comment """
 			Version of the Vamp API used to implement this plugin.
 	""";
-	rdfs:domain vamp:PluginDescription;
+	rdfs:domain vamp:Plugin;
 	vs:term_status "stable";
 	.
 
@@ -324,6 +303,17 @@ vamp:fixed_bin_count
 	vs:term_status "unstable";
 	.
 
+vamp:is_quantized
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	rdfs:label "is quantised";
+	rdfs:comment """
+		Quantised. A boolean type.
+	""";
+	rdfs:domain vamp:PluginOutput;
+	vs:term_status "unstable";
+	.
+
 vamp:unit 
 	a rdf:Property;
 	a owl:DatatypeProperty;
@@ -348,13 +338,13 @@ vamp:sample_rate
 	vs:term_status "unstable";
 	.
 
-vamp:quantized_step
+vamp:quantize_step
 	a rdf:Property;
 	a owl:FunctionalProperty;
 	a owl:DatatypeProperty;
 	rdfs:label "quantized step";
 	rdfs:comment """
-		Quantized step (if any). We do not include isQuantized.
+		Quantize step. Only defined if is_quantised is true
 	""";
 	rdfs:domain vamp:PluginOutput;
 	rdfs:domain vamp:ParameterDescriptor;
@@ -407,16 +397,28 @@ vamp:computes_feature_type
 	rdfs:range af:AudioFeature;
 	vs:term_status "unstable";
 	.
+
+vamp:computes_event_type
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "event type";
+	rdfs:comment """
+			Event Type output by the plugin.
+	""";
+	rdfs:domain vamp:PluginOutput;
+	rdfs:range event:Event;
+	vs:term_status "unstable";
+	.
 	
 ########################
 # INDIVIDUALS
 ########################
 
-vamp:time_domain 
+vamp:TimeDomain 
 	a vamp:InputDomain;
 	.
 
-vamp:frequency_domain
+vamp:FrequencyDomain
 	a vamp:InputDomain;
 	.
 
