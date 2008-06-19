@@ -55,8 +55,8 @@ string describe_namespaces(Plugin* plugin, string pluginBundleBaseURI)
 	string res=\
 "@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .\n\
 @prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .\n\
-@prefix vamp:     <http://www.vamp-plugins.org/ontology/> .\n\
-@prefix vampex:   <http://www.vamp-plugins.org/examples/> .\n\
+@prefix vamp:     <http://www.purl.org/ontology/vamp/> .\n\
+@prefix vampex:   <http://www.purl.org/ontology/vamp/examples/> .\n\
 @prefix plugbase: <"+pluginBundleBaseURI+"> .\n\
 @prefix owl:      <http://www.w3.org/2002/07/owl#> .\n\
 @prefix dc:       <http://purl.org/dc/elements/1.1/> .\n\
@@ -85,6 +85,7 @@ string describe_plugin(Plugin* plugin)
 	string res=\
 "plugbase:"+plugin->getIdentifier()+" a   vamp:Plugin ;\n\
     dc:title              \""+plugin->getName()+"\" ;\n\
+    vamp:name             \""+plugin->getName()+"\" ;\n\
     dc:description        \""+plugin->getDescription()+"\" ;\n\
     foaf:maker            [ foaf:name \""+plugin->getMaker()+"\"] ; # FIXME could give plugin author's URI here\n\
     cc:license            <FIXME license for the plugin> ; \n\
@@ -117,25 +118,44 @@ string describe_param(Plugin::ParameterDescriptor p)
     vamp:identifier     \""+p.identifier+"\" ;\n\
     dc:title            \""+p.name+"\" ;\n\
     dc:format           \""+p.unit+"\" ;\n\
-    vamp:minValue       "+to_string(p.minValue)+" ;\n\
-    vamp:maxValue       "+to_string(p.maxValue)+" ;\n\
-    vamp:defaultValue   "+to_string(p.defaultValue)+" .\n\n";
+    vamp:min_value       "+to_string(p.minValue)+" ;\n\
+    vamp:max_value       "+to_string(p.maxValue)+" ;\n\
+    vamp:default_value   "+to_string(p.defaultValue)+" .\n\n";
 	return res;
 }
 
 string describe_output(Plugin::OutputDescriptor o)
 {
-	string res=\
-"thisplug:output_"+o.identifier+" a  vamp:OutputDescriptor ;\n\
-    vamp:identifier     \""+o.identifier+"\" ;\n\
-    dc:title            \""+o.name+"\" ;\n\
-    vamp:fixed_bin_count \""+(o.hasFixedBinCount == 1 ? "true" : "false")+"\" ;\n";
 
-	// FIXME ? Bin names may vary based on plugin setup, so including them here might be misleading...
-	if (o.hasFixedBinCount)
+        //we need to distinguish here between different output types:
+        //DenseOutput
+        //SparseOutput
+        //TrackLevelOutput
+
+
+        //SparseOutput: variable sample rate. Events are not evenly spaced so we need to record the time associated with the event as it its not ensured that we have an event after the next one (but there is not time to set the duration, it has to be calculated as the different between 2 different events). The timestamp must be read.
+
+        string res;
+
+        if (o.sampleType == Plugin::OutputDescriptor::VariableSampleRate)
 	{
-		res+="    vamp:bin_count      "+to_string(o.binCount)+" ;\n";
-		res+="    vamp:bin_names      (";
+
+                res=\
+"thisplug:output_"+o.identifier+" a  vamp:SparseOutput ;\n\
+    vamp:identifier       \""+o.identifier+"\" ;\n\
+    dc:title              \""+o.name+"\" ;\n\
+    dc:description        \""+o.description+"\"  ;\n\
+    vamp:fixed_bin_count  \""+(o.hasFixedBinCount == 1 ? "true" : "false")+"\" ;\n\
+    vamp:is_quantized     \""+(o.isQuantized == 1 ? "true" : "false")+"\"  ;\n\
+    vamp:unit             \""+(o.unit)+"\" ;\n";
+                          
+                        
+
+                // FIXME ? Bin names may vary based on plugin setup, so including them here might be misleading...
+                if (o.hasFixedBinCount)
+                {
+		res+="    vamp:bin_count          "+to_string(o.binCount)+" ;\n";
+		res+="    vamp:bin_names          (";
 
 		unsigned int i;
 		for (i=0; i+1 < o.binNames.size(); i++)
@@ -143,33 +163,76 @@ string describe_output(Plugin::OutputDescriptor o)
 		if (i < o.binNames.size())
 			res+=" \""+o.binNames[i]+"\"";
 		res+=");\n";
-	}
-	
-	if (o.sampleType == Plugin::OutputDescriptor::VariableSampleRate)
-	{
-		res+="    vamp:sample_type    vamp:VariableSampleRate ;\n";
+	        }
+        
+                if (o.isQuantized)
+                {
+                res+="   vamp:quantize_step        "+to_string(o.quantizeStep)+"  ;\n";
+                }
+
+		res+="    vamp:sample_type        vamp:VariableSampleRate ;\n";
 		if (o.sampleRate > 0.0f)
 			res+="    vamp:sample_rate    "+to_string(o.sampleRate)+" ;\n";
-	}
-	else if (o.sampleType == Plugin::OutputDescriptor::FixedSampleRate)
-	{
-		res+="    vamp:sample_type    vamp:FixedSampleRate ;\n";
-		res+="    vamp:sample_rate    "+to_string(o.sampleRate)+" ;\n";
-	}
-	else if (o.sampleType == Plugin::OutputDescriptor::OneSamplePerStep)
-		res+="    vamp:sample_type    vamp:OneSamplePerStep ;\n";
-	else
-	{
-		cerr<<"Incomprehensible sampleType for output descriptor "+o.identifier<<" !"<<endl;
-		exit(1);
-	}
+	        
+        }
 
+        //If we do not have SparseOutput, then we have DenseOutput. TrackLevelOutput can not be inferred from the plugin directly without actually
+        //running the plugin.
+        else{
+
+res=\
+"thisplug:output_"+o.identifier+" a  vamp:DenseOutput ;\n\
+    vamp:identifier       \""+o.identifier+"\" ;\n\
+    dc:title              \""+o.name+"\" ;\n\
+    dc:description        \""+o.description+"\"  ;\n\
+    vamp:fixed_bin_count  \""+(o.hasFixedBinCount == 1 ? "true" : "false")+"\" ;\n\
+    vamp:is_quantised     \""+(o.isQuantized == 1 ? "true" : "false")+"\"  ;\n\
+    vamp:unit             \""+(o.unit)+"\" ;\n";
+
+
+
+        	// FIXME ? Bin names may vary based on plugin setup, so including them here might be misleading...
+        	if (o.hasFixedBinCount)
+        	{
+        		res+="    vamp:bin_count          "+to_string(o.binCount)+" ;\n";
+        		res+="    vamp:bin_names          (";
+
+        		unsigned int i;
+        		for (i=0; i+1 < o.binNames.size(); i++)
+        			res+=" \""+o.binNames[i]+"\"";
+        		if (i < o.binNames.size())
+        			res+=" \""+o.binNames[i]+"\"";
+        		res+=");\n";
+        	}
+
+                if (o.isQuantized)
+                {
+                res+="    vamp:quantize_step        "+to_string(o.quantizeStep)+"  ;\n";
+                }	
+
+
+        	else if (o.sampleType == Plugin::OutputDescriptor::FixedSampleRate)
+        	{
+        		res+="    vamp:sample_type       vamp:FixedSampleRate ;\n";
+        		res+="    vamp:sample_rate       "+to_string(o.sampleRate)+" ;\n";
+        	}
+        	else if (o.sampleType == Plugin::OutputDescriptor::OneSamplePerStep)
+        		res+="    vamp:sample_type       vamp:OneSamplePerStep ;\n";
+        	else
+        	{
+        		cerr<<"Incomprehensible sampleType for output descriptor "+o.identifier<<" !"<<endl;
+        		exit(1);
+        	}
+        }
+
+        //There is no way to know this in advance, but we can use the km a bit for this.
 	res+="    vamp:computes_feature_type  <FIXME feature type URI> ;\n";
 	res+="    vamp:computes_event_type    <FIXME event type URI> ;\n";
 	res+="    .\n";
 
 	return res;
 }
+
 string describe(Plugin* plugin, string pluginBundleBaseURI, string describerURI)
 {
 	string res = describe_namespaces(plugin, pluginBundleBaseURI);
