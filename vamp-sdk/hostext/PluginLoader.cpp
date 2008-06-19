@@ -517,7 +517,7 @@ PluginLoader::Impl::loadLibrary(string path)
              << path << "\"" << endl;
     }
 #else
-    handle = dlopen(path.c_str(), RTLD_LAZY);
+    handle = dlopen(path.c_str(), RTLD_LAZY | RTLD_GLOBAL);
     if (!handle) {
         cerr << "Vamp::HostExt::PluginLoader: Unable to load library \""
              << path << "\": " << dlerror() << endl;
