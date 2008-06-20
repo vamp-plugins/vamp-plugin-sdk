@@ -18,15 +18,15 @@
 	dc:title "Vamp Plugins Ontology";
 	rdfs:label "Vamp Plugins Ontology";
 	rdfs:comment """
-			Vamp Ontology. This ontology includes the following descriptions
+			Vamp Ontology. This ontology includes the following descriptions:
 			
-				-OWL description of the Vamp API
-				-OWL description of the Transform environment necessary to set up the execution of any plugin 
+				- OWL description of the Vamp API
+				- OWL description of the Transform environment necessary to set up the execution of any plugin 
 			
 			This Ontology provides semantics to describe and control Vamp plugins in RDF. Any "RDF-speaker" host is therefore able to 
 			use this ontology to read, set up and execute plugins.
-			The extracted features are expressed in terms of the Audio Features Ontology (link).
-			For more information, please visit the Vamp Plugins site: http://www.vamp-plugins.org/
+			The extracted features are expressed in terms of the Audio Features Ontology: http://purl.org/ontology/af/.
+			For more information, please visit the Vamp Plugins website: http://www.vamp-plugins.org/
 	""";
 	foaf:maker "Chris Cannam";
 	foaf:maker "Chris Sutton";
@@ -40,21 +40,21 @@ vs:term_status a owl:AnnotationProperty.
 #Authors foaf
 
 #############################################
-# Part 1: Describin a Vamp plugin
+# Part 1: Describing a Vamp plugin
 #############################################
 
 #########################################
 # CLASSES
 #########################################
 
-#Note: we don't include Feature concept because we rely on the Audio Feature ontology
-#Note: we additionaly define a Transform concept to link the running context
+# Note: we don't include a Feature concept because we rely on the Audio Feature ontology
+# Note: we additionally define a Transform concept to link the running context
 
 vamp:Plugin
 	a owl:Class;
 	rdfs:label "Vamp Plugin";
 	rdfs:comment """
-		Vamp plugin is an implementation of a feature extraction algorithm based on the Vamp API. 
+		A Vamp plugin is an implementation of an audio feature extraction algorithm using the Vamp API.
 	""";
 	vs:term_status "stable";
 	.
@@ -63,7 +63,7 @@ vamp:PluginLibrary
 	a owl:Class;
 	rdfs:label "Vamp Plugin Library";
 	rdfs:comment """
-			Library of Vamp Plugins. This may need to include rights.
+		Library of Vamp Plugins. This may need to include rights.
 	""";
 	vs:term_status "stable";
 	.
@@ -72,7 +72,7 @@ vamp:ParameterDescriptor
 	a owl:Class;
 	rdfs:label "Vamp Plugin Parameter Descriptor";
 	rdfs:comment """
-			Descriptior of a plugin parameter. Hosts require to know about the specific type and form of the parameters of a particular plugin for a correct transform setup.
+		Descriptor for a plugin parameter. Hosts need to know about the specific type and form of the parameters of a particular plugin for a correct transform setup.
 	""";
 	vs:term_status "stable";
 	.
@@ -81,7 +81,7 @@ vamp:PluginOutput
 	a owl:Class;
 	rdfs:label "Vamp Plugin output descriptor";
 	rdfs:comment """
-		Descriptior of the plugin output. This descriptor provides necessary information to interpret correctly the output features. The output type will determine how to read the temporal information of the extracted feature and how to manage the burden of ouput data.
+		Descriptor for an output of a plugin. This descriptor provides information that is necessary to correctly interpret the output features. The output type will determine how to read the temporal information of the extracted features and how to manage the burden of ouput data.
 	""";
 	vs:term_status "unstable";
 	.
@@ -91,7 +91,7 @@ vamp:DenseOutput
 	rdfs:subClassOf vamp:PluginOutput;
 	rdfs:label "Dense output";
 	rdfs:comment """
-			Specific output type comprising large binary data (e.g.: chromagram).
+		Specific output type for data evenly spaced in time, which may be of high volume and which it is usually desirable to represent in a compact form.
 	""";
 	vs:term_status "unstable";
 	.
@@ -101,7 +101,7 @@ vamp:SparseOutput
 	rdfs:label "Sparse output";
 	rdfs:subClassOf vamp:PluginOutput;
 	rdfs:comment """
-			Specific output type used in sparse data outputs (e.g.: key detector).
+		Specific output type for data that consist of features that require their own individual temporal information.
 	""";
 	vs:term_status "unstable";
 	.
@@ -111,7 +111,7 @@ vamp:TrackLevelOutput
 	rdfs:label "track level output";
 	rdfs:subClassOf vamp:PluginOutput;
 	rdfs:comment """
-			Specific output type that returns track level information. This sort of output will require a "hacky" interpretation of the feature timestamp as it will reflect some track metadata instead of temporal data.
+		Specific output type for track level information.  The Vamp API does not provide for this sort of output directly, so this will require a "hacky" interpretation of the feature timestamp to establish that it reflects track metadata instead of temporal data.
 	""";
 	vs:term_status "unstable";
 	.
@@ -120,7 +120,7 @@ vamp:PluginProgram
 	a owl:Class;
 	rdfs:label "Plugin program";
 	rdfs:comment """
-			Plugin program defines a predefined context of parameters. We may not need a concept for this and just a property linking a string representing the program name.
+		The program is a predefined context of parameters. We may not need a concept for this and just a property linking a string representing the program name.
 	""";
 	vs:term_status "unstable";
 	.
@@ -132,13 +132,13 @@ vamp:Feature
 	vs:term_status "deprecated";
 	.
 
-#Classes for enumerations in the Vamp API
+# Classes for enumerations in the Vamp API
 
 vamp:InputDomain
 	a owl:Class;
 	rdfs:label "Plugin input domain";
 	rdfs:comment """
-			Plugins warn about the input domain they require so the host can convert properly the input data. Note that this is not necessary if the host is using a PluginAdapter to wrap plugins (see Vamp doc).
+		Plugins declare the input domain they require, so the host can convert the input data properly. Hosts using the Vamp SDK PluginAdapter to wrap plugins should see this work done for them automatically - see the Vamp documentation.
 	""";
 	vs:term_status "stable";
 	.
@@ -147,7 +147,7 @@ vamp:SampleType
 	a owl:Class;
 	rdfs:label "sample type";
 	rdfs:comment """
-			Sample type specifies the temporal information of the plugin output. This information should be confronted with the output type for a correct interpretation.
+		The sample type specifies the temporal information of the plugin output. This information should be combined with the output type for a correct interpretation.
 	""";
 	vs:term_status "stable";
 	.
@@ -163,7 +163,7 @@ vamp:parameter_descriptor
 	a owl:ObjectProperty;
 	rdfs:label "parameter descriptor";
 	rdfs:comment """
-			Links each parameter descriptor to the plugin.
+		Links each parameter descriptor to the plugin.
 	""";
 	rdfs:range vamp:ParameterDescriptor;
 	rdfs:domain vamp:Plugin;
@@ -175,7 +175,7 @@ vamp:output_descriptor
 	a owl:ObjectProperty;
 	rdfs:label "output descriptor";
 	rdfs:comment """
-			Links each output type to the plugin.
+		Links each output type to the plugin.
 	""";
 	rdfs:range vamp:PluginOutput;
 	rdfs:domain vamp:Plugin;
@@ -189,7 +189,7 @@ vamp:available_plugin
 	a owl:ObjectProperty;
 	rdfs:label "available plugin";
 	rdfs:comment """
-			Available plugins in the library
+		Available plugins in the library
 	""";
 	rdfs:range vamp:Plugin;
 	rdfs:domain vamp:PluginLibrary;
@@ -203,7 +203,7 @@ vamp:identifier
 	a owl:DatatypeProperty;
 	rdfs:label "plugin identifier";
 	rdfs:comment """
-		Machine-readable identifier for Vamp plugin classes (and Transform).
+		Machine-readable identifier for a Vamp plugin within the scope of its library, or for a plugin descriptor within the scope of the plugin.
 	""";
 	rdfs:domain vamp:Plugin;
 	rdfs:domain vamp:PluginProgram;
@@ -228,7 +228,7 @@ vamp:vamp_API_version
 	a owl:DatatypeProperty;
 	rdfs:label "vamp API version";
 	rdfs:comment """
-			Version of the Vamp API used to implement this plugin.
+		Version of the Vamp API used to implement this plugin.
 	""";
 	rdfs:domain vamp:Plugin;
 	vs:term_status "stable";
@@ -239,18 +239,18 @@ vamp:input_domain
 	a owl:DatatypeProperty;
 	rdfs:label "input domain";
 	rdfs:comment """
-			Input domain allowed by the plugin (time or frequency).
+		Input domain required by the plugin (time or frequency).
 	""";
 	rdfs:domain vamp:Plugin;
 	rdfs:range vamp:InputDomain;
 	vs:term_status "stable";
 	.
 
-#Note that other properties like maker can be linked to the plugin descriptor using other namespaces
+# Note that other properties like maker can be linked to the plugin descriptor using other namespaces
 
 ##### Parameter Descriptor properties
 
-#Note: Identifier has been already defined
+# Note: Identifier has been already defined
 
 vamp:max_value
 	a rdf:Property;
@@ -438,18 +438,18 @@ vamp:VariableSampleRate
 
 
 #############################################
-# Part 2: Classes to describe de execution. TRANSFORM
+# Part 2: Classes to describe plugin execution. TRANSFORM
 #############################################
 
-#Note: we need to define this part of the ontology to give a minimun common standard for hosts.
-#Note: this may split up in some other ontology or become part of the DSP namespace
+# Note: we need to define this part of the ontology to give a minimun common standard for hosts.
+# Note: this may split up in some other ontology or become part of the DSP namespace
 
 vamp:Transform
 	a owl:Class;
 	rdfs:label "Transform";
 	vs:term_status "stable";
 	rdfs:comment """
-			The Transform defines the environment of any audio processing computation. 
+		The Transform defines the environment of any audio processing computation. 
 	""";
 	.
 
@@ -458,7 +458,7 @@ vamp:Parameter
 	rdfs:label "Parameter";
 	vs:term_status "unstable";
 	rdfs:comment """
-			Parameter used by the plugin transform to set up the plugin. The parameter class instances should be instantiated according to the specific vamp:PluginDescriptor instance for each plugin.
+		Parameter used by the plugin transform to set up the plugin. The parameter class instances should be instantiated according to the specific vamp:PluginDescriptor instance for each plugin.
 	""";
 	.
 
@@ -467,7 +467,7 @@ vamp:Configuration
 	rdfs:label "Configuration";
 	vs:term_status "unstable";
 	rdfs:comment """
-			For extension (SV implementation of Transform).
+		For extension (key/value data provided to DSSI plugins, not relevant to Vamp)
 	""";
 	.
 
@@ -480,7 +480,7 @@ vamp:TransformType
 	""";
 	.
 
-##individuals of transfortype
+##individuals of transformtype
 vamp:FeatureExtraction
 	a vamp:TransformType;
 	rdfs:label "Feature Extraction";
@@ -516,7 +516,7 @@ vamp:engine
 	rdfs:label "plugin";
 	vs:term_status "stable";
 	rdfs:comment """
-			Specifies the plugin in execution. This is an extension to use Transform with other plugin libraries
+		Specifies the sort of plugin in execution. This is an extension to use Transform with other plugin libraries
 	""";
 	rdfs:domain vamp:Transform;
 	rdfs:range vamp:Plugin;
@@ -529,7 +529,7 @@ vamp:program
 	rdfs:label "program";
 	vs:term_status "stable";
 	rdfs:comment """
-			Specifies the program to set the plugin in execution.  Here the plugin program matches with the one in the plugin descriptor. There is not descriptor required for the program (just a string), is it?
+		Specifies the program to set the plugin in execution.  Here the plugin program matches with the one in the plugin descriptor. There is not descriptor required for the program (just a string), is it?
 	""";
 	rdfs:domain vamp:Transform;
 	rdfs:range vamp:PluginProgram;
@@ -542,7 +542,7 @@ vamp:program
 	rdfs:label "program";
 	vs:term_status "stable";
 	rdfs:comment """
-			Extension for configuration. 
+		Extension for configuration. 
 	""";
 	rdfs:domain vamp:Transform;
 	rdfs:range vamp:Configuration;
