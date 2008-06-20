@@ -30,7 +30,8 @@ string programURI = "http://www.vamp-plugins.org/doap.rdf#template-generator";
 
 void usage()
 {
-    cerr << "usage: template-generator [PLUGIN_BASE_URI YOUR_URI] vamp:soname:plugin[:output]" << endl;
+    cerr << "usage: template-generator -i vamp:soname[:plugin] [vamp:soname[:plugin] ...]" << endl;
+    cerr << "usage: template-generator PLUGIN_BASE_URI YOUR_URI vamp:soname[:plugin] [vamp:soname[:plugin] ...]" << endl;
     exit(2);
 }
 
@@ -42,35 +43,49 @@ inline string to_string (const T& t)
     return ss.str();
 }
 
-string describe_namespaces(Plugin* plugin, string pluginBundleBaseURI)
+string describe_namespaces(string pluginBundleBaseURI, string libname)
 {
     string res=\
         "@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .\n\
 @prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .\n\
 @prefix vamp:     <http://www.purl.org/ontology/vamp/> .\n\
-@prefix vampex:   <http://www.purl.org/ontology/vamp/examples/> .\n\
-@prefix plugbase: <"+pluginBundleBaseURI+"> .\n\
+@prefix plugbase: <"+pluginBundleBaseURI+libname+"#> .\n\
 @prefix owl:      <http://www.w3.org/2002/07/owl#> .\n\
 @prefix dc:       <http://purl.org/dc/elements/1.1/> .\n\
 @prefix af:       <http://purl.org/ontology/af/> .\n\
 @prefix foaf:     <http://xmlns.com/foaf/0.1/> .\n\
 @prefix cc:       <http://web.resource.org/cc/> .\n\
-@prefix thisplug: <"+pluginBundleBaseURI+plugin->getIdentifier()+"#> .\n\
 @prefix :         <> .\n\n";
 	
     return res;
 }
 
-string describe_doc(Plugin* plugin, string describerURI)
+string describe_doc(string describerURI, string pluginBundleBaseURI,
+                    string libname)
 {
     string res=\
         "<>  a   vamp:PluginDescription ;\n\
-     foaf:maker          <"+describerURI+"> ;\n\
-     foaf:maker          <"+programURI+"> ;\n\
-     foaf:primaryTopic   plugbase:"+plugin->getIdentifier()+" .\n\n";
+    foaf:maker          <"+describerURI+"> ;\n\
+    foaf:maker          <"+programURI+"> ;\n\
+    foaf:primaryTopic   <"+pluginBundleBaseURI+libname+"> .\n\n";
     return res;
 }
 
+
+string describe_library(string libname, vector<Plugin *> plugins)
+{
+    string res=\
+        ":"+libname+" a  vamp:PluginLibrary ;\n\
+    vamp:identifier \""+libname+"\" ";
+
+    for (size_t i = 0; i < plugins.size(); ++i) {
+        res += "; \n\
+    vamp:available_plugin \"plugbase:"+plugins[i]->getIdentifier()+"\"";
+    }
+
+    res += " .\n\n";
+    return res;
+}
 
 string describe_plugin(Plugin* plugin)
 {
@@ -92,21 +107,21 @@ string describe_plugin(Plugin* plugin)
 
     Plugin::ParameterList params = plugin->getParameterDescriptors();
     for (Plugin::ParameterList::const_iterator i = params.begin(); i != params.end(); i++)
-        res+="    vamp:parameter_descriptor   thisplug:param_"+(*i).identifier+" ;\n";
+        res+="    vamp:parameter_descriptor   plugbase:"+plugin->getIdentifier()+"_param_"+(*i).identifier+" ;\n";
     res+="\n";
 
     Plugin::OutputList outputs = plugin->getOutputDescriptors();
     for (Plugin::OutputList::const_iterator i = outputs.begin(); i!= outputs.end(); i++)
-        res+="    vamp:output_descriptor      thisplug:output_"+(*i).identifier+" ;\n";
+        res+="    vamp:output_descriptor      plugbase:"+plugin->getIdentifier()+"_output_"+(*i).identifier+" ;\n";
     res+="    .\n";
 	
     return res;
 }
 
-string describe_param(Plugin::ParameterDescriptor p)
+string describe_param(Plugin *plugin, Plugin::ParameterDescriptor p)
 {
     string res=\
-        "thisplug:param_"+p.identifier+" a  vamp:ParameterDescriptor ;\n\
+        "plugbase:"+plugin->getIdentifier()+"_param_"+p.identifier+" a  vamp:ParameterDescriptor ;\n\
     vamp:identifier     \""+p.identifier+"\" ;\n\
     dc:title            \""+p.name+"\" ;\n\
     dc:format           \""+p.unit+"\" ;\n\
@@ -116,7 +131,7 @@ string describe_param(Plugin::ParameterDescriptor p)
     return res;
 }
 
-string describe_output(Plugin::OutputDescriptor o)
+string describe_output(Plugin *plugin, Plugin::OutputDescriptor o)
 {
 
     //we need to distinguish here between different output types:
@@ -133,7 +148,7 @@ string describe_output(Plugin::OutputDescriptor o)
     {
 
         res=\
-            "thisplug:output_"+o.identifier+" a  vamp:SparseOutput ;\n\
+            "plugbase:"+plugin->getIdentifier()+"_output_"+o.identifier+" a  vamp:SparseOutput ;\n\
     vamp:identifier       \""+o.identifier+"\" ;\n\
     dc:title              \""+o.name+"\" ;\n\
     dc:description        \""+o.description+"\"  ;\n\
@@ -146,8 +161,8 @@ string describe_output(Plugin::OutputDescriptor o)
         // FIXME ? Bin names may vary based on plugin setup, so including them here might be misleading...
         if (o.hasFixedBinCount)
         {
-            res+="    vamp:bin_count          "+to_string(o.binCount)+" ;\n";
-            res+="    vamp:bin_names          (";
+            res+="    vamp:bin_count        "+to_string(o.binCount)+" ;\n";
+            res+="    vamp:bin_names        (";
 
             unsigned int i;
             for (i=0; i+1 < o.binNames.size(); i++)
@@ -159,12 +174,12 @@ string describe_output(Plugin::OutputDescriptor o)
         
         if (o.isQuantized)
         {
-            res+="   vamp:quantize_step        "+to_string(o.quantizeStep)+"  ;\n";
+            res+="    vamp:quantize_step    "+to_string(o.quantizeStep)+"  ;\n";
         }
 
-        res+="    vamp:sample_type        vamp:VariableSampleRate ;\n";
+        res+="    vamp:sample_type      vamp:VariableSampleRate ;\n";
         if (o.sampleRate > 0.0f)
-            res+="    vamp:sample_rate    "+to_string(o.sampleRate)+" ;\n";
+            res+="    vamp:sample_rate      "+to_string(o.sampleRate)+" ;\n";
 	        
     }
 
@@ -173,7 +188,7 @@ string describe_output(Plugin::OutputDescriptor o)
     else{
 
         res=\
-            "thisplug:output_"+o.identifier+" a  vamp:DenseOutput ;\n\
+            "plugbase:"+plugin->getIdentifier()+"_output_"+o.identifier+" a  vamp:DenseOutput ;\n\
     vamp:identifier       \""+o.identifier+"\" ;\n\
     dc:title              \""+o.name+"\" ;\n\
     dc:description        \""+o.description+"\"  ;\n\
@@ -186,8 +201,8 @@ string describe_output(Plugin::OutputDescriptor o)
         // FIXME ? Bin names may vary based on plugin setup, so including them here might be misleading...
         if (o.hasFixedBinCount)
         {
-            res+="    vamp:bin_count          "+to_string(o.binCount)+" ;\n";
-            res+="    vamp:bin_names          (";
+            res+="    vamp:bin_count        "+to_string(o.binCount)+" ;\n";
+            res+="    vamp:bin_names        (";
 
             unsigned int i;
             for (i=0; i+1 < o.binNames.size(); i++)
@@ -199,17 +214,17 @@ string describe_output(Plugin::OutputDescriptor o)
 
         if (o.isQuantized)
         {
-            res+="    vamp:quantize_step        "+to_string(o.quantizeStep)+"  ;\n";
+            res+="    vamp:quantize_step    "+to_string(o.quantizeStep)+"  ;\n";
         }	
 
 
         else if (o.sampleType == Plugin::OutputDescriptor::FixedSampleRate)
         {
-            res+="    vamp:sample_type       vamp:FixedSampleRate ;\n";
-            res+="    vamp:sample_rate       "+to_string(o.sampleRate)+" ;\n";
+            res+="    vamp:sample_type      vamp:FixedSampleRate ;\n";
+            res+="    vamp:sample_rate      "+to_string(o.sampleRate)+" ;\n";
         }
         else if (o.sampleType == Plugin::OutputDescriptor::OneSamplePerStep)
-            res+="    vamp:sample_type       vamp:OneSamplePerStep ;\n";
+            res+="    vamp:sample_type      vamp:OneSamplePerStep ;\n";
         else
         {
             cerr<<"Incomprehensible sampleType for output descriptor "+o.identifier<<" !"<<endl;
@@ -225,59 +240,105 @@ string describe_output(Plugin::OutputDescriptor o)
     return res;
 }
 
-string describe(Plugin* plugin, string pluginBundleBaseURI, string describerURI)
+string describe(vector<Plugin *> plugins, string pluginBundleBaseURI,
+                string describerURI, string libname)
 {
-    string res = describe_namespaces(plugin, pluginBundleBaseURI);
+    string res = describe_namespaces(pluginBundleBaseURI, libname);
 	
-    res += describe_doc(plugin, describerURI);
+    res += describe_doc(describerURI, pluginBundleBaseURI, libname);
 	
-    res += describe_plugin(plugin);
+    res += describe_library(libname, plugins);
+
+    for (size_t i = 0; i < plugins.size(); ++i) {
+
+        Plugin *plugin = plugins[i];
+
+        res += describe_plugin(plugin);
 	
-    Plugin::ParameterList params = plugin->getParameterDescriptors();
-    for (Plugin::ParameterList::const_iterator i = params.begin(); i != params.end(); i++)
-        res += describe_param(*i);
+        Plugin::ParameterList params = plugin->getParameterDescriptors();
+        for (Plugin::ParameterList::const_iterator i = params.begin(); i != params.end(); i++)
+            res += describe_param(plugin, *i);
 	
-    Plugin::OutputList outputs = plugin->getOutputDescriptors();
-    for (Plugin::OutputList::const_iterator i = outputs.begin(); i!= outputs.end(); i++)
-        res += describe_output(*i);
+        Plugin::OutputList outputs = plugin->getOutputDescriptors();
+        for (Plugin::OutputList::const_iterator i = outputs.begin(); i!= outputs.end(); i++)
+            res += describe_output(plugin, *i);
+    }
 	
     return res;
 }
 
 int main(int argc, char **argv)
 {
-    if (argc != 2 && argc != 4) usage();
+    if (argc < 3) usage();
 
-    std::string pluginName = argv[argc-1];
+    bool interactive = false;
+    if (!strcmp(argv[1], "-i")) interactive = true;
 
-    if (pluginName.substr(0, 5) == "vamp:") {
-        pluginName = pluginName.substr(5);
-    }
-
-    Vamp::Plugin *plugin = PluginLoader::getInstance()->loadPlugin
-        (pluginName, size_t(44100), PluginLoader::ADAPT_ALL_SAFE);
-
-    if (!plugin) {
-        cerr << "ERROR: Plugin \"" << pluginName << "\" could not be loaded" << endl;
-        exit(1);
-    }
+    if (!interactive && argc < 4) usage();
 
     string pluginBundleBaseURI, describerURI;
+
+    int argidx = 2;
 	
-    if (argc == 4)
-    {
+    if (!interactive) {
         pluginBundleBaseURI = argv[1];
         describerURI = argv[2];
-    }
-    else
-    {
+        argidx = 3;
+    } else {
         cerr << "Please enter the base URI for the plugin bundle : ";
         getline(cin, pluginBundleBaseURI);
         cerr << "Please enter your URI : ";
         getline(cin, describerURI);
     }
+
+    vector<Plugin *> plugins;
+    string libname;
+
+    PluginLoader *loader = PluginLoader::getInstance();
+
+    while (argidx < argc) {
+
+        string pluginName = argv[argidx];
+
+        if (pluginName.substr(0, 5) == "vamp:") {
+            pluginName = pluginName.substr(5);
+        }
+
+        string mylibname = pluginName.substr(0, pluginName.find(':'));
+
+        if (libname == "") libname = mylibname;
+        else if (libname != mylibname) {
+            cerr << "ERROR: All plugins specified on command line must originate in the same library" << endl;
+            exit(1);
+        }
+
+        if (mylibname == pluginName) { // pluginName is a library, not a plugin
+
+            PluginLoader::PluginKeyList list = loader->listPlugins();
+            for (size_t i = 0; i < list.size(); ++i) {
+                string thislibname = list[i].substr(0, list[i].find(':'));
+                if (thislibname != mylibname) continue;
+                Plugin *plugin = loader->loadPlugin(list[i], 44100);
+                if (!plugin) {
+                    cerr << "ERROR: Plugin \"" << list[i] << "\" could not be loaded" << endl;
+                    exit(1);
+                }
+                plugins.push_back(plugin);
+            }
+        } else { // pluginName is a plugin
+
+            Plugin *plugin = loader->loadPlugin(pluginName, size_t(44100));
+            if (!plugin) {
+                cerr << "ERROR: Plugin \"" << pluginName << "\" could not be loaded" << endl;
+                exit(1);
+            }
+            plugins.push_back(plugin);
+        }
+
+        ++argidx;
+    }
 	
-    cout << describe(plugin, pluginBundleBaseURI, describerURI) << endl;
+    cout << describe(plugins, pluginBundleBaseURI, describerURI, libname) << endl;
 
     return 0;
 }
