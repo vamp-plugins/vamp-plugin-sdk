@@ -193,7 +193,7 @@ string describe_output(Plugin *plugin, Plugin::OutputDescriptor o)
     dc:title              \""+o.name+"\" ;\n\
     dc:description        \""+o.description+"\"  ;\n\
     vamp:fixed_bin_count  \""+(o.hasFixedBinCount == 1 ? "true" : "false")+"\" ;\n\
-    vamp:is_quantised     \""+(o.isQuantized == 1 ? "true" : "false")+"\"  ;\n\
+    vamp:is_quantized     \""+(o.isQuantized == 1 ? "true" : "false")+"\"  ;\n\
     vamp:unit             \""+(o.unit)+"\" ;\n";
 
 

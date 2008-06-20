@@ -307,9 +307,9 @@ vamp:fixed_bin_count
 vamp:is_quantized
 	a rdf:Property;
 	a owl:DatatypeProperty;
-	rdfs:label "is quantised";
+	rdfs:label "is quantized";
 	rdfs:comment """
-		Quantised. A boolean type.
+		Quantized. A boolean type.
 	""";
 	rdfs:domain vamp:PluginOutput;
 	vs:term_status "unstable";
@@ -345,7 +345,7 @@ vamp:quantize_step
 	a owl:DatatypeProperty;
 	rdfs:label "quantized step";
 	rdfs:comment """
-		Quantize step. Only defined if is_quantised is true
+		Quantize step. Only defined if is_quantized is true
 	""";
 	rdfs:domain vamp:PluginOutput;
 	rdfs:domain vamp:ParameterDescriptor;
