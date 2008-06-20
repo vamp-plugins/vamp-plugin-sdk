@@ -80,7 +80,7 @@ string describe_library(string libname, vector<Plugin *> plugins)
 
     for (size_t i = 0; i < plugins.size(); ++i) {
         res += "; \n\
-    vamp:available_plugin \"plugbase:"+plugins[i]->getIdentifier()+"\"";
+    vamp:available_plugin plugbase:"+plugins[i]->getIdentifier();
     }
 
     res += " .\n\n";
