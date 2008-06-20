@@ -206,6 +206,7 @@ vamp:identifier
 		Machine-readable identifier for a Vamp plugin within the scope of its library, or for a plugin descriptor within the scope of the plugin.
 	""";
 	rdfs:domain vamp:Plugin;
+	rdfs:domain vamp:PluginLibrary;
 	rdfs:domain vamp:PluginProgram;
 	rdfs:domain vamp:PluginOutput;
 	rdfs:domain vamp:ParameterDescriptor;
