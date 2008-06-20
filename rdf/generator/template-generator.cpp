@@ -48,7 +48,7 @@ string describe_namespaces(string pluginBundleBaseURI, string libname)
     string res=\
         "@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .\n\
 @prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .\n\
-@prefix vamp:     <http://www.purl.org/ontology/vamp/> .\n\
+@prefix vamp:     <http://purl.org/ontology/vamp/> .\n\
 @prefix plugbase: <"+pluginBundleBaseURI+libname+"#> .\n\
 @prefix owl:      <http://www.w3.org/2002/07/owl#> .\n\
 @prefix dc:       <http://purl.org/dc/elements/1.1/> .\n\
