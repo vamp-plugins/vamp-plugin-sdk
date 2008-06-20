@@ -26,14 +26,6 @@ using std::ios;
 using Vamp::HostExt::PluginLoader;
 using Vamp::Plugin;
 
-/*
-  
-   usage:
-
-   template-generator vamp:aubioonset:onsets
-
-*/
-
 string programURI = "http://www.vamp-plugins.org/doap.rdf#template-generator";
 
 void usage()
@@ -52,8 +44,8 @@ inline string to_string (const T& t)
 
 string describe_namespaces(Plugin* plugin, string pluginBundleBaseURI)
 {
-	string res=\
-"@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .\n\
+    string res=\
+        "@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .\n\
 @prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .\n\
 @prefix vamp:     <http://www.purl.org/ontology/vamp/> .\n\
 @prefix vampex:   <http://www.purl.org/ontology/vamp/examples/> .\n\
@@ -66,24 +58,24 @@ string describe_namespaces(Plugin* plugin, string pluginBundleBaseURI)
 @prefix thisplug: <"+pluginBundleBaseURI+plugin->getIdentifier()+"#> .\n\
 @prefix :         <> .\n\n";
 	
-	return res;
+    return res;
 }
 
 string describe_doc(Plugin* plugin, string describerURI)
 {
-	string res=\
-"<>  a   vamp:PluginDescription ;\n\
+    string res=\
+        "<>  a   vamp:PluginDescription ;\n\
      foaf:maker          <"+describerURI+"> ;\n\
      foaf:maker          <"+programURI+"> ;\n\
      foaf:primaryTopic   plugbase:"+plugin->getIdentifier()+" .\n\n";
-	return res;
+    return res;
 }
 
 
 string describe_plugin(Plugin* plugin)
 {
-	string res=\
-"plugbase:"+plugin->getIdentifier()+" a   vamp:Plugin ;\n\
+    string res=\
+        "plugbase:"+plugin->getIdentifier()+" a   vamp:Plugin ;\n\
     dc:title              \""+plugin->getName()+"\" ;\n\
     vamp:name             \""+plugin->getName()+"\" ;\n\
     dc:description        \""+plugin->getDescription()+"\" ;\n\
@@ -92,56 +84,56 @@ string describe_plugin(Plugin* plugin)
     vamp:identifier       \""+plugin->getIdentifier()+"\" ;\n\
     vamp:vamp_API_version vamp:api_version_"+to_string(plugin->getVampApiVersion())+" ;\n\
     owl:versionInfo       \""+to_string(plugin->getPluginVersion())+"\" ;\n";
-	if (plugin->getInputDomain() == Vamp::Plugin::FrequencyDomain)
-		res+="    vamp:input_domain     vamp:FrequencyDomain ;\n\n";
-	else
-		res+="    vamp:input_domain     vamp:TimeDomain ;\n\n";
+    if (plugin->getInputDomain() == Vamp::Plugin::FrequencyDomain)
+        res+="    vamp:input_domain     vamp:FrequencyDomain ;\n\n";
+    else
+        res+="    vamp:input_domain     vamp:TimeDomain ;\n\n";
 	
 
-	Plugin::ParameterList params = plugin->getParameterDescriptors();
-	for (Plugin::ParameterList::const_iterator i = params.begin(); i != params.end(); i++)
-		res+="    vamp:parameter_descriptor   thisplug:param_"+(*i).identifier+" ;\n";
-	res+="\n";
+    Plugin::ParameterList params = plugin->getParameterDescriptors();
+    for (Plugin::ParameterList::const_iterator i = params.begin(); i != params.end(); i++)
+        res+="    vamp:parameter_descriptor   thisplug:param_"+(*i).identifier+" ;\n";
+    res+="\n";
 
-	Plugin::OutputList outputs = plugin->getOutputDescriptors();
-	for (Plugin::OutputList::const_iterator i = outputs.begin(); i!= outputs.end(); i++)
-		res+="    vamp:output_descriptor      thisplug:output_"+(*i).identifier+" ;\n";
-	res+="    .\n";
+    Plugin::OutputList outputs = plugin->getOutputDescriptors();
+    for (Plugin::OutputList::const_iterator i = outputs.begin(); i!= outputs.end(); i++)
+        res+="    vamp:output_descriptor      thisplug:output_"+(*i).identifier+" ;\n";
+    res+="    .\n";
 	
-	return res;
+    return res;
 }
 
 string describe_param(Plugin::ParameterDescriptor p)
 {
-	string res=\
-"thisplug:param_"+p.identifier+" a  vamp:ParameterDescriptor ;\n\
+    string res=\
+        "thisplug:param_"+p.identifier+" a  vamp:ParameterDescriptor ;\n\
     vamp:identifier     \""+p.identifier+"\" ;\n\
     dc:title            \""+p.name+"\" ;\n\
     dc:format           \""+p.unit+"\" ;\n\
     vamp:min_value       "+to_string(p.minValue)+" ;\n\
     vamp:max_value       "+to_string(p.maxValue)+" ;\n\
     vamp:default_value   "+to_string(p.defaultValue)+" .\n\n";
-	return res;
+    return res;
 }
 
 string describe_output(Plugin::OutputDescriptor o)
 {
 
-        //we need to distinguish here between different output types:
-        //DenseOutput
-        //SparseOutput
-        //TrackLevelOutput
+    //we need to distinguish here between different output types:
+    //DenseOutput
+    //SparseOutput
+    //TrackLevelOutput
 
 
-        //SparseOutput: variable sample rate. Events are not evenly spaced so we need to record the time associated with the event as it its not ensured that we have an event after the next one (but there is not time to set the duration, it has to be calculated as the different between 2 different events). The timestamp must be read.
+    //SparseOutput: variable sample rate. Events are not evenly spaced so we need to record the time associated with the event as it its not ensured that we have an event after the next one (but there is not time to set the duration, it has to be calculated as the different between 2 different events). The timestamp must be read.
 
-        string res;
+    string res;
 
-        if (o.sampleType == Plugin::OutputDescriptor::VariableSampleRate)
-	{
+    if (o.sampleType == Plugin::OutputDescriptor::VariableSampleRate)
+    {
 
-                res=\
-"thisplug:output_"+o.identifier+" a  vamp:SparseOutput ;\n\
+        res=\
+            "thisplug:output_"+o.identifier+" a  vamp:SparseOutput ;\n\
     vamp:identifier       \""+o.identifier+"\" ;\n\
     dc:title              \""+o.name+"\" ;\n\
     dc:description        \""+o.description+"\"  ;\n\
@@ -151,37 +143,37 @@ string describe_output(Plugin::OutputDescriptor o)
                           
                         
 
-                // FIXME ? Bin names may vary based on plugin setup, so including them here might be misleading...
-                if (o.hasFixedBinCount)
-                {
-		res+="    vamp:bin_count          "+to_string(o.binCount)+" ;\n";
-		res+="    vamp:bin_names          (";
+        // FIXME ? Bin names may vary based on plugin setup, so including them here might be misleading...
+        if (o.hasFixedBinCount)
+        {
+            res+="    vamp:bin_count          "+to_string(o.binCount)+" ;\n";
+            res+="    vamp:bin_names          (";
 
-		unsigned int i;
-		for (i=0; i+1 < o.binNames.size(); i++)
-			res+=" \""+o.binNames[i]+"\"";
-		if (i < o.binNames.size())
-			res+=" \""+o.binNames[i]+"\"";
-		res+=");\n";
-	        }
+            unsigned int i;
+            for (i=0; i+1 < o.binNames.size(); i++)
+                res+=" \""+o.binNames[i]+"\"";
+            if (i < o.binNames.size())
+                res+=" \""+o.binNames[i]+"\"";
+            res+=");\n";
+        }
         
-                if (o.isQuantized)
-                {
-                res+="   vamp:quantize_step        "+to_string(o.quantizeStep)+"  ;\n";
-                }
-
-		res+="    vamp:sample_type        vamp:VariableSampleRate ;\n";
-		if (o.sampleRate > 0.0f)
-			res+="    vamp:sample_rate    "+to_string(o.sampleRate)+" ;\n";
-	        
+        if (o.isQuantized)
+        {
+            res+="   vamp:quantize_step        "+to_string(o.quantizeStep)+"  ;\n";
         }
 
-        //If we do not have SparseOutput, then we have DenseOutput. TrackLevelOutput can not be inferred from the plugin directly without actually
-        //running the plugin.
-        else{
+        res+="    vamp:sample_type        vamp:VariableSampleRate ;\n";
+        if (o.sampleRate > 0.0f)
+            res+="    vamp:sample_rate    "+to_string(o.sampleRate)+" ;\n";
+	        
+    }
 
-res=\
-"thisplug:output_"+o.identifier+" a  vamp:DenseOutput ;\n\
+    //If we do not have SparseOutput, then we have DenseOutput. TrackLevelOutput can not be inferred from the plugin directly without actually
+    //running the plugin.
+    else{
+
+        res=\
+            "thisplug:output_"+o.identifier+" a  vamp:DenseOutput ;\n\
     vamp:identifier       \""+o.identifier+"\" ;\n\
     dc:title              \""+o.name+"\" ;\n\
     dc:description        \""+o.description+"\"  ;\n\
@@ -191,65 +183,65 @@ res=\
 
 
 
-        	// FIXME ? Bin names may vary based on plugin setup, so including them here might be misleading...
-        	if (o.hasFixedBinCount)
-        	{
-        		res+="    vamp:bin_count          "+to_string(o.binCount)+" ;\n";
-        		res+="    vamp:bin_names          (";
+        // FIXME ? Bin names may vary based on plugin setup, so including them here might be misleading...
+        if (o.hasFixedBinCount)
+        {
+            res+="    vamp:bin_count          "+to_string(o.binCount)+" ;\n";
+            res+="    vamp:bin_names          (";
 
-        		unsigned int i;
-        		for (i=0; i+1 < o.binNames.size(); i++)
-        			res+=" \""+o.binNames[i]+"\"";
-        		if (i < o.binNames.size())
-        			res+=" \""+o.binNames[i]+"\"";
-        		res+=");\n";
-        	}
-
-                if (o.isQuantized)
-                {
-                res+="    vamp:quantize_step        "+to_string(o.quantizeStep)+"  ;\n";
-                }	
-
-
-        	else if (o.sampleType == Plugin::OutputDescriptor::FixedSampleRate)
-        	{
-        		res+="    vamp:sample_type       vamp:FixedSampleRate ;\n";
-        		res+="    vamp:sample_rate       "+to_string(o.sampleRate)+" ;\n";
-        	}
-        	else if (o.sampleType == Plugin::OutputDescriptor::OneSamplePerStep)
-        		res+="    vamp:sample_type       vamp:OneSamplePerStep ;\n";
-        	else
-        	{
-        		cerr<<"Incomprehensible sampleType for output descriptor "+o.identifier<<" !"<<endl;
-        		exit(1);
-        	}
+            unsigned int i;
+            for (i=0; i+1 < o.binNames.size(); i++)
+                res+=" \""+o.binNames[i]+"\"";
+            if (i < o.binNames.size())
+                res+=" \""+o.binNames[i]+"\"";
+            res+=");\n";
         }
 
-        //There is no way to know this in advance, but we can use the km a bit for this.
-	res+="    vamp:computes_feature_type  <FIXME feature type URI> ;\n";
-	res+="    vamp:computes_event_type    <FIXME event type URI> ;\n";
-	res+="    .\n";
+        if (o.isQuantized)
+        {
+            res+="    vamp:quantize_step        "+to_string(o.quantizeStep)+"  ;\n";
+        }	
 
-	return res;
+
+        else if (o.sampleType == Plugin::OutputDescriptor::FixedSampleRate)
+        {
+            res+="    vamp:sample_type       vamp:FixedSampleRate ;\n";
+            res+="    vamp:sample_rate       "+to_string(o.sampleRate)+" ;\n";
+        }
+        else if (o.sampleType == Plugin::OutputDescriptor::OneSamplePerStep)
+            res+="    vamp:sample_type       vamp:OneSamplePerStep ;\n";
+        else
+        {
+            cerr<<"Incomprehensible sampleType for output descriptor "+o.identifier<<" !"<<endl;
+            exit(1);
+        }
+    }
+
+    //There is no way to know this in advance, but we can use the km a bit for this.
+    res+="    vamp:computes_feature_type  <FIXME feature type URI> ;\n";
+    res+="    vamp:computes_event_type    <FIXME event type URI> ;\n";
+    res+="    .\n";
+
+    return res;
 }
 
 string describe(Plugin* plugin, string pluginBundleBaseURI, string describerURI)
 {
-	string res = describe_namespaces(plugin, pluginBundleBaseURI);
+    string res = describe_namespaces(plugin, pluginBundleBaseURI);
 	
-	res += describe_doc(plugin, describerURI);
+    res += describe_doc(plugin, describerURI);
 	
-	res += describe_plugin(plugin);
+    res += describe_plugin(plugin);
 	
-	Plugin::ParameterList params = plugin->getParameterDescriptors();
-	for (Plugin::ParameterList::const_iterator i = params.begin(); i != params.end(); i++)
-		res += describe_param(*i);
+    Plugin::ParameterList params = plugin->getParameterDescriptors();
+    for (Plugin::ParameterList::const_iterator i = params.begin(); i != params.end(); i++)
+        res += describe_param(*i);
 	
-	Plugin::OutputList outputs = plugin->getOutputDescriptors();
-	for (Plugin::OutputList::const_iterator i = outputs.begin(); i!= outputs.end(); i++)
-		res += describe_output(*i);
+    Plugin::OutputList outputs = plugin->getOutputDescriptors();
+    for (Plugin::OutputList::const_iterator i = outputs.begin(); i!= outputs.end(); i++)
+        res += describe_output(*i);
 	
-	return res;
+    return res;
 }
 
 int main(int argc, char **argv)
