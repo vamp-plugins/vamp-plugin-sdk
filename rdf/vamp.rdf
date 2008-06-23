@@ -42,12 +42,36 @@
 	</rdfs:comment>
     <vs:term_status>stable</vs:term_status>
   </owl:Class>
+  <owl:Class rdf:about="QuantizedParameterDescriptor">
+    <rdfs:label>QuantizedParameter Descriptor</rdfs:label>
+    <rdfs:subClassOf rdf:resource="ParameterDescriptor"/>
+    <rdfs:comment>
+			Descriptor of a parameter that does have quantized values. The property quantize_step is just defined for this subclass and not for the general Parameter Descriptor.
+	</rdfs:comment>
+    <vs:term_status>stable</vs:term_status>
+  </owl:Class>
   <owl:Class rdf:about="PluginOutput">
     <rdfs:label>Vamp Plugin output descriptor</rdfs:label>
     <rdfs:comment>
 		Descriptor for an output of a plugin. This descriptor provides information that is necessary to correctly interpret the output features. The output type will determine how to read the temporal information of the extracted features and how to manage the burden of ouput data.
 	</rdfs:comment>
     <vs:term_status>unstable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="QuantizedOutput">
+    <rdfs:label>Quantized Output</rdfs:label>
+    <rdfs:subClassOf rdf:resource="PluginOutput"/>
+    <rdfs:comment>
+			Descriptor of an output that does have quantized values.
+	</rdfs:comment>
+    <vs:term_status>stable</vs:term_status>
+  </owl:Class>
+  <owl:Class rdf:about="KnownExtentsOutput">
+    <rdfs:label>Known Extents Output</rdfs:label>
+    <rdfs:subClassOf rdf:resource="PluginOutput"/>
+    <rdfs:comment>
+			Descriptor of an output that does have known extents.
+	</rdfs:comment>
+    <vs:term_status>stable</vs:term_status>
   </owl:Class>
   <owl:Class rdf:about="DenseOutput">
     <rdfs:subClassOf rdf:resource="PluginOutput"/>
@@ -188,7 +212,7 @@
 		Maximum value of the parameter range
 	</rdfs:comment>
     <rdfs:range rdf:resource="ParameterDescriptor"/>
-    <rdfs:range rdf:resource="PluginOutput"/>
+    <rdfs:range rdf:resource="KnownExtentsOutput"/>
     <vs:term_status>unstable</vs:term_status>
   </rdf:Property>
   <rdf:Property rdf:about="min_value">
@@ -199,7 +223,7 @@
 		Minimum value of the parameter range
 	</rdfs:comment>
     <rdfs:range rdf:resource="ParameterDescriptor"/>
-    <rdfs:range rdf:resource="PluginOutput"/>
+    <rdfs:range rdf:resource="KnownExtentsOutput"/>
     <vs:term_status>unstable</vs:term_status>
   </rdf:Property>
   <rdf:Property rdf:about="default_value">
@@ -212,22 +236,15 @@
     <rdfs:range rdf:resource="ParameterDescriptor"/>
     <vs:term_status>unstable</vs:term_status>
   </rdf:Property>
-  <rdf:Property rdf:about="fixed_bin_count">
+  <rdf:Property rdf:about="quantize_step">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
-    <rdfs:label>fixed bin count</rdfs:label>
+    <rdfs:label>quantized step</rdfs:label>
     <rdfs:comment>
-		Fixed bin count. A boolean type.
+		Quantize step. Only defined if is_quantized is true
 	</rdfs:comment>
-    <rdfs:domain rdf:resource="PluginOutput"/>
-    <vs:term_status>unstable</vs:term_status>
-  </rdf:Property>
-  <rdf:Property rdf:about="is_quantized">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
-    <rdfs:label>is quantized</rdfs:label>
-    <rdfs:comment>
-		Quantized. A boolean type.
-	</rdfs:comment>
-    <rdfs:domain rdf:resource="PluginOutput"/>
+    <rdfs:domain rdf:resource="QuantizedOutput"/>
+    <rdfs:domain rdf:resource="QuantizedParameterDescriptor"/>
     <vs:term_status>unstable</vs:term_status>
   </rdf:Property>
   <rdf:Property rdf:about="unit">
@@ -239,6 +256,24 @@
 	</rdfs:comment>
     <rdfs:domain rdf:resource="PluginOutput"/>
     <rdfs:domain rdf:resource="ParameterDescriptor"/>
+    <vs:term_status>unstable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="value_names">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:label>value names</rdfs:label>
+    <rdfs:comment>
+		List of value names if available
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="ParameterDescriptor"/>
+    <vs:term_status>unstable</vs:term_status>
+  </rdf:Property>
+  <rdf:Property rdf:about="fixed_bin_count">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:label>fixed bin count</rdfs:label>
+    <rdfs:comment>
+		Fixed bin count. A boolean type.
+	</rdfs:comment>
+    <rdfs:domain rdf:resource="PluginOutput"/>
     <vs:term_status>unstable</vs:term_status>
   </rdf:Property>
   <rdf:Property rdf:about="sample_rate">
@@ -259,17 +294,6 @@
 	</rdfs:comment>
     <rdfs:domain rdf:resource="Transform"/>
   </rdf:Property>
-  <rdf:Property rdf:about="quantize_step">
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
-    <rdfs:label>quantized step</rdfs:label>
-    <rdfs:comment>
-		Quantize step. Only defined if is_quantized is true
-	</rdfs:comment>
-    <rdfs:domain rdf:resource="PluginOutput"/>
-    <rdfs:domain rdf:resource="ParameterDescriptor"/>
-    <vs:term_status>unstable</vs:term_status>
-  </rdf:Property>
   <rdf:Property rdf:about="bin_count">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
     <rdfs:label>bin count</rdfs:label>
@@ -283,7 +307,7 @@
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
     <rdfs:label>bin names</rdfs:label>
     <rdfs:comment>
-		List of bin names if available
+		List of bin names if available.
 	</rdfs:comment>
     <rdfs:domain rdf:resource="PluginOutput"/>
     <vs:term_status>unstable</vs:term_status>
