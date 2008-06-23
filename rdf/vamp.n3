@@ -77,6 +77,16 @@ vamp:ParameterDescriptor
 	vs:term_status "stable";
 	.
 
+vamp:QuantizedParameterDescriptor
+	a owl:Class;
+	rdfs:label "QuantizedParameter Descriptor";
+	rdfs:subClassOf	vamp:ParameterDescriptor;
+	rdfs:comment """
+			Descriptor of a parameter that does have quantized values. The property quantize_step is just defined for this subclass and not for the general Parameter Descriptor.
+	""";
+	vs:term_status "stable";
+	.
+
 vamp:PluginOutput
 	a owl:Class;
 	rdfs:label "Vamp Plugin output descriptor";
@@ -84,6 +94,33 @@ vamp:PluginOutput
 		Descriptor for an output of a plugin. This descriptor provides information that is necessary to correctly interpret the output features. The output type will determine how to read the temporal information of the extracted features and how to manage the burden of ouput data.
 	""";
 	vs:term_status "unstable";
+	.
+
+#3 classifications of outputs: 
+#-density of data
+#-quantised
+#-known extents
+
+#there is not classification for fix_bin_count
+
+vamp:QuantizedOutput
+	a owl:Class;
+	rdfs:label "Quantized Output";
+	rdfs:subClassOf	vamp:PluginOutput;
+	rdfs:comment """
+			Descriptor of an output that does have quantized values.
+	""";
+	vs:term_status "stable";
+	.
+
+vamp:KnownExtentsOutput
+	a owl:Class;
+	rdfs:label "Known Extents Output";
+	rdfs:subClassOf	vamp:PluginOutput;
+	rdfs:comment """
+			Descriptor of an output that does have known extents.
+	""";
+	vs:term_status "stable";
 	.
 
 vamp:DenseOutput
@@ -249,7 +286,7 @@ vamp:input_domain
 
 # Note that other properties like maker can be linked to the plugin descriptor using other namespaces
 
-##### Parameter Descriptor properties
+##### Parameter Descriptor properties (and some common with PluginOutput)
 
 # Note: Identifier has been already defined
 
@@ -262,7 +299,7 @@ vamp:max_value
 		Maximum value of the parameter range
 	""";
 	rdfs:range vamp:ParameterDescriptor;
-	rdfs:range vamp:PluginOutput;
+	rdfs:range vamp:KnownExtentsOutput;
 	vs:term_status "unstable";
 	.
 
@@ -275,7 +312,7 @@ vamp:min_value
 		Minimum value of the parameter range
 	""";
 	rdfs:range vamp:ParameterDescriptor;
-	rdfs:range vamp:PluginOutput;
+	rdfs:range vamp:KnownExtentsOutput;
 	vs:term_status "unstable";
 	.
 
@@ -291,27 +328,16 @@ vamp:default_value
 	vs:term_status "unstable";
 	.
 
-########Output Descriptor properties
-
-vamp:fixed_bin_count 
+vamp:quantize_step
 	a rdf:Property;
+	a owl:FunctionalProperty;
 	a owl:DatatypeProperty;
-	rdfs:label "fixed bin count";
+	rdfs:label "quantized step";
 	rdfs:comment """
-		Fixed bin count. A boolean type.
+		Quantize step. Only defined if is_quantized is true
 	""";
-	rdfs:domain vamp:PluginOutput;
-	vs:term_status "unstable";
-	.
-
-vamp:is_quantized
-	a rdf:Property;
-	a owl:DatatypeProperty;
-	rdfs:label "is quantized";
-	rdfs:comment """
-		Quantized. A boolean type.
-	""";
-	rdfs:domain vamp:PluginOutput;
+	rdfs:domain vamp:QuantizedOutput;
+	rdfs:domain vamp:QuantizedParameterDescriptor;
 	vs:term_status "unstable";
 	.
 
@@ -328,6 +354,30 @@ vamp:unit
 	vs:term_status "unstable";
 	.
 
+vamp:value_names  
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	rdfs:label "value names";
+	rdfs:comment """
+		List of value names if available
+	""";
+	rdfs:domain vamp:ParameterDescriptor;
+	vs:term_status "unstable";
+	.
+
+########Output Descriptor properties
+
+vamp:fixed_bin_count 
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	rdfs:label "fixed bin count";
+	rdfs:comment """
+		Fixed bin count. A boolean type.
+	""";
+	rdfs:domain vamp:PluginOutput;
+	vs:term_status "unstable";
+	.
+
 vamp:sample_rate
 	a rdf:Property;
 	a owl:DatatypeProperty;
@@ -336,19 +386,6 @@ vamp:sample_rate
 		Sample rate of the output if any. Should be read depending on SampleType and Output classes.
 	""";
 	rdfs:domain vamp:PluginOutput;
-	vs:term_status "unstable";
-	.
-
-vamp:quantize_step
-	a rdf:Property;
-	a owl:FunctionalProperty;
-	a owl:DatatypeProperty;
-	rdfs:label "quantized step";
-	rdfs:comment """
-		Quantize step. Only defined if is_quantized is true
-	""";
-	rdfs:domain vamp:PluginOutput;
-	rdfs:domain vamp:ParameterDescriptor;
 	vs:term_status "unstable";
 	.
 	
@@ -368,7 +405,7 @@ vamp:bin_names
 	a owl:DatatypeProperty;
 	rdfs:label "bin names";
 	rdfs:comment """
-		List of bin names if available
+		List of bin names if available.
 	""";
 	rdfs:domain vamp:PluginOutput;
 	vs:term_status "unstable";
@@ -386,6 +423,8 @@ vamp:sample_type
 	rdfs:range vamp:SampleType;
 	vs:term_status "unstable";
 	.
+
+#These last 2 properties are included to match the Audio Features Ontology (not estrictly from the Vamp API).
 
 vamp:computes_feature_type
 	a rdf:Property;

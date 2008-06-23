@@ -120,6 +120,33 @@ string describe_plugin(Plugin* plugin)
 
 string describe_param(Plugin *plugin, Plugin::ParameterDescriptor p)
 {
+
+    //FIXME: dc:format and vamp:unit are the same???
+    if(p.isQuantized){
+     string res=\
+        "plugbase:"+plugin->getIdentifier()+"_param_"+p.identifier+" a  vamp:QuantizedParameterDescriptor ;\n\
+    vamp:identifier     \""+p.identifier+"\" ;\n\
+    dc:title            \""+p.name+"\" ;\n\
+    dc:format           \""+p.unit+"\" ;\n\
+    vamp:min_value       "+to_string(p.minValue)+" ;\n\
+    vamp:max_value       "+to_string(p.maxValue)+" ;\n\
+    vamp:unit           \""+p.unit+"\" ;\n\
+    vamo:quantize_step   "+to_string(p.quantizeStep)+"  ;\n\
+    vamp:default_value   "+to_string(p.defaultValue)+" ;\n\
+    vamp:value_names     (";
+
+            unsigned int i;
+            for (i=0; i+1 < p.valueNames.size(); i++)
+                res+=" \""+p.valueNames[i]+"\"";
+            if (i < p.valueNames.size())
+                res+=" \""+p.valueNames[i]+"\"";
+            res+=");\n";
+    
+    res+="    .\n";
+
+    return res;
+            
+    }else{
     string res=\
         "plugbase:"+plugin->getIdentifier()+"_param_"+p.identifier+" a  vamp:ParameterDescriptor ;\n\
     vamp:identifier     \""+p.identifier+"\" ;\n\
@@ -127,14 +154,32 @@ string describe_param(Plugin *plugin, Plugin::ParameterDescriptor p)
     dc:format           \""+p.unit+"\" ;\n\
     vamp:min_value       "+to_string(p.minValue)+" ;\n\
     vamp:max_value       "+to_string(p.maxValue)+" ;\n\
-    vamp:default_value   "+to_string(p.defaultValue)+" .\n\n";
+    vamp:unit           \""+p.unit+"\"  ;\n\
+    vamp:default_value   "+to_string(p.defaultValue)+" ;\n\
+    vamp:value_names     (";
+
+            unsigned int i;
+            for (i=0; i+1 < p.valueNames.size(); i++)
+                res+=" \""+p.valueNames[i]+"\"";
+            if (i < p.valueNames.size())
+                res+=" \""+p.valueNames[i]+"\"";
+            res+=");\n";
+    
+    res+="    .\n";
+
     return res;
+
+    }  
 }
 
 string describe_output(Plugin *plugin, Plugin::OutputDescriptor o)
 {
 
     //we need to distinguish here between different output types:
+
+//Quantize or not
+//KnownExtents or not
+//Data output classification:
     //DenseOutput
     //SparseOutput
     //TrackLevelOutput
@@ -153,10 +198,23 @@ string describe_output(Plugin *plugin, Plugin::OutputDescriptor o)
     dc:title              \""+o.name+"\" ;\n\
     dc:description        \""+o.description+"\"  ;\n\
     vamp:fixed_bin_count  \""+(o.hasFixedBinCount == 1 ? "true" : "false")+"\" ;\n\
-    vamp:is_quantized     \""+(o.isQuantized == 1 ? "true" : "false")+"\"  ;\n\
     vamp:unit             \""+(o.unit)+"\" ;\n";
                           
-                        
+             
+        //another type of output           
+        if(o.isQuantized){
+
+            res+="    a                     vamp:QuantizedOutput ;\n";
+            res+="    vamp:quantize_step    "+to_string(o.quantizeStep)+"  ;\n";    
+        }
+        
+        //and yet another type
+        if(o.hasKnownExtents){
+
+            res+="    a                 vamp:KnownExtentsOutput ;\n";
+            res+="    vamp:min_value    "+to_string(o.minValue)+"  ;\n"; 
+            res+="    vamp:max_value    "+to_string(o.maxValue)+"  ;\n";    
+        }
 
         // FIXME ? Bin names may vary based on plugin setup, so including them here might be misleading...
         if (o.hasFixedBinCount)
@@ -171,12 +229,7 @@ string describe_output(Plugin *plugin, Plugin::OutputDescriptor o)
                 res+=" \""+o.binNames[i]+"\"";
             res+=");\n";
         }
-        
-        if (o.isQuantized)
-        {
-            res+="    vamp:quantize_step    "+to_string(o.quantizeStep)+"  ;\n";
-        }
-
+       
         res+="    vamp:sample_type      vamp:VariableSampleRate ;\n";
         if (o.sampleRate > 0.0f)
             res+="    vamp:sample_rate      "+to_string(o.sampleRate)+" ;\n";
@@ -193,10 +246,23 @@ string describe_output(Plugin *plugin, Plugin::OutputDescriptor o)
     dc:title              \""+o.name+"\" ;\n\
     dc:description        \""+o.description+"\"  ;\n\
     vamp:fixed_bin_count  \""+(o.hasFixedBinCount == 1 ? "true" : "false")+"\" ;\n\
-    vamp:is_quantized     \""+(o.isQuantized == 1 ? "true" : "false")+"\"  ;\n\
     vamp:unit             \""+(o.unit)+"\" ;\n";
 
 
+        //another type of output           
+        if(o.isQuantized){
+
+            res+="    a                     vamp:QuantizedOutput ;\n";
+            res+="    vamp:quantize_step    "+to_string(o.quantizeStep)+"  ;\n";    
+        }
+        
+        //and yet another type
+        if(o.hasKnownExtents){
+
+            res+="    a                 vamp:KnownExtentsOutput ;\n";
+            res+="    vamp:min_value    "+to_string(o.minValue)+"  ;\n"; 
+            res+="    vamp:max_value    "+to_string(o.maxValue)+"  ;\n";    
+        }
 
         // FIXME ? Bin names may vary based on plugin setup, so including them here might be misleading...
         if (o.hasFixedBinCount)
@@ -211,12 +277,6 @@ string describe_output(Plugin *plugin, Plugin::OutputDescriptor o)
                 res+=" \""+o.binNames[i]+"\"";
             res+=");\n";
         }
-
-        if (o.isQuantized)
-        {
-            res+="    vamp:quantize_step    "+to_string(o.quantizeStep)+"  ;\n";
-        }	
-
 
         else if (o.sampleType == Plugin::OutputDescriptor::FixedSampleRate)
         {
