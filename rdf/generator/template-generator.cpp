@@ -385,6 +385,12 @@ int main(int argc, char **argv)
                 }
                 plugins.push_back(plugin);
             }
+
+            if (plugins.empty()) {
+                cerr << "ERROR: Plugin library \"" << mylibname << "\" does not exist, could not be opened, or contains no plugins" << endl;
+                exit(1);
+            }
+
         } else { // pluginName is a plugin
 
             Plugin *plugin = loader->loadPlugin(pluginName, size_t(44100));
