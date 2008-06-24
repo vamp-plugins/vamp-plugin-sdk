@@ -4,12 +4,9 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix foaf: <http://xmlns.com/foaf/0.1/>.
 @prefix vs: <http://www.w3.org/2003/06/sw-vocab-status/ns#>.
-@prefix list: <http://www.w3.org/2000/10/swap/list#>.
 @prefix dc: <http://purl.org/dc/elements/1.1/>.
-@prefix mo: <http://purl.org/ontology/mo/>.
 @prefix event: <http://purl.org/NET/c4dm/event.owl#>.
 @prefix af: <http://purl.org/ontology/af/>.
-@prefix tl: <http://purl.org/NET/c4dm/timeline.owl#>.
 @prefix vamp: <http://purl.org/ontology/vamp/>.
 @prefix :         <> .
 
@@ -194,6 +191,16 @@ vamp:SampleType
 ##################################################################
 
 ##### Plugin properties
+
+
+##!!!
+## cc --
+## I think parameter_descriptor and output_descriptor should be simply
+## called parameter and output respectively, and vamp:Transform should
+## be included in the domain of vamp:output because transforms need to
+## be able to specify an output as well as a plugin.
+
+##!!! lacking plugin version?
 
 vamp:parameter_descriptor
 	a rdf:Property;
@@ -575,7 +582,7 @@ vamp:program
 	rdfs:range vamp:PluginProgram;
 	.
 
-vamp:program
+vamp:configuration
 	a rdf:Property;
 	a owl:ObjectProperty;
 	a owl:FunctionalProperty;

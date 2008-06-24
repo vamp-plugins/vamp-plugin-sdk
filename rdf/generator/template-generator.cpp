@@ -131,7 +131,7 @@ string describe_param(Plugin *plugin, Plugin::ParameterDescriptor p)
     vamp:min_value       "+to_string(p.minValue)+" ;\n\
     vamp:max_value       "+to_string(p.maxValue)+" ;\n\
     vamp:unit           \""+p.unit+"\" ;\n\
-    vamo:quantize_step   "+to_string(p.quantizeStep)+"  ;\n\
+    vamp:quantize_step   "+to_string(p.quantizeStep)+"  ;\n\
     vamp:default_value   "+to_string(p.defaultValue)+" ;\n\
     vamp:value_names     (";
 

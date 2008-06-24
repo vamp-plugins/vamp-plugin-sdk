@@ -1,6 +1,6 @@
 @prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
-@prefix vamp:     <http://www.purl.org/ontology/vamp/> .
+@prefix vamp:     <http://purl.org/ontology/vamp/> .
 @prefix vampex:   <http://www.purl.org/ontology/vamp/examples/> .
 @prefix plugbase: <http://purl.org/ontology/vamp/examples/> .
 @prefix owl:      <http://www.w3.org/2002/07/owl#> .
