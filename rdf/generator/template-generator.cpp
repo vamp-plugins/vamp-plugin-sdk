@@ -107,12 +107,12 @@ string describe_plugin(Plugin* plugin)
 
     Plugin::ParameterList params = plugin->getParameterDescriptors();
     for (Plugin::ParameterList::const_iterator i = params.begin(); i != params.end(); i++)
-        res+="    vamp:parameter_descriptor   plugbase:"+plugin->getIdentifier()+"_param_"+(*i).identifier+" ;\n";
+        res+="    vamp:parameter   plugbase:"+plugin->getIdentifier()+"_param_"+(*i).identifier+" ;\n";
     res+="\n";
 
     Plugin::OutputList outputs = plugin->getOutputDescriptors();
     for (Plugin::OutputList::const_iterator i = outputs.begin(); i!= outputs.end(); i++)
-        res+="    vamp:output_descriptor      plugbase:"+plugin->getIdentifier()+"_output_"+(*i).identifier+" ;\n";
+        res+="    vamp:output     plugbase:"+plugin->getIdentifier()+"_output_"+(*i).identifier+" ;\n";
     res+="    .\n";
 	
     return res;
@@ -124,7 +124,7 @@ string describe_param(Plugin *plugin, Plugin::ParameterDescriptor p)
     //FIXME: dc:format and vamp:unit are the same???
     if(p.isQuantized){
      string res=\
-        "plugbase:"+plugin->getIdentifier()+"_param_"+p.identifier+" a  vamp:QuantizedParameterDescriptor ;\n\
+        "plugbase:"+plugin->getIdentifier()+"_param_"+p.identifier+" a  vamp:QuantizedParameter ;\n\
     vamp:identifier     \""+p.identifier+"\" ;\n\
     dc:title            \""+p.name+"\" ;\n\
     dc:format           \""+p.unit+"\" ;\n\
@@ -148,7 +148,7 @@ string describe_param(Plugin *plugin, Plugin::ParameterDescriptor p)
             
     }else{
     string res=\
-        "plugbase:"+plugin->getIdentifier()+"_param_"+p.identifier+" a  vamp:ParameterDescriptor ;\n\
+        "plugbase:"+plugin->getIdentifier()+"_param_"+p.identifier+" a  vamp:Parameter ;\n\
     vamp:identifier     \""+p.identifier+"\" ;\n\
     dc:title            \""+p.name+"\" ;\n\
     dc:format           \""+p.unit+"\" ;\n\
