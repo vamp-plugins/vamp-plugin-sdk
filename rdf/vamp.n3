@@ -65,21 +65,21 @@ vamp:PluginLibrary
 	vs:term_status "stable";
 	.
 
-vamp:ParameterDescriptor
+vamp:Parameter
 	a owl:Class;
-	rdfs:label "Vamp Plugin Parameter Descriptor";
+	rdfs:label "Vamp Plugin Parameter";
 	rdfs:comment """
 		Descriptor for a plugin parameter. Hosts need to know about the specific type and form of the parameters of a particular plugin for a correct transform setup.
 	""";
 	vs:term_status "stable";
 	.
 
-vamp:QuantizedParameterDescriptor
+vamp:QuantizedParameter
 	a owl:Class;
-	rdfs:label "QuantizedParameter Descriptor";
-	rdfs:subClassOf	vamp:ParameterDescriptor;
+	rdfs:label "Quantized Parameter";
+	rdfs:subClassOf	vamp:Parameter;
 	rdfs:comment """
-			Descriptor of a parameter that does have quantized values. The property quantize_step is just defined for this subclass and not for the general Parameter Descriptor.
+			Descriptor of a parameter that does have quantized values. The property quantize_step is just defined for this subclass and not for the general Parameter.
 	""";
 	vs:term_status "stable";
 	.
@@ -202,22 +202,22 @@ vamp:SampleType
 
 ##!!! lacking plugin version?
 
-vamp:parameter_descriptor
+vamp:parameter
 	a rdf:Property;
 	a owl:ObjectProperty;
 	rdfs:label "parameter descriptor";
 	rdfs:comment """
 		Links each parameter descriptor to the plugin.
 	""";
-	rdfs:range vamp:ParameterDescriptor;
+	rdfs:range vamp:Parameter;
 	rdfs:domain vamp:Plugin;
 	vs:term_status "stable";
 	.
 
-vamp:output_descriptor
+vamp:output
 	a rdf:Property;
 	a owl:ObjectProperty;
-	rdfs:label "output descriptor";
+	rdfs:label "output";
 	rdfs:comment """
 		Links each output type to the plugin.
 	""";
@@ -253,7 +253,7 @@ vamp:identifier
 	rdfs:domain vamp:PluginLibrary;
 	rdfs:domain vamp:PluginProgram;
 	rdfs:domain vamp:PluginOutput;
-	rdfs:domain vamp:ParameterDescriptor;
+	rdfs:domain vamp:Parameter;
 	vs:term_status "stable";
 	.
 
@@ -305,7 +305,7 @@ vamp:max_value
 	rdfs:comment """
 		Maximum value of the parameter range
 	""";
-	rdfs:range vamp:ParameterDescriptor;
+	rdfs:range vamp:Parameter;
 	rdfs:range vamp:KnownExtentsOutput;
 	vs:term_status "unstable";
 	.
@@ -318,7 +318,7 @@ vamp:min_value
 	rdfs:comment """
 		Minimum value of the parameter range
 	""";
-	rdfs:range vamp:ParameterDescriptor;
+	rdfs:range vamp:Parameter;
 	rdfs:range vamp:KnownExtentsOutput;
 	vs:term_status "unstable";
 	.
@@ -331,7 +331,7 @@ vamp:default_value
 	rdfs:comment """
 		Default value of the parameter
 	""";
-	rdfs:range vamp:ParameterDescriptor;
+	rdfs:range vamp:Parameter;
 	vs:term_status "unstable";
 	.
 
@@ -344,7 +344,7 @@ vamp:quantize_step
 		Quantize step. Only defined if is_quantized is true
 	""";
 	rdfs:domain vamp:QuantizedOutput;
-	rdfs:domain vamp:QuantizedParameterDescriptor;
+	rdfs:domain vamp:QuantizedParameter;
 	vs:term_status "unstable";
 	.
 
@@ -357,7 +357,7 @@ vamp:unit
 		Unit of the output/parameter. A string type
 	""";
 	rdfs:domain vamp:PluginOutput;
-	rdfs:domain vamp:ParameterDescriptor;
+	rdfs:domain vamp:Parameter;
 	vs:term_status "unstable";
 	.
 
@@ -368,7 +368,7 @@ vamp:value_names
 	rdfs:comment """
 		List of value names if available
 	""";
-	rdfs:domain vamp:ParameterDescriptor;
+	rdfs:domain vamp:Parameter;
 	vs:term_status "unstable";
 	.
 
@@ -500,12 +500,12 @@ vamp:Transform
 	""";
 	.
 
-vamp:Parameter
+vamp:ParameterBinding
 	a owl:Class;
-	rdfs:label "Parameter";
+	rdfs:label "Parameter binding";
 	vs:term_status "unstable";
 	rdfs:comment """
-		Parameter used by the plugin transform to set up the plugin. The parameter class instances should be instantiated according to the specific vamp:PluginDescriptor instance for each plugin.
+		Parameter setting used by the plugin transform to set up the plugin.
 	""";
 	.
 
@@ -557,6 +557,10 @@ vamp:identifier
 	#the ID is the plugin ID?
 	.
 
+vamp:output
+	rdfs:domain vamp:Transform;
+	.
+
 vamp:engine
 	a rdf:Property;
 	a owl:ObjectProperty;
@@ -595,7 +599,7 @@ vamp:configuration
 	rdfs:range vamp:Configuration;
 	.
 
-vamp:parameter
+vamp:parameter_binding
 	a rdf:Property;
 	a owl:ObjectProperty;
 	rdfs:label "parameter";
@@ -604,7 +608,7 @@ vamp:parameter
 			Specifies the parameter to set the plugin in execution. 
 	""";
 	rdfs:domain vamp:Transform;
-	rdfs:range vamp:Parameter;
+	rdfs:range vamp:ParameterBinding;
 	.
 
 vamp:step_size
@@ -702,19 +706,19 @@ vamp:value
 	rdfs:comment """
 			Specifies the current value of the parameter. 
 	""";
-	rdfs:domain vamp:Parameter;
+	rdfs:domain vamp:ParameterBinding;
 	.
 
-vamp:parameter_descriptor
+vamp:parameter
 	a rdf:Property;
 	a owl:ObjectProperty;
-	rdfs:label "parameter descriptor";
+	rdfs:label "parameter";
 	vs:term_status "stable";
 	rdfs:comment """
-			Specifies exactly the type of descriptor to set in the transform by linking it.
+			Specifies exactly the plugin parameter to set in the transform by linking it.
 	""";
-	rdfs:domain vamp:Parameter;
-	rdfs:range vamp:ParameterDescriptor;
+	rdfs:domain vamp:ParameterBinding;
+	rdfs:range vamp:Parameter;
 	.
 
 
