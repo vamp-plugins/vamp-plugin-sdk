@@ -142,7 +142,7 @@ vamp:SparseOutput
 
 vamp:TrackLevelOutput
 	a owl:Class;
-	rdfs:label "track level output";
+	rdfs:label "Track level output";
 	rdfs:subClassOf vamp:PluginOutput;
 	rdfs:comment """
 		Specific output type for track level information.  The Vamp API does not provide for this sort of output directly, so this will require a "hacky" interpretation of the feature timestamp to establish that it reflects track metadata instead of temporal data.
@@ -200,7 +200,7 @@ vamp:SampleType
 ## be included in the domain of vamp:output because transforms need to
 ## be able to specify an output as well as a plugin.
 
-##!!! lacking plugin version?
+##!!! lacking plugin version? (in transform)
 
 vamp:parameter
 	a rdf:Property;

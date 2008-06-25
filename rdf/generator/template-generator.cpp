@@ -94,8 +94,8 @@ string describe_plugin(Plugin* plugin)
     dc:title              \""+plugin->getName()+"\" ;\n\
     vamp:name             \""+plugin->getName()+"\" ;\n\
     dc:description        \""+plugin->getDescription()+"\" ;\n\
-    foaf:maker            [ foaf:name \""+plugin->getMaker()+"\"] ; # FIXME could give plugin author's URI here\n\
-    cc:license            <FIXME license for the plugin> ; \n\
+    foaf:maker            [ foaf:name \""+plugin->getMaker()+"\" ] ; # FIXME could give plugin author's URI here\n\
+#   cc:license            <Place plugin license URI here and uncomment> ; \n\
     vamp:identifier       \""+plugin->getIdentifier()+"\" ;\n\
     vamp:vamp_API_version vamp:api_version_"+to_string(plugin->getVampApiVersion())+" ;\n\
     owl:versionInfo       \""+to_string(plugin->getPluginVersion())+"\" ;\n";
@@ -293,8 +293,8 @@ string describe_output(Plugin *plugin, Plugin::OutputDescriptor o)
     }
 
     //There is no way to know this in advance, but we can use the km a bit for this.
-    res+="    vamp:computes_feature_type  <FIXME feature type URI> ;\n";
-    res+="    vamp:computes_event_type    <FIXME event type URI> ;\n";
+    res+="#   vamp:computes_feature_type  <Place feature type URI here and uncomment> ;\n";
+    res+="#   vamp:computes_event_type    <Place event type URI here and uncomment> ;\n";
     res+="    .\n";
 
     return res;
