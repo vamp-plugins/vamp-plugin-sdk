@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rdf:RDF xmlns:af="http://purl.org/ontology/af/" xmlns:cc="http://web.resource.org/cc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:plugbase="http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:vamp="http://purl.org/ontology/vamp/" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xml:base="http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#">
   <vamp:PluginDescription rdf:about="">
-    <foaf:maker rdf:resource="blah"/>
+    <foaf:maker rdf:resource="x"/>
     <foaf:maker rdf:resource="http://www.vamp-plugins.org/doap.rdf#template-generator"/>
     <foaf:primaryTopic rdf:resource=""/>
   </vamp:PluginDescription>
@@ -21,16 +21,15 @@
         <foaf:name>Vamp SDK Example Plugins</foaf:name>
       </rdf:Description>
     </foaf:maker>
-    <cc:license rdf:resource="FIXME license for the plugin"/>
     <vamp:identifier>amplitudefollower</vamp:identifier>
     <vamp:vamp_API_version rdf:resource="http://purl.org/ontology/vamp/api_version_1"/>
     <owl:versionInfo>1</owl:versionInfo>
     <vamp:input_domain rdf:resource="http://purl.org/ontology/vamp/TimeDomain"/>
-    <vamp:parameter_descriptor rdf:resource="#amplitudefollower_param_attack"/>
-    <vamp:parameter_descriptor rdf:resource="#amplitudefollower_param_release"/>
-    <vamp:output_descriptor rdf:resource="#amplitudefollower_output_amplitude"/>
+    <vamp:parameter rdf:resource="#amplitudefollower_param_attack"/>
+    <vamp:parameter rdf:resource="#amplitudefollower_param_release"/>
+    <vamp:output rdf:resource="#amplitudefollower_output_amplitude"/>
   </vamp:Plugin>
-  <vamp:ParameterDescriptor rdf:about="#amplitudefollower_param_attack">
+  <vamp:Parameter rdf:about="#amplitudefollower_param_attack">
     <vamp:identifier>attack</vamp:identifier>
     <dc:title>Attack time</dc:title>
     <dc:format>s</dc:format>
@@ -39,8 +38,8 @@
     <vamp:unit>s</vamp:unit>
     <vamp:default_value rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.01</vamp:default_value>
     <vamp:value_names rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
-  </vamp:ParameterDescriptor>
-  <vamp:ParameterDescriptor rdf:about="#amplitudefollower_param_release">
+  </vamp:Parameter>
+  <vamp:Parameter rdf:about="#amplitudefollower_param_release">
     <vamp:identifier>release</vamp:identifier>
     <dc:title>Release time</dc:title>
     <dc:format>s</dc:format>
@@ -49,7 +48,7 @@
     <vamp:unit>s</vamp:unit>
     <vamp:default_value rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.01</vamp:default_value>
     <vamp:value_names rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
-  </vamp:ParameterDescriptor>
+  </vamp:Parameter>
   <vamp:DenseOutput rdf:about="#amplitudefollower_output_amplitude">
     <vamp:identifier>amplitude</vamp:identifier>
     <dc:title>Amplitude</dc:title>
@@ -63,8 +62,6 @@
         <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
       </rdf:Description>
     </vamp:bin_names>
-    <vamp:computes_feature_type rdf:resource="FIXME feature type URI"/>
-    <vamp:computes_event_type rdf:resource="FIXME event type URI"/>
   </vamp:DenseOutput>
   <vamp:Plugin rdf:about="#percussiononsets">
     <dc:title>Simple Percussion Onset Detector</dc:title>
@@ -75,17 +72,16 @@
         <foaf:name>Vamp SDK Example Plugins</foaf:name>
       </rdf:Description>
     </foaf:maker>
-    <cc:license rdf:resource="FIXME license for the plugin"/>
     <vamp:identifier>percussiononsets</vamp:identifier>
     <vamp:vamp_API_version rdf:resource="http://purl.org/ontology/vamp/api_version_1"/>
     <owl:versionInfo>2</owl:versionInfo>
     <vamp:input_domain rdf:resource="http://purl.org/ontology/vamp/FrequencyDomain"/>
-    <vamp:parameter_descriptor rdf:resource="#percussiononsets_param_threshold"/>
-    <vamp:parameter_descriptor rdf:resource="#percussiononsets_param_sensitivity"/>
-    <vamp:output_descriptor rdf:resource="#percussiononsets_output_onsets"/>
-    <vamp:output_descriptor rdf:resource="#percussiononsets_output_detectionfunction"/>
+    <vamp:parameter rdf:resource="#percussiononsets_param_threshold"/>
+    <vamp:parameter rdf:resource="#percussiononsets_param_sensitivity"/>
+    <vamp:output rdf:resource="#percussiononsets_output_onsets"/>
+    <vamp:output rdf:resource="#percussiononsets_output_detectionfunction"/>
   </vamp:Plugin>
-  <vamp:ParameterDescriptor rdf:about="#percussiononsets_param_threshold">
+  <vamp:Parameter rdf:about="#percussiononsets_param_threshold">
     <vamp:identifier>threshold</vamp:identifier>
     <dc:title>Energy rise threshold</dc:title>
     <dc:format>dB</dc:format>
@@ -94,8 +90,8 @@
     <vamp:unit>dB</vamp:unit>
     <vamp:default_value rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">3</vamp:default_value>
     <vamp:value_names rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
-  </vamp:ParameterDescriptor>
-  <vamp:ParameterDescriptor rdf:about="#percussiononsets_param_sensitivity">
+  </vamp:Parameter>
+  <vamp:Parameter rdf:about="#percussiononsets_param_sensitivity">
     <vamp:identifier>sensitivity</vamp:identifier>
     <dc:title>Sensitivity</dc:title>
     <dc:format>%</dc:format>
@@ -104,7 +100,7 @@
     <vamp:unit>%</vamp:unit>
     <vamp:default_value rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">40</vamp:default_value>
     <vamp:value_names rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
-  </vamp:ParameterDescriptor>
+  </vamp:Parameter>
   <vamp:SparseOutput rdf:about="#percussiononsets_output_onsets">
     <vamp:identifier>onsets</vamp:identifier>
     <dc:title>Onsets</dc:title>
@@ -115,8 +111,6 @@
     <vamp:bin_names rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
     <vamp:sample_type rdf:resource="http://purl.org/ontology/vamp/VariableSampleRate"/>
     <vamp:sample_rate rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">44100</vamp:sample_rate>
-    <vamp:computes_feature_type rdf:resource="FIXME feature type URI"/>
-    <vamp:computes_event_type rdf:resource="FIXME event type URI"/>
   </vamp:SparseOutput>
   <vamp:DenseOutput rdf:about="#percussiononsets_output_detectionfunction">
     <vamp:identifier>detectionfunction</vamp:identifier>
@@ -133,8 +127,6 @@
         <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
       </rdf:Description>
     </vamp:bin_names>
-    <vamp:computes_feature_type rdf:resource="FIXME feature type URI"/>
-    <vamp:computes_event_type rdf:resource="FIXME event type URI"/>
   </vamp:DenseOutput>
   <vamp:Plugin rdf:about="#spectralcentroid">
     <dc:title>Spectral Centroid</dc:title>
@@ -145,13 +137,12 @@
         <foaf:name>Vamp SDK Example Plugins</foaf:name>
       </rdf:Description>
     </foaf:maker>
-    <cc:license rdf:resource="FIXME license for the plugin"/>
     <vamp:identifier>spectralcentroid</vamp:identifier>
     <vamp:vamp_API_version rdf:resource="http://purl.org/ontology/vamp/api_version_1"/>
     <owl:versionInfo>2</owl:versionInfo>
     <vamp:input_domain rdf:resource="http://purl.org/ontology/vamp/FrequencyDomain"/>
-    <vamp:output_descriptor rdf:resource="#spectralcentroid_output_logcentroid"/>
-    <vamp:output_descriptor rdf:resource="#spectralcentroid_output_linearcentroid"/>
+    <vamp:output rdf:resource="#spectralcentroid_output_logcentroid"/>
+    <vamp:output rdf:resource="#spectralcentroid_output_linearcentroid"/>
   </vamp:Plugin>
   <vamp:DenseOutput rdf:about="#spectralcentroid_output_logcentroid">
     <vamp:identifier>logcentroid</vamp:identifier>
@@ -166,8 +157,6 @@
         <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
       </rdf:Description>
     </vamp:bin_names>
-    <vamp:computes_feature_type rdf:resource="FIXME feature type URI"/>
-    <vamp:computes_event_type rdf:resource="FIXME event type URI"/>
   </vamp:DenseOutput>
   <vamp:DenseOutput rdf:about="#spectralcentroid_output_linearcentroid">
     <vamp:identifier>linearcentroid</vamp:identifier>
@@ -182,8 +171,6 @@
         <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
       </rdf:Description>
     </vamp:bin_names>
-    <vamp:computes_feature_type rdf:resource="FIXME feature type URI"/>
-    <vamp:computes_event_type rdf:resource="FIXME event type URI"/>
   </vamp:DenseOutput>
   <vamp:Plugin rdf:about="#zerocrossing">
     <dc:title>Zero Crossings</dc:title>
@@ -194,13 +181,12 @@
         <foaf:name>Vamp SDK Example Plugins</foaf:name>
       </rdf:Description>
     </foaf:maker>
-    <cc:license rdf:resource="FIXME license for the plugin"/>
     <vamp:identifier>zerocrossing</vamp:identifier>
     <vamp:vamp_API_version rdf:resource="http://purl.org/ontology/vamp/api_version_1"/>
     <owl:versionInfo>2</owl:versionInfo>
     <vamp:input_domain rdf:resource="http://purl.org/ontology/vamp/TimeDomain"/>
-    <vamp:output_descriptor rdf:resource="#zerocrossing_output_counts"/>
-    <vamp:output_descriptor rdf:resource="#zerocrossing_output_zerocrossings"/>
+    <vamp:output rdf:resource="#zerocrossing_output_counts"/>
+    <vamp:output rdf:resource="#zerocrossing_output_zerocrossings"/>
   </vamp:Plugin>
   <vamp:DenseOutput rdf:about="#zerocrossing_output_counts">
     <vamp:identifier>counts</vamp:identifier>
@@ -217,8 +203,6 @@
         <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
       </rdf:Description>
     </vamp:bin_names>
-    <vamp:computes_feature_type rdf:resource="FIXME feature type URI"/>
-    <vamp:computes_event_type rdf:resource="FIXME event type URI"/>
   </vamp:DenseOutput>
   <vamp:SparseOutput rdf:about="#zerocrossing_output_zerocrossings">
     <vamp:identifier>zerocrossings</vamp:identifier>
@@ -232,7 +216,5 @@
     <vamp:bin_names rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
     <vamp:sample_type rdf:resource="http://purl.org/ontology/vamp/VariableSampleRate"/>
     <vamp:sample_rate rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">44100</vamp:sample_rate>
-    <vamp:computes_feature_type rdf:resource="FIXME feature type URI"/>
-    <vamp:computes_event_type rdf:resource="FIXME event type URI"/>
   </vamp:SparseOutput>
 </rdf:RDF>

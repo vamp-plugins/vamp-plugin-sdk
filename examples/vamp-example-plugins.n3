@@ -32,12 +32,12 @@ plugbase:amplitudefollower a   vamp:Plugin ;
     owl:versionInfo       "1" ;
     vamp:input_domain     vamp:TimeDomain ;
 
-    vamp:parameter_descriptor   plugbase:amplitudefollower_param_attack ;
-    vamp:parameter_descriptor   plugbase:amplitudefollower_param_release ;
+    vamp:parameter   plugbase:amplitudefollower_param_attack ;
+    vamp:parameter   plugbase:amplitudefollower_param_release ;
 
-    vamp:output_descriptor      plugbase:amplitudefollower_output_amplitude ;
+    vamp:output     plugbase:amplitudefollower_output_amplitude ;
     .
-plugbase:amplitudefollower_param_attack a  vamp:ParameterDescriptor ;
+plugbase:amplitudefollower_param_attack a  vamp:Parameter ;
     vamp:identifier     "attack" ;
     dc:title            "Attack time" ;
     dc:format           "s" ;
@@ -47,7 +47,7 @@ plugbase:amplitudefollower_param_attack a  vamp:ParameterDescriptor ;
     vamp:default_value   0.01 ;
     vamp:value_names     ();
     .
-plugbase:amplitudefollower_param_release a  vamp:ParameterDescriptor ;
+plugbase:amplitudefollower_param_release a  vamp:Parameter ;
     vamp:identifier     "release" ;
     dc:title            "Release time" ;
     dc:format           "s" ;
@@ -79,13 +79,13 @@ plugbase:percussiononsets a   vamp:Plugin ;
     owl:versionInfo       "2" ;
     vamp:input_domain     vamp:FrequencyDomain ;
 
-    vamp:parameter_descriptor   plugbase:percussiononsets_param_threshold ;
-    vamp:parameter_descriptor   plugbase:percussiononsets_param_sensitivity ;
+    vamp:parameter   plugbase:percussiononsets_param_threshold ;
+    vamp:parameter   plugbase:percussiononsets_param_sensitivity ;
 
-    vamp:output_descriptor      plugbase:percussiononsets_output_onsets ;
-    vamp:output_descriptor      plugbase:percussiononsets_output_detectionfunction ;
+    vamp:output     plugbase:percussiononsets_output_onsets ;
+    vamp:output     plugbase:percussiononsets_output_detectionfunction ;
     .
-plugbase:percussiononsets_param_threshold a  vamp:ParameterDescriptor ;
+plugbase:percussiononsets_param_threshold a  vamp:Parameter ;
     vamp:identifier     "threshold" ;
     dc:title            "Energy rise threshold" ;
     dc:format           "dB" ;
@@ -95,7 +95,7 @@ plugbase:percussiononsets_param_threshold a  vamp:ParameterDescriptor ;
     vamp:default_value   3 ;
     vamp:value_names     ();
     .
-plugbase:percussiononsets_param_sensitivity a  vamp:ParameterDescriptor ;
+plugbase:percussiononsets_param_sensitivity a  vamp:Parameter ;
     vamp:identifier     "sensitivity" ;
     dc:title            "Sensitivity" ;
     dc:format           "%" ;
@@ -143,8 +143,8 @@ plugbase:spectralcentroid a   vamp:Plugin ;
     vamp:input_domain     vamp:FrequencyDomain ;
 
 
-    vamp:output_descriptor      plugbase:spectralcentroid_output_logcentroid ;
-    vamp:output_descriptor      plugbase:spectralcentroid_output_linearcentroid ;
+    vamp:output     plugbase:spectralcentroid_output_logcentroid ;
+    vamp:output     plugbase:spectralcentroid_output_linearcentroid ;
     .
 plugbase:spectralcentroid_output_logcentroid a  vamp:DenseOutput ;
     vamp:identifier       "logcentroid" ;
@@ -180,8 +180,8 @@ plugbase:zerocrossing a   vamp:Plugin ;
     vamp:input_domain     vamp:TimeDomain ;
 
 
-    vamp:output_descriptor      plugbase:zerocrossing_output_counts ;
-    vamp:output_descriptor      plugbase:zerocrossing_output_zerocrossings ;
+    vamp:output     plugbase:zerocrossing_output_counts ;
+    vamp:output     plugbase:zerocrossing_output_zerocrossings ;
     .
 plugbase:zerocrossing_output_counts a  vamp:DenseOutput ;
     vamp:identifier       "counts" ;

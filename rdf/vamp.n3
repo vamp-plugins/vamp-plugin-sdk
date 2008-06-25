@@ -193,12 +193,6 @@ vamp:SampleType
 ##### Plugin properties
 
 
-##!!!
-## cc --
-## I think parameter_descriptor and output_descriptor should be simply
-## called parameter and output respectively, and vamp:Transform should
-## be included in the domain of vamp:output because transforms need to
-## be able to specify an output as well as a plugin.
 
 ##!!! lacking plugin version?
 

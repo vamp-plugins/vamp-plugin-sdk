@@ -112,7 +112,7 @@ string describe_plugin(Plugin* plugin)
 
     Plugin::OutputList outputs = plugin->getOutputDescriptors();
     for (Plugin::OutputList::const_iterator i = outputs.begin(); i!= outputs.end(); i++)
-        res+="    vamp:output     plugbase:"+plugin->getIdentifier()+"_output_"+(*i).identifier+" ;\n";
+        res+="    vamp:output      plugbase:"+plugin->getIdentifier()+"_output_"+(*i).identifier+" ;\n";
     res+="    .\n";
 	
     return res;
