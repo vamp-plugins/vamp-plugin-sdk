@@ -142,7 +142,7 @@ vamp:SparseOutput
 
 vamp:TrackLevelOutput
 	a owl:Class;
-	rdfs:label "Track level output";
+	rdfs:label "track level output";
 	rdfs:subClassOf vamp:PluginOutput;
 	rdfs:comment """
 		Specific output type for track level information.  The Vamp API does not provide for this sort of output directly, so this will require a "hacky" interpretation of the feature timestamp to establish that it reflects track metadata instead of temporal data.
@@ -200,7 +200,7 @@ vamp:SampleType
 ## be included in the domain of vamp:output because transforms need to
 ## be able to specify an output as well as a plugin.
 
-##!!! lacking plugin version? (in transform)
+##!!! lacking plugin version?
 
 vamp:parameter
 	a rdf:Property;
@@ -210,6 +210,7 @@ vamp:parameter
 		Links each parameter descriptor to the plugin.
 	""";
 	rdfs:range vamp:Parameter;
+	rdfs:domain vamp:ParameterBinding;
 	rdfs:domain vamp:Plugin;
 	vs:term_status "stable";
 	.
@@ -223,6 +224,7 @@ vamp:output
 	""";
 	rdfs:range vamp:PluginOutput;
 	rdfs:domain vamp:Plugin;
+	rdfs:domain vamp:Transform;
 	vs:term_status "stable";
 	.
 
@@ -254,6 +256,7 @@ vamp:identifier
 	rdfs:domain vamp:PluginProgram;
 	rdfs:domain vamp:PluginOutput;
 	rdfs:domain vamp:Parameter;
+	rdfs:domain vamp:Transform;
 	vs:term_status "stable";
 	.
 
@@ -552,14 +555,7 @@ vamp:Effect
 
 ##### Plugin Transform properties
 
-vamp:identifier
-	rdfs:domain vamp:Transform;
-	#the ID is the plugin ID?
-	.
-
-vamp:output
-	rdfs:domain vamp:Transform;
-	.
+#identifier and output are declared above
 
 vamp:engine
 	a rdf:Property;
@@ -709,18 +705,7 @@ vamp:value
 	rdfs:domain vamp:ParameterBinding;
 	.
 
-vamp:parameter
-	a rdf:Property;
-	a owl:ObjectProperty;
-	rdfs:label "parameter";
-	vs:term_status "stable";
-	rdfs:comment """
-			Specifies exactly the plugin parameter to set in the transform by linking it.
-	""";
-	rdfs:domain vamp:ParameterBinding;
-	rdfs:range vamp:Parameter;
-	.
-
+#parameter declared above
 
 
 
