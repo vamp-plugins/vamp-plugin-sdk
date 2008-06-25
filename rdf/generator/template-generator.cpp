@@ -122,6 +122,7 @@ string describe_param(Plugin *plugin, Plugin::ParameterDescriptor p)
 {
 
     //FIXME: dc:format and vamp:unit are the same???
+    //Should be a QUantizedParameter also a Parameter??
     if(p.isQuantized){
      string res=\
         "plugbase:"+plugin->getIdentifier()+"_param_"+p.identifier+" a  vamp:QuantizedParameter ;\n\
