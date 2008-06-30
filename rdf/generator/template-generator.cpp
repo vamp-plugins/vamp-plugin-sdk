@@ -294,8 +294,9 @@ string describe_output(Plugin *plugin, Plugin::OutputDescriptor o)
     }
 
     //There is no way to know this in advance, but we can use the km a bit for this.
-    res+="#   vamp:computes_feature_type  <Place feature type URI here and uncomment> ;\n";
-    res+="#   vamp:computes_event_type    <Place event type URI here and uncomment> ;\n";
+    res+="#   vamp:computes_event_type   <Place event type URI here and uncomment> ;\n";
+    res+="#   vamp:computes_feature      <Place feature attribute URI here and uncomment> ;\n";
+    res+="#   vamp:computes_signal_type  <Place signal type URI here and uncomment> ;\n";
     res+="    .\n";
 
     return res;

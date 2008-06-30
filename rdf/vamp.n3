@@ -430,27 +430,39 @@ vamp:sample_type
 
 #These last 2 properties are included to match the Audio Features Ontology (not estrictly from the Vamp API).
 
-vamp:computes_feature_type
-	a rdf:Property;
-	a owl:ObjectProperty;
-	rdfs:label "feature type";
-	rdfs:comment """
-			Feature Types output by the plugin. Links the vamp ontology to the audio features ontology.
-	""";
-	rdfs:domain vamp:PluginOutput;
-	rdfs:range af:AudioFeature;
-	vs:term_status "unstable";
-	.
-
 vamp:computes_event_type
 	a rdf:Property;
 	a owl:ObjectProperty;
 	rdfs:label "event type";
 	rdfs:comment """
-			Event Type output by the plugin.
+			Associates a plugin output with its corresponding event type (for example, in the Audio Features ontology).
 	""";
 	rdfs:domain vamp:PluginOutput;
 	rdfs:range event:Event;
+	vs:term_status "unstable";
+	.
+
+vamp:computes_feature
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "feature type";
+	rdfs:comment """
+			Associates a plugin output with the attribute connecting the event to its value data.
+	""";
+	rdfs:domain vamp:PluginOutput;
+	rdfs:range event:factor;
+	vs:term_status "unstable";
+	.
+
+vamp:computes_signal_type
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "signal type";
+	rdfs:comment """
+			Associates a dense plugin output with its corresponding signal type (for example, in the Audio Features ontology).
+	""";
+	rdfs:domain vamp:PluginOutput;
+	rdfs:range af:Signal;
 	vs:term_status "unstable";
 	.
 	
