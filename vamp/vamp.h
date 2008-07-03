@@ -312,6 +312,15 @@ typedef struct _VampPluginDescriptor
 
 } VampPluginDescriptor;
 
+
+#ifdef __GNUC__
+#pragma GCC visibility push(default)
+#endif
+#ifdef __MSVC__
+__declspec(dllexport)
+#endif
+
+
 /** Get the descriptor for a given plugin index in this library.
     Return NULL if the index is outside the range of valid indices for
     this plugin library.
@@ -324,9 +333,19 @@ typedef struct _VampPluginDescriptor
     field for its actual compatibility level, the host should be able
     to do the right thing with it: use it if possible, discard it
     otherwise.
+
+    This is the only symbol that a Vamp plugin actually needs to
+    export from its shared object; all others can be hidden.  See the
+    accompanying documentation for notes on how to achieve this with
+    certain compilers.
 */
 const VampPluginDescriptor *vampGetPluginDescriptor
     (unsigned int hostApiVersion, unsigned int index);
+
+
+#ifdef __GNUC__
+#pragma GCC visibility pop
+#endif
 
 /** Function pointer type for vampGetPluginDescriptor. */
 typedef const VampPluginDescriptor *(*VampGetPluginDescriptorFunction)
