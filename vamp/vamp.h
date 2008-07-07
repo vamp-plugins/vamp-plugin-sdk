@@ -313,14 +313,6 @@ typedef struct _VampPluginDescriptor
 } VampPluginDescriptor;
 
 
-#ifdef __GNUC__
-#pragma GCC visibility push(default)
-#endif
-#ifdef __MSVC__
-__declspec(dllexport)
-#endif
-
-
 /** Get the descriptor for a given plugin index in this library.
     Return NULL if the index is outside the range of valid indices for
     this plugin library.
@@ -342,10 +334,6 @@ __declspec(dllexport)
 const VampPluginDescriptor *vampGetPluginDescriptor
     (unsigned int hostApiVersion, unsigned int index);
 
-
-#ifdef __GNUC__
-#pragma GCC visibility pop
-#endif
 
 /** Function pointer type for vampGetPluginDescriptor. */
 typedef const VampPluginDescriptor *(*VampGetPluginDescriptorFunction)
