@@ -57,7 +57,7 @@ HOST_LIBS	= $(SDKDIR)/libvamp-hostsdk.a -lsndfile -ldl
 # editing for non-Linux platforms.  Of course you don't necessarily
 # have to use "make install".
 #
-INSTALL_PREFIX	 	  := /usr
+INSTALL_PREFIX	 	  := /usr/local
 INSTALL_API_HEADERS	  := $(INSTALL_PREFIX)/include/vamp
 INSTALL_SDK_HEADERS	  := $(INSTALL_PREFIX)/include/vamp-sdk
 INSTALL_HOSTEXT_HEADERS	  := $(INSTALL_PREFIX)/include/vamp-sdk/hostext
@@ -80,9 +80,14 @@ INSTALL_PKGCONFIG	  := $(INSTALL_PREFIX)/lib/pkgconfig
 # Flags required to tell the compiler to create a dynamically loadable object
 #
 DYNAMIC_LDFLAGS		= -static-libgcc -shared -Wl,-Bsymbolic
-PLUGIN_LDFLAGS		= $(DYNAMIC_LDFLAGS) -Wl,--version-script=vamp-plugin.map
 SDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS) -Wl,-soname=$(INSTALL_SDK_LINK_ABI)
 HOSTSDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS) -Wl,-soname=$(INSTALL_HOSTSDK_LINK_ABI)
+
+# Additional flags for making a plugin.  This version script tells the
+# GNU linker to make all symbols in the library hidden except for the
+# public entry point.  It's not essential, but makes a tidier library.
+PLUGIN_LDFLAGS		= $(DYNAMIC_LDFLAGS) -Wl,--version-script=vamp-plugin.map
+
 
 ## For OS/X with g++:
 #DYNAMIC_LDFLAGS		= -dynamiclib
