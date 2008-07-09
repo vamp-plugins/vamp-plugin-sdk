@@ -44,7 +44,7 @@ default:	all
 
 # Compile flags
 #
-CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -I. -fPIC -arch i386 -arch ppc
+CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -I. -fPIC 
 
 # ar, ranlib
 #
@@ -64,11 +64,11 @@ PLUGIN_EXT	= .dylib
 
 # Libraries required for the host.
 #
-HOST_LIBS	= -arch i386 -arch ppc $(SDKDIR)/libvamp-hostsdk.a -lsndfile -ldl
+HOST_LIBS	= $(SDKDIR)/libvamp-hostsdk.a -lsndfile -ldl
 
 # Flags required to tell the compiler to create a dynamically loadable object
 #
-DYNAMIC_LDFLAGS		= -dynamiclib -arch i386 -arch ppc
+DYNAMIC_LDFLAGS		= -dynamiclib 
 PLUGIN_LDFLAGS		= $(DYNAMIC_LDFLAGS) -install_name vamp-example-plugins.dylib
 SDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS) -install_name libvamp-sdk.dylib
 HOSTSDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS) -install_name libvamp-hostsdk.dylib
