@@ -4,6 +4,6 @@ old_library='%STATIC%'
 dependency_libs=''
 current=2
 age=1
-revision=0
+revision=1
 installed=yes
 libdir='%LIBS%'
