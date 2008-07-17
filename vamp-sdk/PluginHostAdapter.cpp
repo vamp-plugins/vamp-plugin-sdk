@@ -404,6 +404,14 @@ PluginHostAdapter::convertFeatures(VampFeatureList *features,
                 feature.timestamp = RealTime(list.features[j].sec,
                                              list.features[j].nsec);
 
+                if (m_descriptor->vampApiVersion >= 2) {
+                    feature.hasDuration = list.featuresV2[j].hasDuration;
+                    feature.duration = RealTime(list.featuresV2[j].durationSec,
+                                                list.featuresV2[j].durationNsec);
+                } else {
+                    feature.hasDuration = false;
+                }
+
                 for (unsigned int k = 0; k < list.features[j].valueCount; ++k) {
                     feature.values.push_back(list.features[j].values[k]);
                 }

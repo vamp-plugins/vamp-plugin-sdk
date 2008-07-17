@@ -50,7 +50,7 @@ extern "C" {
  * See also the vampApiVersion field in the plugin descriptor, and the
  * hostApiVersion argument to the vampGetPluginDescriptor function.
  */
-#define VAMP_API_VERSION 1
+#define VAMP_API_VERSION 2
 
 /**
  * C language API for Vamp plugins.
@@ -184,6 +184,19 @@ typedef struct _VampFeature
 
 } VampFeature;
 
+typedef struct _VampFeatureV2
+{
+    /** 1 if the feature has a duration. */
+    int hasDuration;
+
+    /** Seconds component of duratiion. */
+    int durationSec;
+
+    /** Nanoseconds component of duration. */
+    int durationNsec;
+
+} VampFeatureV2;
+
 typedef struct _VampFeatureList
 {
     /** Number of features in this feature list. */
@@ -191,6 +204,9 @@ typedef struct _VampFeatureList
 
     /** Features in this feature list.  May be NULL if featureCount is zero. */
     VampFeature *features;
+
+    /** Vamp 2.0 extended information for features in this feature list. */
+    VampFeatureV2 *featuresV2;
 
 } VampFeatureList;
 

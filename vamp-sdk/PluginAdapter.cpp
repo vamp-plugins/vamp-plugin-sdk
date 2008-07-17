@@ -55,7 +55,7 @@ protected:
     PluginAdapterBase *m_base;
 
     static VampPluginHandle vampInstantiate(const VampPluginDescriptor *desc,
-                                          float inputSampleRate);
+                                            float inputSampleRate);
 
     static void vampCleanup(VampPluginHandle handle);
 
@@ -592,6 +592,7 @@ PluginAdapterBase::Impl::cleanup(Plugin *plugin)
                 }
             }
             if (list[i].features) free(list[i].features);
+            if (list[i].featuresV2) free(list[i].featuresV2);
         }
         m_fs.erase(plugin);
         m_fsizes.erase(plugin);
@@ -707,7 +708,7 @@ PluginAdapterBase::Impl::getRemainingFeatures(Plugin *plugin)
 
 VampFeatureList *
 PluginAdapterBase::Impl::convertFeatures(Plugin *plugin,
-                                   const Plugin::FeatureSet &features)
+                                         const Plugin::FeatureSet &features)
 {
     int lastN = -1;
 
@@ -751,6 +752,12 @@ PluginAdapterBase::Impl::convertFeatures(Plugin *plugin,
             feature->sec = fl[j].timestamp.sec;
             feature->nsec = fl[j].timestamp.nsec;
             feature->valueCount = fl[j].values.size();
+
+            VampFeatureV2 *v2 = &fs[n].featuresV2[j];
+            
+            v2->hasDuration = fl[j].hasDuration;
+            v2->durationSec = fl[j].duration.sec;
+            v2->durationNsec = fl[j].duration.nsec;
 
             if (feature->label) free(feature->label);
 
@@ -800,6 +807,7 @@ PluginAdapterBase::Impl::resizeFS(Plugin *plugin, int n)
     while (i < n) {
         m_fs[plugin][i].featureCount = 0;
         m_fs[plugin][i].features = 0;
+        m_fs[plugin][i].featuresV2 = 0;
         m_fsizes[plugin].push_back(0);
         m_fvsizes[plugin].push_back(std::vector<size_t>());
         i++;
@@ -820,10 +828,15 @@ PluginAdapterBase::Impl::resizeFL(Plugin *plugin, int n, size_t sz)
     m_fs[plugin][n].features = (VampFeature *)realloc
         (m_fs[plugin][n].features, sz * sizeof(VampFeature));
 
+    m_fs[plugin][n].featuresV2 = (VampFeatureV2 *)realloc
+        (m_fs[plugin][n].featuresV2, sz * sizeof(VampFeatureV2));
+
     while (m_fsizes[plugin][n] < sz) {
+        m_fs[plugin][n].features[m_fsizes[plugin][n]].hasTimestamp = 0;
         m_fs[plugin][n].features[m_fsizes[plugin][n]].valueCount = 0;
         m_fs[plugin][n].features[m_fsizes[plugin][n]].values = 0;
         m_fs[plugin][n].features[m_fsizes[plugin][n]].label = 0;
+        m_fs[plugin][n].featuresV2[m_fsizes[plugin][n]].hasDuration = 0;
         m_fvsizes[plugin][n].push_back(0);
         m_fsizes[plugin][n]++;
     }

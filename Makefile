@@ -36,12 +36,8 @@ AR		:= ar
 RANLIB		:= ranlib
 
 # Libraries required for the plugins.
-# (Note that it is desirable to statically link libstdc++ if possible,
-# because our plugin exposes only a C API so there are no boundary
-# compatibility problems.)
 #
-#PLUGIN_LIBS	= $(SDKDIR)/libvamp-sdk.a
-PLUGIN_LIBS	= $(SDKDIR)/libvamp-sdk.a $(shell g++ -print-file-name=libstdc++.a)
+PLUGIN_LIBS	= $(SDKDIR)/libvamp-sdk.a
 
 # File extension for a dynamically loadable object
 #

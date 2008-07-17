@@ -304,6 +304,10 @@ public:
 	 * this to zero if that behaviour is not desired.
 	 */
 	float sampleRate;
+
+        OutputDescriptor() : // defaults for mandatory non-class-type members
+            hasFixedBinCount(false), hasKnownExtents(false), isQuantized(false),
+            sampleType(OneSamplePerStep) { }
     };
 
     typedef std::vector<OutputDescriptor> OutputList;
@@ -319,17 +323,34 @@ public:
     {
 	/**
 	 * True if an output feature has its own timestamp.  This is
-	 * mandatory if the output has VariableSampleRate, and is
-	 * likely to be disregarded otherwise.
+	 * mandatory if the output has VariableSampleRate, optional if
+	 * the output has FixedSampleRate, and unused if the output
+	 * has OneSamplePerStep.
 	 */
 	bool hasTimestamp;
 
 	/**
 	 * Timestamp of the output feature.  This is mandatory if the
-	 * output has VariableSampleRate, and is likely to be
-	 * disregarded otherwise.  Undefined if hasTimestamp is false.
+	 * output has VariableSampleRate or if the output has
+	 * FixedSampleRate and hasTimestamp is true, and unused
+	 * otherwise.
 	 */
 	RealTime timestamp;
+
+        /**
+         * True if an output feature has a specified duration.  This
+         * is optional if the output has VariableSampleRate or
+         * FixedSampleRate, and and unused if the output has
+         * OneSamplePerStep.
+         */
+        bool hasDuration;
+
+        /**
+         * Duration of the output feature.  This is mandatory if the
+         * output has VariableSampleRate or FixedSampleRate and
+         * hasDuration is true, and unused otherwise.
+         */
+        RealTime duration;
 	
 	/**
 	 * Results for a single sample of this feature.  If the output
@@ -342,9 +363,13 @@ public:
 	 * Label for the sample of this feature.
 	 */
 	std::string label;
+
+        Feature() : // defaults for mandatory non-class-type members
+            hasTimestamp(false), hasDuration(false) { }
     };
 
     typedef std::vector<Feature> FeatureList;
+
     typedef std::map<int, FeatureList> FeatureSet; // key is output no
 
     /**

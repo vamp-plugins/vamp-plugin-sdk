@@ -64,7 +64,7 @@ public:
     /**
      * Get the Vamp API compatibility level of the plugin.
      */
-    virtual unsigned int getVampApiVersion() const { return 1; }
+    virtual unsigned int getVampApiVersion() const { return 2; }
 
     /**
      * Get the computer-usable name of the plugin.  This should be
@@ -190,6 +190,9 @@ public:
          * encoded in the names.
          */
         std::vector<std::string> valueNames;
+
+        ParameterDescriptor() : // the defaults are invalid: you must set them
+            minValue(0), maxValue(0), defaultValue(0), isQuantized(false) { }
     };
 
     typedef std::vector<ParameterDescriptor> ParameterList;
