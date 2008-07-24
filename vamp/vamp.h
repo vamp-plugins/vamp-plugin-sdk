@@ -197,16 +197,33 @@ typedef struct _VampFeatureV2
 
 } VampFeatureV2;
 
+typedef union _VampFeatureUnion
+{
+    // sizeof(featureV1) >= sizeof(featureV2) for backward compatibility
+    VampFeature   v1;
+    VampFeatureV2 v2;
+
+} VampFeatureUnion;
+
 typedef struct _VampFeatureList
 {
     /** Number of features in this feature list. */
     unsigned int featureCount;
 
-    /** Features in this feature list.  May be NULL if featureCount is zero. */
-    VampFeature *features;
+    /** Features in this feature list.  May be NULL if featureCount is
+        zero.
 
-    /** Vamp 2.0 extended information for features in this feature list. */
-    VampFeatureV2 *featuresV2;
+        If present, this array must contain featureCount feature
+        structures for a Vamp 1.0 plugin, or 2*featureCount feature
+        unions for a Vamp 2.0 plugin.
+
+        The features returned by a Vamp 2.0 plugin must consist of the
+        same feature structures as in 1.0 for the first featureCount
+        array elements, followed by featureCount unions that contain
+        pointers to V2 feature structures (or NULL pointers if no V2
+        feature structures are present).
+     */
+    VampFeatureUnion *features;
 
 } VampFeatureList;
 

@@ -186,11 +186,17 @@ string describe_output(Plugin *plugin, Plugin::OutputDescriptor o)
     //TrackLevelOutput
 
 
-    //SparseOutput: variable sample rate. Events are not evenly spaced so we need to record the time associated with the event as it its not ensured that we have an event after the next one (but there is not time to set the duration, it has to be calculated as the different between 2 different events). The timestamp must be read.
+    // SparseOutput: variable sample rate. Events are not evenly
+    // spaced so we need to record the time associated with the event
+    // as it its not ensured that we have an event after the next one
+    // (but there is not time to set the duration, it has to be
+    // calculated as the different between 2 different events). The
+    // timestamp must be read.
 
     string res;
 
-    if (o.sampleType == Plugin::OutputDescriptor::VariableSampleRate)
+    if (o.sampleType == Plugin::OutputDescriptor::VariableSampleRate ||
+        !o.hasFixedBinCount)
     {
 
         res=\

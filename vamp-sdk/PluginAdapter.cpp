@@ -584,15 +584,14 @@ PluginAdapterBase::Impl::cleanup(Plugin *plugin)
         VampFeatureList *list = m_fs[plugin];
         for (unsigned int i = 0; i < outputCount; ++i) {
             for (unsigned int j = 0; j < m_fsizes[plugin][i]; ++j) {
-                if (list[i].features[j].label) {
-                    free(list[i].features[j].label);
+                if (list[i].features[j].v1.label) {
+                    free(list[i].features[j].v1.label);
                 }
-                if (list[i].features[j].values) {
-                    free(list[i].features[j].values);
+                if (list[i].features[j].v1.values) {
+                    free(list[i].features[j].v1.values);
                 }
             }
             if (list[i].features) free(list[i].features);
-            if (list[i].featuresV2) free(list[i].featuresV2);
         }
         m_fs.erase(plugin);
         m_fsizes.erase(plugin);
@@ -718,6 +717,8 @@ PluginAdapterBase::Impl::convertFeatures(Plugin *plugin,
     resizeFS(plugin, outputCount);
     VampFeatureList *fs = m_fs[plugin];
 
+//    std::cerr << "PluginAdapter(v2)::convertFeatures: NOTE: sizeof(Feature) == " << sizeof(Plugin::Feature) << ", sizeof(VampFeature) == " << sizeof(VampFeature) << ", sizeof(VampFeatureList) == " << sizeof(VampFeatureList) << std::endl;
+
     for (Plugin::FeatureSet::const_iterator fi = features.begin();
          fi != features.end(); ++fi) {
 
@@ -746,14 +747,14 @@ PluginAdapterBase::Impl::convertFeatures(Plugin *plugin,
 
 //            std::cerr << "PluginAdapterBase::Impl::convertFeatures: j = " << j << std::endl;
 
-            VampFeature *feature = &fs[n].features[j];
+            VampFeature *feature = &fs[n].features[j].v1;
 
             feature->hasTimestamp = fl[j].hasTimestamp;
             feature->sec = fl[j].timestamp.sec;
             feature->nsec = fl[j].timestamp.nsec;
             feature->valueCount = fl[j].values.size();
 
-            VampFeatureV2 *v2 = &fs[n].featuresV2[j];
+            VampFeatureV2 *v2 = &fs[n].features[j + sz].v2;
             
             v2->hasDuration = fl[j].hasDuration;
             v2->durationSec = fl[j].duration.sec;
@@ -788,6 +789,12 @@ PluginAdapterBase::Impl::convertFeatures(Plugin *plugin,
         }
     }
 
+//    std::cerr << "PluginAdapter(v2)::convertFeatures: NOTE: have " << outputCount << " outputs" << std::endl;
+//    for (int i = 0; i < outputCount; ++i) {
+//        std::cerr << "PluginAdapter(v2)::convertFeatures: NOTE: output " << i << " has " << fs[i].featureCount << " features" << std::endl;
+//    }
+
+
     return fs;
 }
 
@@ -807,7 +814,6 @@ PluginAdapterBase::Impl::resizeFS(Plugin *plugin, int n)
     while (i < n) {
         m_fs[plugin][i].featureCount = 0;
         m_fs[plugin][i].features = 0;
-        m_fs[plugin][i].featuresV2 = 0;
         m_fsizes[plugin].push_back(0);
         m_fvsizes[plugin].push_back(std::vector<size_t>());
         i++;
@@ -825,18 +831,15 @@ PluginAdapterBase::Impl::resizeFL(Plugin *plugin, int n, size_t sz)
 
 //    std::cerr << "resizing from " << i << std::endl;
 
-    m_fs[plugin][n].features = (VampFeature *)realloc
-        (m_fs[plugin][n].features, sz * sizeof(VampFeature));
-
-    m_fs[plugin][n].featuresV2 = (VampFeatureV2 *)realloc
-        (m_fs[plugin][n].featuresV2, sz * sizeof(VampFeatureV2));
+    m_fs[plugin][n].features = (VampFeatureUnion *)realloc
+        (m_fs[plugin][n].features, 2 * sz * sizeof(VampFeatureUnion));
 
     while (m_fsizes[plugin][n] < sz) {
-        m_fs[plugin][n].features[m_fsizes[plugin][n]].hasTimestamp = 0;
-        m_fs[plugin][n].features[m_fsizes[plugin][n]].valueCount = 0;
-        m_fs[plugin][n].features[m_fsizes[plugin][n]].values = 0;
-        m_fs[plugin][n].features[m_fsizes[plugin][n]].label = 0;
-        m_fs[plugin][n].featuresV2[m_fsizes[plugin][n]].hasDuration = 0;
+        m_fs[plugin][n].features[m_fsizes[plugin][n]].v1.hasTimestamp = 0;
+        m_fs[plugin][n].features[m_fsizes[plugin][n]].v1.valueCount = 0;
+        m_fs[plugin][n].features[m_fsizes[plugin][n]].v1.values = 0;
+        m_fs[plugin][n].features[m_fsizes[plugin][n]].v1.label = 0;
+        m_fs[plugin][n].features[m_fsizes[plugin][n + sz]].v2.hasDuration = 0;
         m_fvsizes[plugin][n].push_back(0);
         m_fsizes[plugin][n]++;
     }
@@ -853,8 +856,8 @@ PluginAdapterBase::Impl::resizeFV(Plugin *plugin, int n, int j, size_t sz)
 
 //    std::cerr << "resizing from " << i << std::endl;
 
-    m_fs[plugin][n].features[j].values = (float *)realloc
-        (m_fs[plugin][n].features[j].values, sz * sizeof(float));
+    m_fs[plugin][n].features[j].v1.values = (float *)realloc
+        (m_fs[plugin][n].features[j].v1.values, sz * sizeof(float));
 
     m_fvsizes[plugin][n][j] = sz;
 }

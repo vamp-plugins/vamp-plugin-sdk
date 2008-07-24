@@ -396,37 +396,37 @@ PluginHostAdapter::convertFeatures(VampFeatureList *features,
         if (list.featureCount > 0) {
 
             Feature feature;
-            feature.values.reserve(list.features[0].valueCount);
+            feature.values.reserve(list.features[0].v1.valueCount);
 
             for (unsigned int j = 0; j < list.featureCount; ++j) {
 
-                feature.hasTimestamp = list.features[j].hasTimestamp;
-                feature.timestamp = RealTime(list.features[j].sec,
-                                             list.features[j].nsec);
+                feature.hasTimestamp = list.features[j].v1.hasTimestamp;
+                feature.timestamp = RealTime(list.features[j].v1.sec,
+                                             list.features[j].v1.nsec);
+                feature.hasDuration = false;
 
                 if (m_descriptor->vampApiVersion >= 2) {
-                    feature.hasDuration = list.featuresV2[j].hasDuration;
-                    feature.duration = RealTime(list.featuresV2[j].durationSec,
-                                                list.featuresV2[j].durationNsec);
-                } else {
-                    feature.hasDuration = false;
+                    unsigned int j2 = j + list.featureCount;
+                    feature.hasDuration = list.features[j2].v2.hasDuration;
+                    feature.duration = RealTime(list.features[j2].v2.durationSec,
+                                                list.features[j2].v2.durationNsec);
                 }
 
-                for (unsigned int k = 0; k < list.features[j].valueCount; ++k) {
-                    feature.values.push_back(list.features[j].values[k]);
+                for (unsigned int k = 0; k < list.features[j].v1.valueCount; ++k) {
+                    feature.values.push_back(list.features[j].v1.values[k]);
                 }
 
-                if (list.features[j].label) {
-                    feature.label = list.features[j].label;
+                if (list.features[j].v1.label) {
+                    feature.label = list.features[j].v1.label;
                 }
 
                 fs[i].push_back(feature);
 
-                if (list.features[j].valueCount > 0) {
+                if (list.features[j].v1.valueCount > 0) {
                     feature.values.clear();
                 }
 
-                if (list.features[j].label) {
+                if (list.features[j].v1.label) {
                     feature.label = "";
                 }
             }
