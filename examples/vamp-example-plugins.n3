@@ -35,7 +35,7 @@ plugbase:amplitudefollower a   vamp:Plugin ;
     vamp:parameter   plugbase:amplitudefollower_param_attack ;
     vamp:parameter   plugbase:amplitudefollower_param_release ;
 
-    vamp:output     plugbase:amplitudefollower_output_amplitude ;
+    vamp:output      plugbase:amplitudefollower_output_amplitude ;
     .
 plugbase:amplitudefollower_param_attack a  vamp:Parameter ;
     vamp:identifier     "attack" ;
@@ -65,8 +65,9 @@ plugbase:amplitudefollower_output_amplitude a  vamp:DenseOutput ;
     vamp:unit             "V" ;
     vamp:bin_count        1 ;
     vamp:bin_names        ( "");
-#   vamp:computes_feature_type  <Place feature type URI here and uncomment> ;
-#   vamp:computes_event_type    <Place event type URI here and uncomment> ;
+#   vamp:computes_event_type   <Place event type URI here and uncomment> ;
+#   vamp:computes_feature      <Place feature attribute URI here and uncomment> ;
+#   vamp:computes_signal_type  <Place signal type URI here and uncomment> ;
     .
 plugbase:percussiononsets a   vamp:Plugin ;
     dc:title              "Simple Percussion Onset Detector" ;
@@ -82,8 +83,8 @@ plugbase:percussiononsets a   vamp:Plugin ;
     vamp:parameter   plugbase:percussiononsets_param_threshold ;
     vamp:parameter   plugbase:percussiononsets_param_sensitivity ;
 
-    vamp:output     plugbase:percussiononsets_output_onsets ;
-    vamp:output     plugbase:percussiononsets_output_detectionfunction ;
+    vamp:output      plugbase:percussiononsets_output_onsets ;
+    vamp:output      plugbase:percussiononsets_output_detectionfunction ;
     .
 plugbase:percussiononsets_param_threshold a  vamp:Parameter ;
     vamp:identifier     "threshold" ;
@@ -115,8 +116,9 @@ plugbase:percussiononsets_output_onsets a  vamp:SparseOutput ;
     vamp:bin_names        ();
     vamp:sample_type      vamp:VariableSampleRate ;
     vamp:sample_rate      44100 ;
-#   vamp:computes_feature_type  <Place feature type URI here and uncomment> ;
-#   vamp:computes_event_type    <Place event type URI here and uncomment> ;
+#   vamp:computes_event_type   <Place event type URI here and uncomment> ;
+#   vamp:computes_feature      <Place feature attribute URI here and uncomment> ;
+#   vamp:computes_signal_type  <Place signal type URI here and uncomment> ;
     .
 plugbase:percussiononsets_output_detectionfunction a  vamp:DenseOutput ;
     vamp:identifier       "detectionfunction" ;
@@ -128,8 +130,9 @@ plugbase:percussiononsets_output_detectionfunction a  vamp:DenseOutput ;
     vamp:quantize_step    1  ;
     vamp:bin_count        1 ;
     vamp:bin_names        ( "");
-#   vamp:computes_feature_type  <Place feature type URI here and uncomment> ;
-#   vamp:computes_event_type    <Place event type URI here and uncomment> ;
+#   vamp:computes_event_type   <Place event type URI here and uncomment> ;
+#   vamp:computes_feature      <Place feature attribute URI here and uncomment> ;
+#   vamp:computes_signal_type  <Place signal type URI here and uncomment> ;
     .
 plugbase:spectralcentroid a   vamp:Plugin ;
     dc:title              "Spectral Centroid" ;
@@ -143,8 +146,8 @@ plugbase:spectralcentroid a   vamp:Plugin ;
     vamp:input_domain     vamp:FrequencyDomain ;
 
 
-    vamp:output     plugbase:spectralcentroid_output_logcentroid ;
-    vamp:output     plugbase:spectralcentroid_output_linearcentroid ;
+    vamp:output      plugbase:spectralcentroid_output_logcentroid ;
+    vamp:output      plugbase:spectralcentroid_output_linearcentroid ;
     .
 plugbase:spectralcentroid_output_logcentroid a  vamp:DenseOutput ;
     vamp:identifier       "logcentroid" ;
@@ -154,8 +157,9 @@ plugbase:spectralcentroid_output_logcentroid a  vamp:DenseOutput ;
     vamp:unit             "Hz" ;
     vamp:bin_count        1 ;
     vamp:bin_names        ( "");
-#   vamp:computes_feature_type  <Place feature type URI here and uncomment> ;
-#   vamp:computes_event_type    <Place event type URI here and uncomment> ;
+#   vamp:computes_event_type   <Place event type URI here and uncomment> ;
+#   vamp:computes_feature      <Place feature attribute URI here and uncomment> ;
+#   vamp:computes_signal_type  <Place signal type URI here and uncomment> ;
     .
 plugbase:spectralcentroid_output_linearcentroid a  vamp:DenseOutput ;
     vamp:identifier       "linearcentroid" ;
@@ -165,8 +169,9 @@ plugbase:spectralcentroid_output_linearcentroid a  vamp:DenseOutput ;
     vamp:unit             "Hz" ;
     vamp:bin_count        1 ;
     vamp:bin_names        ( "");
-#   vamp:computes_feature_type  <Place feature type URI here and uncomment> ;
-#   vamp:computes_event_type    <Place event type URI here and uncomment> ;
+#   vamp:computes_event_type   <Place event type URI here and uncomment> ;
+#   vamp:computes_feature      <Place feature attribute URI here and uncomment> ;
+#   vamp:computes_signal_type  <Place signal type URI here and uncomment> ;
     .
 plugbase:zerocrossing a   vamp:Plugin ;
     dc:title              "Zero Crossings" ;
@@ -180,8 +185,8 @@ plugbase:zerocrossing a   vamp:Plugin ;
     vamp:input_domain     vamp:TimeDomain ;
 
 
-    vamp:output     plugbase:zerocrossing_output_counts ;
-    vamp:output     plugbase:zerocrossing_output_zerocrossings ;
+    vamp:output      plugbase:zerocrossing_output_counts ;
+    vamp:output      plugbase:zerocrossing_output_zerocrossings ;
     .
 plugbase:zerocrossing_output_counts a  vamp:DenseOutput ;
     vamp:identifier       "counts" ;
@@ -193,8 +198,9 @@ plugbase:zerocrossing_output_counts a  vamp:DenseOutput ;
     vamp:quantize_step    1  ;
     vamp:bin_count        1 ;
     vamp:bin_names        ( "");
-#   vamp:computes_feature_type  <Place feature type URI here and uncomment> ;
-#   vamp:computes_event_type    <Place event type URI here and uncomment> ;
+#   vamp:computes_event_type   <Place event type URI here and uncomment> ;
+#   vamp:computes_feature      <Place feature attribute URI here and uncomment> ;
+#   vamp:computes_signal_type  <Place signal type URI here and uncomment> ;
     .
 plugbase:zerocrossing_output_zerocrossings a  vamp:SparseOutput ;
     vamp:identifier       "zerocrossings" ;
@@ -208,7 +214,8 @@ plugbase:zerocrossing_output_zerocrossings a  vamp:SparseOutput ;
     vamp:bin_names        ();
     vamp:sample_type      vamp:VariableSampleRate ;
     vamp:sample_rate      44100 ;
-#   vamp:computes_feature_type  <Place feature type URI here and uncomment> ;
-#   vamp:computes_event_type    <Place event type URI here and uncomment> ;
+#   vamp:computes_event_type   <Place event type URI here and uncomment> ;
+#   vamp:computes_feature      <Place feature attribute URI here and uncomment> ;
+#   vamp:computes_signal_type  <Place signal type URI here and uncomment> ;
     .
 
