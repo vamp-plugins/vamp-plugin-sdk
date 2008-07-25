@@ -7,7 +7,7 @@
 
     Centre for Digital Music, Queen Mary, University of London.
     Copyright 2006-2007 Chris Cannam and QMUL.
-    This file by Mark Levy, Copyright 2007 QMUL.
+    This file by Mark Levy and Chris Cannam, Copyright 2007-2008 QMUL.
   
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
