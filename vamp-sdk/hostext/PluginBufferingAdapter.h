@@ -99,6 +99,17 @@ public:
     size_t getPreferredBlockSize() const;
 
     /**
+     * Initialise the adapter (and therefore the plugin) for the given
+     * number of channels.  Initialise the adapter for the given step
+     * and block size, which must be equal.
+     *
+     * The step and block size used for the underlying plugin will
+     * depend on its preferences, or any values previously passed to
+     * setPluginStepSize and setPluginBlockSize.
+     */
+    bool initialise(size_t channels, size_t stepSize, size_t blockSize);
+
+    /**
      * Return the preferred step size of the plugin wrapped by this
      * adapter.
      *
@@ -138,15 +149,17 @@ public:
     void setPluginBlockSize(size_t blockSize);
 
     /**
-     * Initialise the adapter (and therefore the plugin) for the given
-     * number of channels.  Initialise the adapter for the given step
-     * and block size, which must be equal.
+     * Return the step and block sizes that were actually used when
+     * initialising the underlying plugin.
      *
-     * The step and block size used for the underlying plugin will
-     * depend on its preferences, or any values previously passed to
-     * setPluginStepSize and setPluginBlockSize.
+     * This is included mainly for informational purposes.  You will
+     * not usually need to call this function.  If this is called
+     * before initialise(), it will return 0 for both values.  If it
+     * is called after a failed call to initialise(), it will return
+     * the values that were used in the failed call to the plugin's
+     * initialise() function.
      */
-    bool initialise(size_t channels, size_t stepSize, size_t blockSize);
+    void getActualStepAndBlockSizes(size_t &stepSize, size_t &blockSize);
 
     OutputList getOutputDescriptors() const;
 

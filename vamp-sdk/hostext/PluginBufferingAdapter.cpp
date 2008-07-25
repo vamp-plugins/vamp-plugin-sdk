@@ -58,6 +58,8 @@ public:
 
     bool initialise(size_t channels, size_t stepSize, size_t blockSize);
 
+    void getActualStepAndBlockSizes(size_t &stepSize, size_t &blockSize);
+
     OutputList getOutputDescriptors() const;
 
     void reset();
@@ -286,6 +288,13 @@ PluginBufferingAdapter::setPluginBlockSize(size_t blockSize)
 {
     m_impl->setPluginBlockSize(blockSize);
 }
+
+void
+PluginBufferingAdapter::getActualStepAndBlockSizes(size_t &stepSize,
+                                                   size_t &blockSize)
+{
+    m_impl->getActualStepAndBlockSizes(stepSize, blockSize);
+}
 		
 bool
 PluginBufferingAdapter::initialise(size_t channels, size_t stepSize, size_t blockSize)
@@ -365,6 +374,14 @@ PluginBufferingAdapter::Impl::setPluginBlockSize(size_t blockSize)
         return;
     }
     m_setBlockSize = blockSize;
+}
+
+void
+PluginBufferingAdapter::Impl::getActualStepAndBlockSizes(size_t &stepSize,
+                                                         size_t &blockSize)
+{
+    stepSize = m_stepSize;
+    blockSize = m_blockSize;
 }
 
 bool
