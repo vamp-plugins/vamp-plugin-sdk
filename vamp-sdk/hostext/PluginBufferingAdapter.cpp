@@ -52,7 +52,10 @@ class PluginBufferingAdapter::Impl
 public:
     Impl(Plugin *plugin, float inputSampleRate);
     ~Impl();
-		
+	
+    void setPluginStepSize(size_t stepSize);	
+    void setPluginBlockSize(size_t blockSize);
+
     bool initialise(size_t channels, size_t stepSize, size_t blockSize);
 
     OutputList getOutputDescriptors() const;
@@ -219,10 +222,12 @@ protected:
     };
 
     Plugin *m_plugin;
-    size_t m_inputStepSize;
-    size_t m_inputBlockSize;
-    size_t m_stepSize;
-    size_t m_blockSize;
+    size_t m_inputStepSize;  // value passed to wrapper initialise()
+    size_t m_inputBlockSize; // value passed to wrapper initialise()
+    size_t m_setStepSize;    // value passed to setPluginStepSize()
+    size_t m_setBlockSize;   // value passed to setPluginBlockSize()
+    size_t m_stepSize;       // value actually used to initialise plugin
+    size_t m_blockSize;      // value actually used to initialise plugin
     size_t m_channels;
     vector<RingBuffer *> m_queue;
     float **m_buffers;
@@ -244,6 +249,42 @@ PluginBufferingAdapter::PluginBufferingAdapter(Plugin *plugin) :
 PluginBufferingAdapter::~PluginBufferingAdapter()
 {
     delete m_impl;
+}
+
+size_t
+PluginBufferingAdapter::getPreferredStepSize() const
+{
+    return getPreferredBlockSize();
+}
+
+size_t
+PluginBufferingAdapter::getPreferredBlockSize() const
+{
+    return PluginWrapper::getPreferredBlockSize();
+}
+
+size_t
+PluginBufferingAdapter::getPluginPreferredStepSize() const
+{
+    return PluginWrapper::getPreferredStepSize();
+}
+
+size_t
+PluginBufferingAdapter::getPluginPreferredBlockSize() const
+{
+    return PluginWrapper::getPreferredBlockSize();
+}
+
+void
+PluginBufferingAdapter::setPluginStepSize(size_t stepSize)
+{
+    m_impl->setPluginStepSize(stepSize);
+}
+
+void
+PluginBufferingAdapter::setPluginBlockSize(size_t blockSize)
+{
+    m_impl->setPluginBlockSize(blockSize);
 }
 		
 bool
@@ -281,6 +322,8 @@ PluginBufferingAdapter::Impl::Impl(Plugin *plugin, float inputSampleRate) :
     m_plugin(plugin),
     m_inputStepSize(0),
     m_inputBlockSize(0),
+    m_setStepSize(0),
+    m_setBlockSize(0),
     m_stepSize(0),
     m_blockSize(0),
     m_channels(0), 
@@ -303,13 +346,27 @@ PluginBufferingAdapter::Impl::~Impl()
     }
     delete[] m_buffers;
 }
-
-size_t
-PluginBufferingAdapter::getPreferredStepSize() const
+		
+void
+PluginBufferingAdapter::Impl::setPluginStepSize(size_t stepSize)
 {
-    return getPreferredBlockSize();
+    if (m_inputStepSize != 0) {
+        std::cerr << "PluginBufferingAdapter::setPluginStepSize: ERROR: Cannot be called after initialise()" << std::endl;
+        return;
+    }
+    m_setStepSize = stepSize;
 }
 		
+void
+PluginBufferingAdapter::Impl::setPluginBlockSize(size_t blockSize)
+{
+    if (m_inputBlockSize != 0) {
+        std::cerr << "PluginBufferingAdapter::setPluginBlockSize: ERROR: Cannot be called after initialise()" << std::endl;
+        return;
+    }
+    m_setBlockSize = blockSize;
+}
+
 bool
 PluginBufferingAdapter::Impl::initialise(size_t channels, size_t stepSize, size_t blockSize)
 {
@@ -321,37 +378,59 @@ PluginBufferingAdapter::Impl::initialise(size_t channels, size_t stepSize, size_
     m_channels = channels;	
     m_inputStepSize = stepSize;
     m_inputBlockSize = blockSize;
+
+    // if the user has requested particular step or block sizes, use
+    // those; otherwise use the step and block sizes which the plugin
+    // prefers
+
+    m_stepSize = 0;
+    m_blockSize = 0;
+
+    if (m_setStepSize > 0) {
+        m_stepSize = m_setStepSize;
+    }
+    if (m_setBlockSize > 0) {
+        m_blockSize = m_setBlockSize;
+    }
+
+    if (m_stepSize == 0 && m_blockSize == 0) {
+        m_stepSize = m_plugin->getPreferredStepSize();
+        m_blockSize = m_plugin->getPreferredBlockSize();
+    }
     
-    // use the step and block sizes which the plugin prefers
-    m_stepSize = m_plugin->getPreferredStepSize();
-    m_blockSize = m_plugin->getPreferredBlockSize();
+    bool freq = (m_plugin->getInputDomain() == Vamp::Plugin::FrequencyDomain);
     
     // or sensible defaults if it has no preference
     if (m_blockSize == 0) {
-        m_blockSize = 1024;
-    }
-    if (m_stepSize == 0) {
-        if (m_plugin->getInputDomain() == Vamp::Plugin::FrequencyDomain) {
-            m_stepSize = m_blockSize/2;
-        } else {
-            m_stepSize = m_blockSize;
-        }
-    } else if (m_stepSize > m_blockSize) {
-        if (m_plugin->getInputDomain() == Vamp::Plugin::FrequencyDomain) {
+        if (m_stepSize == 0) {
+            m_blockSize = 1024;
+        } else if (freq) {
             m_blockSize = m_stepSize * 2;
         } else {
             m_blockSize = m_stepSize;
         }
+    } else if (m_stepSize == 0) { // m_blockSize != 0 (that was handled above)
+        if (freq) {
+            m_stepSize = m_blockSize/2;
+        } else {
+            m_stepSize = m_blockSize;
+        }
     }
-    
-    std::cerr << "PluginBufferingAdapter::initialise: stepSize " << m_inputStepSize << " -> " << m_stepSize 
-              << ", blockSize " << m_inputBlockSize << " -> " << m_blockSize << std::endl;			
     
     // current implementation breaks if step is greater than block
     if (m_stepSize > m_blockSize) {
-        std::cerr << "PluginBufferingAdapter::initialise: plugin's preferred stepSize greater than blockSize, giving up!" << std::endl;
-        return false;
+        size_t newBlockSize;
+        if (freq) {
+            newBlockSize = m_stepSize * 2;
+        } else {
+            newBlockSize = m_stepSize;
+        }
+        std::cerr << "PluginBufferingAdapter::initialise: WARNING: step size " << m_stepSize << " is greater than block size " << m_blockSize << ": cannot handle this in adapter; adjusting block size to " << newBlockSize << std::endl;
+        m_blockSize = newBlockSize;
     }
+    
+    std::cerr << "PluginBufferingAdapter::initialise: NOTE: stepSize " << m_inputStepSize << " -> " << m_stepSize 
+              << ", blockSize " << m_inputBlockSize << " -> " << m_blockSize << std::endl;			
 
     m_buffers = new float *[m_channels];
 
@@ -417,6 +496,11 @@ PluginBufferingAdapter::FeatureSet
 PluginBufferingAdapter::Impl::process(const float *const *inputBuffers,
                                       RealTime timestamp)
 {
+    if (m_inputStepSize == 0) {
+        std::cerr << "PluginBufferingAdapter::process: ERROR: Plugin has not been initialised" << std::endl;
+        return FeatureSet();
+    }
+
     FeatureSet allFeatureSets;
 
     if (m_unrun) {

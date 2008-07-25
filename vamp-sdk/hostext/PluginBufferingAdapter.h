@@ -74,11 +74,80 @@ class PluginBufferingAdapter : public PluginWrapper
 public:
     PluginBufferingAdapter(Plugin *plugin); // I take ownership of plugin
     virtual ~PluginBufferingAdapter();
-    
+
+    /**
+     * Return the preferred step size for this adapter.
+     * 
+     * Because of the way this adapter works, its preferred step size
+     * will always be the same as its preferred block size.  This may
+     * or may not be the same as the preferred step size of the
+     * underlying plugin, which may be obtained by calling
+     * getPluginPreferredStepSize().
+     */
+    size_t getPreferredStepSize() const;
+
+    /**
+     * Return the preferred block size for this adapter.
+     * 
+     * This may or may not be the same as the preferred block size of
+     * the underlying plugin, which may be obtained by calling
+     * getPluginPreferredBlockSize().
+     *
+     * Note that this adapter may be initialised with any block size,
+     * not just its supposedly preferred one.
+     */
+    size_t getPreferredBlockSize() const;
+
+    /**
+     * Return the preferred step size of the plugin wrapped by this
+     * adapter.
+     *
+     * This is included mainly for informational purposes.  This value
+     * is not likely to be a valid step size for the adapter itself,
+     * and it is not usually of any use in interpreting the results
+     * (because the adapter re-writes OneSamplePerStep outputs to
+     * FixedSampleRate so that the hop size no longer needs to be
+     * known beforehand in order to interpret them).
+     */
+    size_t getPluginPreferredStepSize() const;
+
+    /** 
+     * Return the preferred block size of the plugin wrapped by this
+     * adapter.
+     *
+     * This is included mainly for informational purposes.
+     */
+    size_t getPluginPreferredBlockSize() const;
+
+    /**
+     * Set the step size that will be used for the underlying plugin
+     * when initialise() is called.  If this is not set, the plugin's
+     * own preferred step size will be used.  You will not usually
+     * need to call this function.  If you do call it, it must be
+     * before the first call to initialise().
+     */
+    void setPluginStepSize(size_t stepSize);
+
+    /**
+     * Set the block size that will be used for the underlying plugin
+     * when initialise() is called.  If this is not set, the plugin's
+     * own preferred block size will be used.  You will not usually
+     * need to call this function.  If you do call it, it must be
+     * before the first call to initialise().
+     */
+    void setPluginBlockSize(size_t blockSize);
+
+    /**
+     * Initialise the adapter (and therefore the plugin) for the given
+     * number of channels.  Initialise the adapter for the given step
+     * and block size, which must be equal.
+     *
+     * The step and block size used for the underlying plugin will
+     * depend on its preferences, or any values previously passed to
+     * setPluginStepSize and setPluginBlockSize.
+     */
     bool initialise(size_t channels, size_t stepSize, size_t blockSize);
 
-    size_t getPreferredStepSize() const;
-    
     OutputList getOutputDescriptors() const;
 
     void reset();
