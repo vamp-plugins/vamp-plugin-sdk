@@ -39,6 +39,8 @@
 
 #include "PluginWrapper.h"
 
+#include <set>
+
 namespace Vamp {
 
 namespace HostExt {
@@ -67,10 +69,7 @@ public:
         Count
     };
 
-    //!!! return summaries for all outputs, or specify somewhere which
-    //!!! outputs are of interest?
-
-    FeatureSet getSummary(SummaryType type);
+    FeatureSet getSummary(int output, SummaryType type);
 
 protected:
     class Impl;

@@ -36,6 +36,8 @@
 
 #include "PluginSummarisingAdapter.h"
 
+#include <map>
+
 namespace Vamp {
 
 namespace HostExt {
@@ -54,7 +56,42 @@ public:
     FeatureSet getSummary(SummaryType type);
 
 protected:
+    Plugin *m_plugin;
+
     SegmentBoundaries m_boundaries;
+    
+    typedef std::vector<float> ValueList;
+    typedef std::map<int, ValueList> BinValueMap;
+    
+    struct OutputAccumulator {
+        int count;
+        BinValueMap values;
+    };
+
+    typedef std::map<int, OutputAccumulator> OutputAccumulatorMap;
+    OutputAccumulatorMap m_accumulators;
+
+    struct OutputBinSummary {
+        float minimum;
+        float maximum;
+        float median;
+        float mode;
+        float sum;
+        float variance;
+        int count;
+    };
+
+    typedef std::map<int, OutputBinSummary> OutputSummary;
+    typedef std::map<RealTime, OutputSummary> SummarySegmentMap;
+    typedef std::map<int, SummarySegmentMap> OutputSummarySegmentMap;
+
+    OutputSummarySegmentMap m_summaries;
+
+    RealTime m_lastTimestamp;
+
+    void accumulate(const FeatureSet &fs, RealTime);
+    void accumulate(int output, const Feature &f, RealTime);
+    void reduce();
 };
     
 PluginSummarisingAdapter::PluginSummarisingAdapter(Plugin *plugin) :
@@ -74,14 +111,141 @@ PluginSummarisingAdapter::process(const float *const *inputBuffers, RealTime tim
     return m_impl->process(inputBuffers, timestamp);
 }
 
+Plugin::FeatureSet
+PluginSummarisingAdapter::getRemainingFeatures()
+{
+    return m_impl->getRemainingFeatures();
+}
+
 
 PluginSummarisingAdapter::Impl::Impl(Plugin *plugin, float inputSampleRate) :
-    m_plugin(plugin),
-    m_inputSampleRate(inputSampleRate)
+    m_plugin(plugin)
 {
 }
 
 PluginSummarisingAdapter::Impl::~Impl()
 {
+}
+
+Plugin::FeatureSet
+PluginSummarisingAdapter::Impl::process(const float *const *inputBuffers, RealTime timestamp)
+{
+    FeatureSet fs = m_plugin->process(inputBuffers, timestamp);
+    accumulate(fs, timestamp);
+    m_lastTimestamp = timestamp;
+    return fs;
+}
+
+Plugin::FeatureSet
+PluginSummarisingAdapter::Impl::getRemainingFeatures()
+{
+    FeatureSet fs = m_plugin->getRemainingFeatures();
+    accumulate(fs, m_lastTimestamp);
+    reduce();
+    return fs;
+}
+
+void
+PluginSummarisingAdapter::Impl::accumulate(const FeatureSet &fs,
+                                           RealTime timestamp)
+{
+    for (FeatureSet::const_iterator i = fs.begin(); i != fs.end(); ++i) {
+        for (FeatureList::const_iterator j = i->second.begin();
+             j != i->second.end(); ++j) {
+            accumulate(i->first, *j, timestamp);
+        }
+    }
+}
+
+void
+PluginSummarisingAdapter::Impl::accumulate(int output,
+                                           const Feature &f,
+                                           RealTime timestamp)
+{
+//!!! use timestamp to determine which segment we're on
+    m_accumulators[output].count++;
+    for (int i = 0; i < int(f.values.size()); ++i) {
+        m_accumulators[output].values[i].push_back(f.values[i]);
+    }
+}
+
+void
+PluginSummarisingAdapter::Impl::reduce()
+{
+    RealTime segmentStart = RealTime::zeroTime; //!!!
+
+    for (OutputAccumulatorMap::iterator i = m_accumulators.begin();
+         i != m_accumulators.end(); ++i) {
+
+        int output = i->first;
+        OutputAccumulator &accumulator = i->second;
+
+        for (BinValueMap::iterator j = accumulator.values.begin();
+             j != accumulator.values.end(); ++j) {
+
+            int bin = j->first;
+            ValueList &values = j->second;
+
+            OutputBinSummary summary;
+            summary.minimum = 0.f;
+            summary.maximum = 0.f;
+            summary.median = 0.f;
+            summary.mode = 0.f;
+            summary.sum = 0.f;
+            summary.variance = 0.f;
+            summary.count = accumulator.count;
+            if (summary.count == 0 || values.empty()) continue;
+
+            std::sort(values.begin(), values.end());
+            int sz = values.size();
+
+            summary.minimum = values[0];
+            summary.maximum = values[sz-1];
+
+            if (sz % 2 == 1) {
+                summary.median = values[sz/2];
+            } else {
+                summary.median = (values[sz/2] + values[sz/2 + 1]) / 2;
+            }
+
+            std::map<float, int> distribution;
+
+            for (int k = 0; k < sz; ++k) {
+                summary.sum += values[k];
+                ++distribution[values[k]];
+            }
+
+            int md = 0;
+
+            //!!! I don't like this.  Really the mode should be the
+            //!!! value that spans the longest period of time, not the
+            //!!! one that appears in the largest number of distinct
+            //!!! features.
+            
+            for (std::map<float, int>::iterator di = distribution.begin();
+                 di != distribution.end(); ++di) {
+                if (di->second > md) {
+                    md = di->second;
+                    summary.mode = di->first;
+                }
+            }
+
+            distribution.clear();
+
+            float mean = summary.sum / summary.count;
+
+            for (int k = 0; k < sz; ++k) {
+                summary.variance += (values[k] - mean) * (values[k] - mean);
+            }
+            summary.variance /= summary.count;
+
+            m_summaries[output][segmentStart][bin] = summary;
+        }
+    }
+}
+
+
+}
+
 }
 
