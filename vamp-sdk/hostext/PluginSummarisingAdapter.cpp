@@ -54,7 +54,8 @@ public:
 
     void setSummarySegmentBoundaries(const SegmentBoundaries &);
 
-    FeatureList getSummary(int output, SummaryType type);
+    FeatureList getSummaryForOutput(int output, SummaryType type);
+    FeatureSet getSummaryForAllOutputs(SummaryType type);
 
 protected:
     Plugin *m_plugin;
@@ -119,9 +120,15 @@ PluginSummarisingAdapter::getRemainingFeatures()
 }
 
 Plugin::FeatureList
-PluginSummarisingAdapter::getSummary(int output, SummaryType type)
+PluginSummarisingAdapter::getSummaryForOutput(int output, SummaryType type)
 {
-    return m_impl->getSummary(output, type);
+    return m_impl->getSummaryForOutput(output, type);
+}
+
+Plugin::FeatureSet
+PluginSummarisingAdapter::getSummaryForAllOutputs(SummaryType type)
+{
+    return m_impl->getSummaryForAllOutputs(type);
 }
 
 PluginSummarisingAdapter::Impl::Impl(Plugin *plugin, float inputSampleRate) :
@@ -152,7 +159,7 @@ PluginSummarisingAdapter::Impl::getRemainingFeatures()
 }
 
 Plugin::FeatureList
-PluginSummarisingAdapter::Impl::getSummary(int output, SummaryType type)
+PluginSummarisingAdapter::Impl::getSummaryForOutput(int output, SummaryType type)
 {
     //!!! need to ensure that this is only called after processing is
     //!!! complete (at the moment processing is "completed" in the
@@ -223,6 +230,17 @@ PluginSummarisingAdapter::Impl::getSummary(int output, SummaryType type)
         fl.push_back(f);
     }
     return fl;
+}
+
+Plugin::FeatureSet
+PluginSummarisingAdapter::Impl::getSummaryForAllOutputs(SummaryType type)
+{
+    FeatureSet fs;
+    for (OutputSummarySegmentMap::const_iterator i = m_summaries.begin();
+         i != m_summaries.end(); ++i) {
+        fs[i->first] = getSummaryForOutput(i->first, type);
+    }
+    return fs;
 }
 
 void
