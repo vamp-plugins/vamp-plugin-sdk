@@ -37,6 +37,7 @@
 #include "PluginSummarisingAdapter.h"
 
 #include <map>
+#include <cmath>
 
 namespace Vamp {
 
@@ -53,7 +54,7 @@ public:
 
     void setSummarySegmentBoundaries(const SegmentBoundaries &);
 
-    FeatureSet getSummary(SummaryType type);
+    FeatureList getSummary(int output, SummaryType type);
 
 protected:
     Plugin *m_plugin;
@@ -117,6 +118,11 @@ PluginSummarisingAdapter::getRemainingFeatures()
     return m_impl->getRemainingFeatures();
 }
 
+Plugin::FeatureList
+PluginSummarisingAdapter::getSummary(int output, SummaryType type)
+{
+    return m_impl->getSummary(output, type);
+}
 
 PluginSummarisingAdapter::Impl::Impl(Plugin *plugin, float inputSampleRate) :
     m_plugin(plugin)
@@ -143,6 +149,80 @@ PluginSummarisingAdapter::Impl::getRemainingFeatures()
     accumulate(fs, m_lastTimestamp);
     reduce();
     return fs;
+}
+
+Plugin::FeatureList
+PluginSummarisingAdapter::Impl::getSummary(int output, SummaryType type)
+{
+    //!!! need to ensure that this is only called after processing is
+    //!!! complete (at the moment processing is "completed" in the
+    //!!! call to getRemainingFeatures, but we don't want to require
+    //!!! the host to call getRemainingFeatures at all unless it
+    //!!! actually wants the raw features too -- calling getSummary
+    //!!! should be enough -- we do need to ensure that all data has
+    //!!! been processed though!)
+    FeatureList fl;
+    for (SummarySegmentMap::const_iterator i = m_summaries[output].begin();
+         i != m_summaries[output].end(); ++i) {
+        Feature f;
+        f.hasTimestamp = true;
+        f.timestamp = i->first;
+        f.hasDuration = false;
+        for (OutputSummary::const_iterator j = i->second.begin();
+             j != i->second.end(); ++j) {
+
+            // these will be ordered by bin number, and no bin numbers
+            // will be missing except at the end (because of the way
+            // the accumulators were initially filled in accumulate())
+
+            const OutputBinSummary &summary = j->second;
+            float result = 0.f;
+
+            switch (type) {
+
+            case Minimum:
+                result = summary.minimum;
+                break;
+
+            case Maximum:
+                result = summary.maximum;
+                break;
+
+            case Mean:
+                if (summary.count) {
+                    result = summary.sum / summary.count;
+                }
+                break;
+
+            case Median:
+                result = summary.median;
+                break;
+
+            case Mode:
+                result = summary.mode;
+                break;
+
+            case Sum:
+                result = summary.sum;
+                break;
+
+            case Variance:
+                result = summary.variance;
+                break;
+
+            case StandardDeviation:
+                result = sqrtf(summary.variance);
+                break;
+
+            case Count:
+                result = summary.count;
+                break;
+            }
+        }
+
+        fl.push_back(f);
+    }
+    return fl;
 }
 
 void
@@ -220,7 +300,8 @@ PluginSummarisingAdapter::Impl::reduce()
             //!!! I don't like this.  Really the mode should be the
             //!!! value that spans the longest period of time, not the
             //!!! one that appears in the largest number of distinct
-            //!!! features.
+            //!!! features.  I suppose that a median by time rather
+            //!!! than number of features would also be useful.
             
             for (std::map<float, int>::iterator di = distribution.begin();
                  di != distribution.end(); ++di) {
@@ -242,6 +323,8 @@ PluginSummarisingAdapter::Impl::reduce()
             m_summaries[output][segmentStart][bin] = summary;
         }
     }
+
+    m_accumulators.clear();
 }
 
 

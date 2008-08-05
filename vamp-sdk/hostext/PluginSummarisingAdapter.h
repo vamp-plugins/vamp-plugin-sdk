@@ -69,7 +69,7 @@ public:
         Count
     };
 
-    FeatureSet getSummary(int output, SummaryType type);
+    FeatureList getSummary(int output, SummaryType type);
 
 protected:
     class Impl;
