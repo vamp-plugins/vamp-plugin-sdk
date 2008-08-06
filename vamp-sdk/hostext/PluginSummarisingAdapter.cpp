@@ -268,6 +268,21 @@ PluginSummarisingAdapter::Impl::accumulate(int output,
 //!!! use timestamp to determine which segment we're on
     m_accumulators[output].count++;
     for (int i = 0; i < int(f.values.size()); ++i) {
+
+
+        //!!! we really want to associate this occurrence of this
+        //!!! value with the duration it covers.
+        
+        //!!! for dense values, the duration can be 1 or the sample
+        //!!! rate or whatever -- doesn't matter so long as it's the
+        //!!! same for every value.
+
+        //!!! for sparse values, the duration should be that from this
+        //!!! feature to the next.
+
+        //!!! if the feature has a duration, should be using that
+        //!!! instead.
+
         m_accumulators[output].values[i].push_back(f.values[i]);
     }
 }
