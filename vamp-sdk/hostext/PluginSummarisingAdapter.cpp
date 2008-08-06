@@ -68,6 +68,7 @@ protected:
     struct OutputAccumulator {
         int count;
         BinValueMap values;
+        OutputAccumulator() : count(0), values() { }
     };
 
     typedef std::map<int, OutputAccumulator> OutputAccumulatorMap;
@@ -171,10 +172,12 @@ PluginSummarisingAdapter::Impl::getSummaryForOutput(int output, SummaryType type
     FeatureList fl;
     for (SummarySegmentMap::const_iterator i = m_summaries[output].begin();
          i != m_summaries[output].end(); ++i) {
+
         Feature f;
         f.hasTimestamp = true;
         f.timestamp = i->first;
         f.hasDuration = false;
+
         for (OutputSummary::const_iterator j = i->second.begin();
              j != i->second.end(); ++j) {
 
@@ -225,6 +228,8 @@ PluginSummarisingAdapter::Impl::getSummaryForOutput(int output, SummaryType type
                 result = summary.count;
                 break;
             }
+            
+            f.values.push_back(result);
         }
 
         fl.push_back(f);
