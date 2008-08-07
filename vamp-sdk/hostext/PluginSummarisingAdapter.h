@@ -68,15 +68,17 @@ public:
     void setSummarySegmentBoundaries(const SegmentBoundaries &);
 
     enum SummaryType {
-        Minimum,
-        Maximum,
-        Mean,
-        Median,
-        Mode,
-        Sum,
-        Variance,
-        StandardDeviation,
-        Count
+        Minimum            = 0,
+        Maximum            = 1,
+        Mean               = 2,
+        Median             = 3,
+        Mode               = 4,
+        Sum                = 5,
+        Variance           = 6,
+        StandardDeviation  = 7,
+        Count              = 8,
+
+        UnknownSummaryType = 999
     };
 
     FeatureList getSummaryForOutput(int output, SummaryType type);
