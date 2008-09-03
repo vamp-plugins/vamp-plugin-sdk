@@ -54,8 +54,12 @@ public:
 
     void setSummarySegmentBoundaries(const SegmentBoundaries &);
 
-    FeatureList getSummaryForOutput(int output, SummaryType type);
-    FeatureSet getSummaryForAllOutputs(SummaryType type);
+    FeatureList getSummaryForOutput(int output,
+                                    SummaryType type,
+                                    AveragingMethod avg);
+
+    FeatureSet getSummaryForAllOutputs(SummaryType type,
+                                       AveragingMethod avg);
 
 protected:
     Plugin *m_plugin;
@@ -64,24 +68,40 @@ protected:
     
     typedef std::vector<float> ValueList;
     typedef std::map<int, ValueList> BinValueMap;
+    typedef std::vector<RealTime> DurationList;
     
     struct OutputAccumulator {
         int count;
-        BinValueMap values;
-        OutputAccumulator() : count(0), values() { }
+        BinValueMap values; // bin number -> values ordered by time
+        DurationList durations;
+        OutputAccumulator() : count(0), values(), durations() { }
     };
 
     typedef std::map<int, OutputAccumulator> OutputAccumulatorMap;
-    OutputAccumulatorMap m_accumulators;
+    OutputAccumulatorMap m_accumulators; // output number -> accumulator
+
+    typedef std::map<int, RealTime> OutputTimestampMap;
+    OutputTimestampMap m_prevTimestamps; // output number -> timestamp
 
     struct OutputBinSummary {
+
+        int count;
+
+        // extents
         float minimum;
         float maximum;
+        float sum;
+
+        // sample-average results
         float median;
         float mode;
-        float sum;
         float variance;
-        int count;
+
+        // continuous-time average results
+        float median_c;
+        float mode_c;
+        float mean_c;
+        float variance_c;
     };
 
     typedef std::map<int, OutputBinSummary> OutputSummary;
@@ -91,9 +111,10 @@ protected:
     OutputSummarySegmentMap m_summaries;
 
     RealTime m_lastTimestamp;
+    RealTime m_prevDuration;
 
-    void accumulate(const FeatureSet &fs, RealTime);
-    void accumulate(int output, const Feature &f, RealTime);
+    void accumulate(const FeatureSet &fs, RealTime, bool final);
+    void accumulate(int output, const Feature &f, RealTime, bool final);
     void reduce();
 };
     
@@ -121,15 +142,18 @@ PluginSummarisingAdapter::getRemainingFeatures()
 }
 
 Plugin::FeatureList
-PluginSummarisingAdapter::getSummaryForOutput(int output, SummaryType type)
+PluginSummarisingAdapter::getSummaryForOutput(int output,
+                                              SummaryType type,
+                                              AveragingMethod avg)
 {
-    return m_impl->getSummaryForOutput(output, type);
+    return m_impl->getSummaryForOutput(output, type, avg);
 }
 
 Plugin::FeatureSet
-PluginSummarisingAdapter::getSummaryForAllOutputs(SummaryType type)
+PluginSummarisingAdapter::getSummaryForAllOutputs(SummaryType type,
+                                                  AveragingMethod avg)
 {
-    return m_impl->getSummaryForAllOutputs(type);
+    return m_impl->getSummaryForAllOutputs(type, avg);
 }
 
 PluginSummarisingAdapter::Impl::Impl(Plugin *plugin, float inputSampleRate) :
@@ -145,7 +169,7 @@ Plugin::FeatureSet
 PluginSummarisingAdapter::Impl::process(const float *const *inputBuffers, RealTime timestamp)
 {
     FeatureSet fs = m_plugin->process(inputBuffers, timestamp);
-    accumulate(fs, timestamp);
+    accumulate(fs, timestamp, false);
     m_lastTimestamp = timestamp;
     return fs;
 }
@@ -154,14 +178,18 @@ Plugin::FeatureSet
 PluginSummarisingAdapter::Impl::getRemainingFeatures()
 {
     FeatureSet fs = m_plugin->getRemainingFeatures();
-    accumulate(fs, m_lastTimestamp);
+    accumulate(fs, m_lastTimestamp, true);
     reduce();
     return fs;
 }
 
 Plugin::FeatureList
-PluginSummarisingAdapter::Impl::getSummaryForOutput(int output, SummaryType type)
+PluginSummarisingAdapter::Impl::getSummaryForOutput(int output,
+                                                    SummaryType type,
+                                                    AveragingMethod avg)
 {
+    bool continuous = (avg == ContinuousTimeAverage);
+
     //!!! need to ensure that this is only called after processing is
     //!!! complete (at the moment processing is "completed" in the
     //!!! call to getRemainingFeatures, but we don't want to require
@@ -199,17 +227,21 @@ PluginSummarisingAdapter::Impl::getSummaryForOutput(int output, SummaryType type
                 break;
 
             case Mean:
-                if (summary.count) {
+                if (continuous) {
+                    result = summary.mean_c;
+                } else if (summary.count) {
                     result = summary.sum / summary.count;
                 }
                 break;
 
             case Median:
-                result = summary.median;
+                if (continuous) result = summary.median_c;
+                else result = summary.median;
                 break;
 
             case Mode:
-                result = summary.mode;
+                if (continuous) result = summary.mode_c;
+                else result = summary.mode;
                 break;
 
             case Sum:
@@ -217,15 +249,20 @@ PluginSummarisingAdapter::Impl::getSummaryForOutput(int output, SummaryType type
                 break;
 
             case Variance:
-                result = summary.variance;
+                if (continuous) result = summary.variance_c;
+                else result = summary.variance;
                 break;
 
             case StandardDeviation:
-                result = sqrtf(summary.variance);
+                if (continuous) result = sqrtf(summary.variance_c);
+                else result = sqrtf(summary.variance);
                 break;
 
             case Count:
                 result = summary.count;
+                break;
+
+            default:
                 break;
             }
             
@@ -238,24 +275,26 @@ PluginSummarisingAdapter::Impl::getSummaryForOutput(int output, SummaryType type
 }
 
 Plugin::FeatureSet
-PluginSummarisingAdapter::Impl::getSummaryForAllOutputs(SummaryType type)
+PluginSummarisingAdapter::Impl::getSummaryForAllOutputs(SummaryType type,
+                                                        AveragingMethod avg)
 {
     FeatureSet fs;
     for (OutputSummarySegmentMap::const_iterator i = m_summaries.begin();
          i != m_summaries.end(); ++i) {
-        fs[i->first] = getSummaryForOutput(i->first, type);
+        fs[i->first] = getSummaryForOutput(i->first, type, avg);
     }
     return fs;
 }
 
 void
 PluginSummarisingAdapter::Impl::accumulate(const FeatureSet &fs,
-                                           RealTime timestamp)
+                                           RealTime timestamp, 
+                                           bool final)
 {
     for (FeatureSet::const_iterator i = fs.begin(); i != fs.end(); ++i) {
         for (FeatureList::const_iterator j = i->second.begin();
              j != i->second.end(); ++j) {
-            accumulate(i->first, *j, timestamp);
+            accumulate(i->first, *j, timestamp, final);
         }
     }
 }
@@ -263,28 +302,45 @@ PluginSummarisingAdapter::Impl::accumulate(const FeatureSet &fs,
 void
 PluginSummarisingAdapter::Impl::accumulate(int output,
                                            const Feature &f,
-                                           RealTime timestamp)
+                                           RealTime timestamp,
+                                           bool final)
 {
-//!!! use timestamp to determine which segment we're on
+//!!! to do: use timestamp to determine which segment we're on
+
     m_accumulators[output].count++;
+
+    if (m_prevDuration == RealTime::zeroTime) {
+        if (m_prevTimestamps.find(output) != m_prevTimestamps.end()) {
+            m_prevDuration = timestamp - m_prevTimestamps[output];
+        }
+    }
+    if (m_prevDuration != RealTime::zeroTime ||
+        !m_accumulators[output].durations.empty()) {
+        // ... i.e. if not first result.  We don't push a duration
+        // when we process the first result; then the duration we push
+        // each time is that for the result before the one we're
+        // processing, and we push an extra one at the end.  This
+        // permits handling the case where the feature itself doesn't
+        // have a duration field, and we have to calculate it from the
+        // time to the following feature.  The net effect is simply
+        // that values[n] and durations[n] refer to the same result.
+        m_accumulators[output].durations.push_back(m_prevDuration);
+    }
+
+    m_prevTimestamps[output] = timestamp;
+
     for (int i = 0; i < int(f.values.size()); ++i) {
-
-
-        //!!! we really want to associate this occurrence of this
-        //!!! value with the duration it covers.
-        
-        //!!! for dense values, the duration can be 1 or the sample
-        //!!! rate or whatever -- doesn't matter so long as it's the
-        //!!! same for every value.
-
-        //!!! for sparse values, the duration should be that from this
-        //!!! feature to the next.
-
-        //!!! if the feature has a duration, should be using that
-        //!!! instead.
-
         m_accumulators[output].values[i].push_back(f.values[i]);
     }
+
+    if (final) {
+        RealTime finalDuration;
+        if (f.hasDuration) finalDuration = f.duration;
+        m_accumulators[output].durations.push_back(finalDuration);
+    }
+
+    if (f.hasDuration) m_prevDuration = f.duration;
+    else m_prevDuration = RealTime::zeroTime;
 }
 
 void
@@ -298,24 +354,51 @@ PluginSummarisingAdapter::Impl::reduce()
         int output = i->first;
         OutputAccumulator &accumulator = i->second;
 
+        RealTime totalDuration;
+        size_t dindex = 0;
+
+        while (dindex < accumulator.durations.size()) {
+            totalDuration = totalDuration + accumulator.durations[dindex++];
+        }
+
+        dindex = 0;
+
         for (BinValueMap::iterator j = accumulator.values.begin();
              j != accumulator.values.end(); ++j) {
 
+            // work on all values over time for a single bin
+
             int bin = j->first;
             ValueList &values = j->second;
+            const DurationList &durations = accumulator.durations;
 
             OutputBinSummary summary;
+
+            summary.count = accumulator.count;
+
             summary.minimum = 0.f;
             summary.maximum = 0.f;
+
             summary.median = 0.f;
             summary.mode = 0.f;
             summary.sum = 0.f;
             summary.variance = 0.f;
-            summary.count = accumulator.count;
+
+            summary.median_c = 0.f;
+            summary.mode_c = 0.f;
+            summary.mean_c = 0.f;
+            summary.variance_c = 0.f;
+
             if (summary.count == 0 || values.empty()) continue;
 
             std::sort(values.begin(), values.end());
             int sz = values.size();
+
+            if (sz != durations.size()) {
+                //!!! is this reasonable?
+                std::cerr << "WARNING: sz " << sz << " != durations.size() "
+                          << durations.size() << std::endl;
+            }
 
             summary.minimum = values[0];
             summary.maximum = values[sz-1];
@@ -330,17 +413,11 @@ PluginSummarisingAdapter::Impl::reduce()
 
             for (int k = 0; k < sz; ++k) {
                 summary.sum += values[k];
-                ++distribution[values[k]];
+                distribution[values[k]] += 1;
             }
 
             int md = 0;
 
-            //!!! I don't like this.  Really the mode should be the
-            //!!! value that spans the longest period of time, not the
-            //!!! one that appears in the largest number of distinct
-            //!!! features.  I suppose that a median by time rather
-            //!!! than number of features would also be useful.
-            
             for (std::map<float, int>::iterator di = distribution.begin();
                  di != distribution.end(); ++di) {
                 if (di->second > md) {
@@ -350,6 +427,30 @@ PluginSummarisingAdapter::Impl::reduce()
             }
 
             distribution.clear();
+
+            //!!! we want to omit this bit if the features all have
+            //!!! equal duration (and set mode_c equal to mode instead)
+            
+            std::map<float, RealTime> distribution_c;
+
+            for (int k = 0; k < sz; ++k) {
+                distribution_c[values[k]] =
+                    distribution_c[values[k]] + durations[k];
+            }
+
+            RealTime mrd = RealTime::zeroTime;
+
+            for (std::map<float, RealTime>::iterator di = distribution_c.begin();
+                 di != distribution_c.end(); ++di) {
+                if (di->second > mrd) {
+                    mrd = di->second;
+                    summary.mode_c = di->first;
+                }
+            }
+
+            distribution_c.clear();
+
+            //!!! handle mean_c, median_c, variance_c
 
             float mean = summary.sum / summary.count;
 

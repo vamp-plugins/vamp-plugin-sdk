@@ -81,8 +81,39 @@ public:
         UnknownSummaryType = 999
     };
 
-    FeatureList getSummaryForOutput(int output, SummaryType type);
-    FeatureSet getSummaryForAllOutputs(SummaryType type);
+    /**
+     * AveragingMethod indicates how the adapter should handle
+     * average-based summaries of features whose results are not
+     * equally spaced in time.
+     *
+     * If SampleAverage is specified, summary types based on averages
+     * will be calculated by treating each result individually without
+     * regard to its time: for example, the mean will be the sum of
+     * all values divided by the number of values.
+     *
+     * If ContinuousTimeAverage is specified, each feature will be
+     * considered to have a duration, either as specified in the
+     * feature's duration field, or until the following feature: thus,
+     * for example, the mean will be the sum of the products of values
+     * and durations, divided by the total duration.
+     *
+     * Although SampleAverage is useful for many types of feature,
+     * ContinuousTimeAverage is essential for some situations, for
+     * example finding the result that spans the largest proportion of
+     * the input given a feature that emits a new result only when the
+     * value changes (the modal value integrated over time).
+     */
+    enum AveragingMethod {
+        SampleAverage         = 0,
+        ContinuousTimeAverage = 1,
+    };
+
+    FeatureList getSummaryForOutput(int output,
+                                    SummaryType type,
+                                    AveragingMethod method = SampleAverage);
+
+    FeatureSet getSummaryForAllOutputs(SummaryType type,
+                                       AveragingMethod method = SampleAverage);
 
 protected:
     class Impl;
