@@ -63,6 +63,7 @@ public:
 
 protected:
     Plugin *m_plugin;
+    float m_inputSampleRate;
 
     SegmentBoundaries m_boundaries;
     
@@ -157,7 +158,8 @@ PluginSummarisingAdapter::getSummaryForAllOutputs(SummaryType type,
 }
 
 PluginSummarisingAdapter::Impl::Impl(Plugin *plugin, float inputSampleRate) :
-    m_plugin(plugin)
+    m_plugin(plugin),
+    m_inputSampleRate(inputSampleRate)
 {
 }
 
@@ -343,6 +345,28 @@ PluginSummarisingAdapter::Impl::accumulate(int output,
     else m_prevDuration = RealTime::zeroTime;
 }
 
+struct ValueDurationFloatPair
+{
+    float value;
+    float duration;
+
+    ValueDurationFloatPair() : value(0), duration(0) { }
+    ValueDurationFloatPair(float v, float d) : value(v), duration(d) { }
+    ValueDurationFloatPair &operator=(const ValueDurationFloatPair &p) {
+        value = p.value;
+        duration = p.duration;
+        return *this;
+    }
+    bool operator<(const ValueDurationFloatPair &p) const {
+        return value < p.value;
+    }
+};
+
+static double toSec(const RealTime &r)
+{
+    return r.sec + double(r.nsec) / 1000000000.0;
+}
+
 void
 PluginSummarisingAdapter::Impl::reduce()
 {
@@ -354,14 +378,10 @@ PluginSummarisingAdapter::Impl::reduce()
         int output = i->first;
         OutputAccumulator &accumulator = i->second;
 
-        RealTime totalDuration;
-        size_t dindex = 0;
-
-        while (dindex < accumulator.durations.size()) {
-            totalDuration = totalDuration + accumulator.durations[dindex++];
+        double totalDuration;
+        for (int k = 0; k < accumulator.durations.size(); ++k) {
+            totalDuration += toSec(accumulator.durations[k]);
         }
-
-        dindex = 0;
 
         for (BinValueMap::iterator j = accumulator.values.begin();
              j != accumulator.values.end(); ++j) {
@@ -369,7 +389,7 @@ PluginSummarisingAdapter::Impl::reduce()
             // work on all values over time for a single bin
 
             int bin = j->first;
-            ValueList &values = j->second;
+            const ValueList &values = j->second;
             const DurationList &durations = accumulator.durations;
 
             OutputBinSummary summary;
@@ -391,24 +411,46 @@ PluginSummarisingAdapter::Impl::reduce()
 
             if (summary.count == 0 || values.empty()) continue;
 
-            std::sort(values.begin(), values.end());
             int sz = values.size();
 
             if (sz != durations.size()) {
-                //!!! is this reasonable?
                 std::cerr << "WARNING: sz " << sz << " != durations.size() "
                           << durations.size() << std::endl;
+//                while (durations.size() < sz) {
+//                    durations.push_back(RealTime::zeroTime);
+//                }
+//!!! then what?
             }
 
-            summary.minimum = values[0];
-            summary.maximum = values[sz-1];
+            std::vector<ValueDurationFloatPair> valvec;
+
+            for (int k = 0; k < sz; ++k) {
+                valvec.push_back(ValueDurationFloatPair(values[k],
+                                                        toSec(durations[k])));
+            }
+
+            std::sort(valvec.begin(), valvec.end());
+
+            summary.minimum = valvec[0].value;
+            summary.maximum = valvec[sz-1].value;
 
             if (sz % 2 == 1) {
-                summary.median = values[sz/2];
+                summary.median = valvec[sz/2].value;
             } else {
-                summary.median = (values[sz/2] + values[sz/2 + 1]) / 2;
+                summary.median = (valvec[sz/2].value + valvec[sz/2 + 1].value) / 2;
             }
+            
+            double duracc = 0.0;
+            summary.median_c = valvec[sz-1].value;
 
+            for (int k = 0; k < sz; ++k) {
+                duracc += valvec[k].duration;
+                if (duracc > totalDuration/2) {
+                    summary.median_c = valvec[k].value;
+                    break;
+                }
+            }
+                
             std::map<float, int> distribution;
 
             for (int k = 0; k < sz; ++k) {
@@ -431,16 +473,15 @@ PluginSummarisingAdapter::Impl::reduce()
             //!!! we want to omit this bit if the features all have
             //!!! equal duration (and set mode_c equal to mode instead)
             
-            std::map<float, RealTime> distribution_c;
+            std::map<float, double> distribution_c;
 
             for (int k = 0; k < sz; ++k) {
-                distribution_c[values[k]] =
-                    distribution_c[values[k]] + durations[k];
+                distribution_c[values[k]] += toSec(durations[k]);
             }
 
-            RealTime mrd = RealTime::zeroTime;
+            double mrd = 0.0;
 
-            for (std::map<float, RealTime>::iterator di = distribution_c.begin();
+            for (std::map<float, double>::iterator di = distribution_c.begin();
                  di != distribution_c.end(); ++di) {
                 if (di->second > mrd) {
                     mrd = di->second;
@@ -450,7 +491,27 @@ PluginSummarisingAdapter::Impl::reduce()
 
             distribution_c.clear();
 
-            //!!! handle mean_c, median_c, variance_c
+            if (totalDuration > 0.0) {
+
+                double sum_c = 0.0;
+
+                for (int k = 0; k < sz; ++k) {
+                    double value = values[k] * toSec(durations[k]);
+                    sum_c += value;
+                }
+                
+                summary.mean_c = sum_c / totalDuration;
+
+                for (int k = 0; k < sz; ++k) {
+                    double value = values[k] * toSec(durations[k]);
+                    summary.variance_c +=
+                        (value - summary.mean_c) * (value - summary.mean_c);
+                }
+
+                summary.variance_c /= summary.count;
+            }
+
+            //!!! still to handle: median_c
 
             float mean = summary.sum / summary.count;
 
