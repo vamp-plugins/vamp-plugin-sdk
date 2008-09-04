@@ -296,7 +296,12 @@ PluginSummarisingAdapter::Impl::accumulate(const FeatureSet &fs,
     for (FeatureSet::const_iterator i = fs.begin(); i != fs.end(); ++i) {
         for (FeatureList::const_iterator j = i->second.begin();
              j != i->second.end(); ++j) {
-            accumulate(i->first, *j, timestamp, final);
+            if (j->hasTimestamp) {
+                accumulate(i->first, *j, j->timestamp, final);
+            } else {
+                //!!! is this correct?
+                accumulate(i->first, *j, timestamp, final);
+            }
         }
     }
 }
@@ -310,6 +315,15 @@ PluginSummarisingAdapter::Impl::accumulate(int output,
 //!!! to do: use timestamp to determine which segment we're on
 
     m_accumulators[output].count++;
+
+    std::cerr << "output " << output << ": timestamp " << timestamp << ", prev timestamp " << m_prevTimestamps[output] << std::endl;
+
+    //!!! m_prevDuration needs to be per output
+
+    //!!! also, this will not work if we are called repeatedly with
+    //!!! the same timestamp -- no values will be registered until a
+    //!!! new timestamp is seen -- we need a better test for "not
+    //!!! first result" below
 
     if (m_prevDuration == RealTime::zeroTime) {
         if (m_prevTimestamps.find(output) != m_prevTimestamps.end()) {
@@ -378,7 +392,7 @@ PluginSummarisingAdapter::Impl::reduce()
         int output = i->first;
         OutputAccumulator &accumulator = i->second;
 
-        double totalDuration;
+        double totalDuration = 0.0;
         for (int k = 0; k < accumulator.durations.size(); ++k) {
             totalDuration += toSec(accumulator.durations[k]);
         }
@@ -499,6 +513,9 @@ PluginSummarisingAdapter::Impl::reduce()
                     double value = values[k] * toSec(durations[k]);
                     sum_c += value;
                 }
+
+                std::cerr << "mean_c = " << sum_c << " / " << totalDuration << " = "
+                          << sum_c / totalDuration << std::endl;
                 
                 summary.mean_c = sum_c / totalDuration;
 
@@ -514,6 +531,9 @@ PluginSummarisingAdapter::Impl::reduce()
             //!!! still to handle: median_c
 
             float mean = summary.sum / summary.count;
+
+            std::cerr << "mean = " << summary.sum << " / " << summary.count << " = "
+                      << summary.sum / summary.count << std::endl;
 
             for (int k = 0; k < sz; ++k) {
                 summary.variance += (values[k] - mean) * (values[k] - mean);
