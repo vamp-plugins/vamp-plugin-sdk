@@ -83,6 +83,7 @@ protected:
 
     typedef std::map<int, RealTime> OutputTimestampMap;
     OutputTimestampMap m_prevTimestamps; // output number -> timestamp
+    OutputTimestampMap m_prevDurations; // output number -> durations
 
     struct OutputBinSummary {
 
@@ -111,8 +112,8 @@ protected:
 
     OutputSummarySegmentMap m_summaries;
 
+    bool m_reduced;
     RealTime m_lastTimestamp;
-    RealTime m_prevDuration;
 
     void accumulate(const FeatureSet &fs, RealTime, bool final);
     void accumulate(int output, const Feature &f, RealTime, bool final);
@@ -159,7 +160,8 @@ PluginSummarisingAdapter::getSummaryForAllOutputs(SummaryType type,
 
 PluginSummarisingAdapter::Impl::Impl(Plugin *plugin, float inputSampleRate) :
     m_plugin(plugin),
-    m_inputSampleRate(inputSampleRate)
+    m_inputSampleRate(inputSampleRate),
+    m_reduced(false)
 {
 }
 
@@ -170,6 +172,9 @@ PluginSummarisingAdapter::Impl::~Impl()
 Plugin::FeatureSet
 PluginSummarisingAdapter::Impl::process(const float *const *inputBuffers, RealTime timestamp)
 {
+    if (m_reduced) {
+        std::cerr << "WARNING: Cannot call PluginSummarisingAdapter::process() or getRemainingFeatures() after one of the getSummary methods" << std::endl;
+    }
     FeatureSet fs = m_plugin->process(inputBuffers, timestamp);
     accumulate(fs, timestamp, false);
     m_lastTimestamp = timestamp;
@@ -179,9 +184,11 @@ PluginSummarisingAdapter::Impl::process(const float *const *inputBuffers, RealTi
 Plugin::FeatureSet
 PluginSummarisingAdapter::Impl::getRemainingFeatures()
 {
+    if (m_reduced) {
+        std::cerr << "WARNING: Cannot call PluginSummarisingAdapter::process() or getRemainingFeatures() after one of the getSummary methods" << std::endl;
+    }
     FeatureSet fs = m_plugin->getRemainingFeatures();
     accumulate(fs, m_lastTimestamp, true);
-    reduce();
     return fs;
 }
 
@@ -190,15 +197,10 @@ PluginSummarisingAdapter::Impl::getSummaryForOutput(int output,
                                                     SummaryType type,
                                                     AveragingMethod avg)
 {
+    if (!m_reduced) reduce();
+
     bool continuous = (avg == ContinuousTimeAverage);
 
-    //!!! need to ensure that this is only called after processing is
-    //!!! complete (at the moment processing is "completed" in the
-    //!!! call to getRemainingFeatures, but we don't want to require
-    //!!! the host to call getRemainingFeatures at all unless it
-    //!!! actually wants the raw features too -- calling getSummary
-    //!!! should be enough -- we do need to ensure that all data has
-    //!!! been processed though!)
     FeatureList fl;
     for (SummarySegmentMap::const_iterator i = m_summaries[output].begin();
          i != m_summaries[output].end(); ++i) {
@@ -280,6 +282,8 @@ Plugin::FeatureSet
 PluginSummarisingAdapter::Impl::getSummaryForAllOutputs(SummaryType type,
                                                         AveragingMethod avg)
 {
+    if (!m_reduced) reduce();
+
     FeatureSet fs;
     for (OutputSummarySegmentMap::const_iterator i = m_summaries.begin();
          i != m_summaries.end(); ++i) {
@@ -318,19 +322,17 @@ PluginSummarisingAdapter::Impl::accumulate(int output,
 
     std::cerr << "output " << output << ": timestamp " << timestamp << ", prev timestamp " << m_prevTimestamps[output] << std::endl;
 
-    //!!! m_prevDuration needs to be per output
-
     //!!! also, this will not work if we are called repeatedly with
     //!!! the same timestamp -- no values will be registered until a
     //!!! new timestamp is seen -- we need a better test for "not
     //!!! first result" below
 
-    if (m_prevDuration == RealTime::zeroTime) {
+    if (m_prevDurations[output] == RealTime::zeroTime) {
         if (m_prevTimestamps.find(output) != m_prevTimestamps.end()) {
-            m_prevDuration = timestamp - m_prevTimestamps[output];
+            m_prevDurations[output] = timestamp - m_prevTimestamps[output];
         }
     }
-    if (m_prevDuration != RealTime::zeroTime ||
+    if (m_prevDurations[output] != RealTime::zeroTime ||
         !m_accumulators[output].durations.empty()) {
         // ... i.e. if not first result.  We don't push a duration
         // when we process the first result; then the duration we push
@@ -340,7 +342,7 @@ PluginSummarisingAdapter::Impl::accumulate(int output,
         // have a duration field, and we have to calculate it from the
         // time to the following feature.  The net effect is simply
         // that values[n] and durations[n] refer to the same result.
-        m_accumulators[output].durations.push_back(m_prevDuration);
+        m_accumulators[output].durations.push_back(m_prevDurations[output]);
     }
 
     m_prevTimestamps[output] = timestamp;
@@ -355,8 +357,8 @@ PluginSummarisingAdapter::Impl::accumulate(int output,
         m_accumulators[output].durations.push_back(finalDuration);
     }
 
-    if (f.hasDuration) m_prevDuration = f.duration;
-    else m_prevDuration = RealTime::zeroTime;
+    if (f.hasDuration) m_prevDurations[output] = f.duration;
+    else m_prevDurations[output] = RealTime::zeroTime;
 }
 
 struct ValueDurationFloatPair
@@ -545,6 +547,7 @@ PluginSummarisingAdapter::Impl::reduce()
     }
 
     m_accumulators.clear();
+    m_reduced = true;
 }
 
 
