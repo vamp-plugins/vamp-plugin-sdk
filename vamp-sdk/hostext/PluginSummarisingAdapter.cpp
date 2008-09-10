@@ -38,6 +38,7 @@
 
 #include <map>
 #include <cmath>
+#include <climits>
 
 namespace Vamp {
 
@@ -117,8 +118,11 @@ protected:
 
     void accumulate(const FeatureSet &fs, RealTime, bool final);
     void accumulate(int output, const Feature &f, RealTime, bool final);
+    void accumulateFinalDurations();
     void reduce();
 };
+
+static RealTime INVALID_DURATION(INT_MIN, INT_MIN);
     
 PluginSummarisingAdapter::PluginSummarisingAdapter(Plugin *plugin) :
     PluginWrapper(plugin)
@@ -320,45 +324,95 @@ PluginSummarisingAdapter::Impl::accumulate(int output,
 
     m_accumulators[output].count++;
 
-    std::cerr << "output " << output << ": timestamp " << timestamp << ", prev timestamp " << m_prevTimestamps[output] << std::endl;
+    std::cerr << "output " << output << ": timestamp " << timestamp << ", prev timestamp " << m_prevTimestamps[output] << ", final " << final << std::endl;
 
-    //!!! also, this will not work if we are called repeatedly with
-    //!!! the same timestamp -- no values will be registered until a
-    //!!! new timestamp is seen -- we need a better test for "not
-    //!!! first result" below
+    // At each process step, accumulate() is called once for each
+    // feature on each output within that process's returned feature
+    // list, and with the timestamp passed in being that of the start
+    // of the process block.
 
-    if (m_prevDurations[output] == RealTime::zeroTime) {
-        if (m_prevTimestamps.find(output) != m_prevTimestamps.end()) {
-            m_prevDurations[output] = timestamp - m_prevTimestamps[output];
+    // At the end (in getRemainingFeatures), accumulate() is called
+    // once for each feature on each output within the feature list
+    // returned by getRemainingFeatures, and with the timestamp being
+    // the same as the last process block and final set to true.
+
+    // (What if getRemainingFeatures doesn't return any features?  We
+    // still need to ensure that the final duration is written.  Need
+    // a separate function to close the durations.)
+
+    // At each call, we pull out the value for the feature and stuff
+    // it into the accumulator's appropriate values array; and we
+    // calculate the duration for the _previous_ feature, or pull it
+    // from the prevDurations array if the previous feature had a
+    // duration in its structure, and stuff that into the
+    // accumulator's appropriate durations array.
+
+    if (m_prevDurations.find(output) != m_prevDurations.end()) {
+
+        // Not the first time accumulate has been called for this
+        // output -- there has been a previous feature
+
+        RealTime prevDuration;
+
+        // Note that m_prevDurations[output] only contains the
+        // duration field that was contained in the previous feature.
+        // If it didn't have an explicit duration,
+        // m_prevDurations[output] should be INVALID_DURATION and we
+        // will have to calculate the duration from the previous and
+        // current timestamps.
+
+        if (m_prevDurations[output] != INVALID_DURATION) {
+            prevDuration = m_prevDurations[output];
+            std::cerr << "Previous duration from previous feature: " << prevDuration << std::endl;
+        } else {
+            prevDuration = timestamp - m_prevTimestamps[output];
+            std::cerr << "Previous duration from diff: " << timestamp << " - "
+                      << m_prevTimestamps[output] << std::endl;
         }
+
+        std::cerr << "output " << output << ": ";
+
+        std::cerr << "Pushing previous duration as " << prevDuration << std::endl;
+        m_accumulators[output].durations.push_back(prevDuration);
     }
-    if (m_prevDurations[output] != RealTime::zeroTime ||
-        !m_accumulators[output].durations.empty()) {
-        // ... i.e. if not first result.  We don't push a duration
-        // when we process the first result; then the duration we push
-        // each time is that for the result before the one we're
-        // processing, and we push an extra one at the end.  This
-        // permits handling the case where the feature itself doesn't
-        // have a duration field, and we have to calculate it from the
-        // time to the following feature.  The net effect is simply
-        // that values[n] and durations[n] refer to the same result.
-        m_accumulators[output].durations.push_back(m_prevDurations[output]);
-    }
+
+    if (f.hasDuration) m_prevDurations[output] = f.duration;
+    else m_prevDurations[output] = INVALID_DURATION;
 
     m_prevTimestamps[output] = timestamp;
+    if (timestamp > m_lastTimestamp) m_lastTimestamp = timestamp;
 
     for (int i = 0; i < int(f.values.size()); ++i) {
         m_accumulators[output].values[i].push_back(f.values[i]);
     }
+}
 
-    if (final) {
-        RealTime finalDuration;
-        if (f.hasDuration) finalDuration = f.duration;
-        m_accumulators[output].durations.push_back(finalDuration);
+void
+PluginSummarisingAdapter::Impl::accumulateFinalDurations()
+{
+    for (OutputTimestampMap::iterator i = m_prevTimestamps.begin();
+         i != m_prevTimestamps.end(); ++i) {
+
+        int output = i->first;
+        RealTime prevTimestamp = i->second;
+
+        std::cerr << "output " << output << ": ";
+
+        if (m_prevDurations.find(output) != m_prevDurations.end() &&
+            m_prevDurations[output] != INVALID_DURATION) {
+
+            std::cerr << "Pushing final duration from feature as " << m_prevDurations[output] << std::endl;
+
+            m_accumulators[output].durations.push_back(m_prevDurations[output]);
+
+        } else {
+
+            std::cerr << "Pushing final duration from diff as " << m_lastTimestamp << " - " << m_prevTimestamps[output] << std::endl;
+
+            m_accumulators[output].durations.push_back
+                (m_lastTimestamp - m_prevTimestamps[output]);
+        }
     }
-
-    if (f.hasDuration) m_prevDurations[output] = f.duration;
-    else m_prevDurations[output] = RealTime::zeroTime;
 }
 
 struct ValueDurationFloatPair
@@ -386,6 +440,8 @@ static double toSec(const RealTime &r)
 void
 PluginSummarisingAdapter::Impl::reduce()
 {
+    accumulateFinalDurations();
+
     RealTime segmentStart = RealTime::zeroTime; //!!!
 
     for (OutputAccumulatorMap::iterator i = m_accumulators.begin();
@@ -517,7 +573,7 @@ PluginSummarisingAdapter::Impl::reduce()
                 }
 
                 std::cerr << "mean_c = " << sum_c << " / " << totalDuration << " = "
-                          << sum_c / totalDuration << std::endl;
+                          << sum_c / totalDuration << " (sz = " << sz << ")" << std::endl;
                 
                 summary.mean_c = sum_c / totalDuration;
 
