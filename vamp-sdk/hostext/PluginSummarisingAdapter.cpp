@@ -128,6 +128,7 @@ protected:
     void accumulate(const FeatureSet &fs, RealTime, bool final);
     void accumulate(int output, const Feature &f, RealTime, bool final);
     void accumulateFinalDurations();
+    void findSegmentBounds(RealTime t, RealTime &start, RealTime &end);
     void segment();
     void reduce();
 };
@@ -470,21 +471,81 @@ PluginSummarisingAdapter::Impl::accumulateFinalDurations()
 }
 
 void
+PluginSummarisingAdapter::Impl::findSegmentBounds(RealTime t,
+                                                  RealTime &start,
+                                                  RealTime &end)
+{
+    std::cerr << "findSegmentBounds: t = " << t <<  std::endl;
+
+    SegmentBoundaries::const_iterator i = std::lower_bound
+        (m_boundaries.begin(), m_boundaries.end(), t);
+
+    start = RealTime::zeroTime;
+    end = m_lastTimestamp;
+
+    if (i != m_boundaries.end()) {
+
+        start = *i;
+
+        if (++i != m_boundaries.end()) {
+            end = *i;
+        }
+    }
+    
+    std::cerr << "findSegmentBounds: " << t << " is in segment " << start << " -> " << end << std::endl;
+}
+
+void
 PluginSummarisingAdapter::Impl::segment()
 {
-/*
     SegmentBoundaries::iterator boundaryitr = m_boundaries.begin();
     RealTime segmentStart = RealTime::zeroTime;
-
+    
     for (OutputAccumulatorMap::iterator i = m_accumulators.begin();
          i != m_accumulators.end(); ++i) {
 
         int output = i->first;
         OutputAccumulator &source = i->second;
-        RealTime accumulatedTime = RealTime::zeroTime;
 
-        for (int n = 0; n < source.durations.size(); ++n) {
-*/          
+        for (int n = 0; n < source.results.size(); ++n) {
+            
+            // This result spans source.results[n].time to
+            // source.results[n].time + source.results[n].duration.
+            // We need to dispose it into segments appropriately
+
+            RealTime resultStart = source.results[n].time;
+            RealTime resultEnd = resultStart + source.results[n].duration;
+
+            RealTime segmentStart = RealTime::zeroTime;
+            RealTime segmentEnd = resultEnd - RealTime(1, 0);
+            
+            while (segmentEnd < resultEnd) {
+
+                findSegmentBounds(resultStart, segmentStart, segmentEnd);
+                
+                RealTime chunkStart = resultStart;
+                if (chunkStart < segmentStart) chunkStart = segmentStart;
+
+                RealTime chunkEnd = resultEnd;
+                if (chunkEnd > segmentEnd) chunkEnd = segmentEnd;
+                
+                m_segmentedAccumulators[output][segmentStart].bins = source.bins;
+
+                Result chunk;
+                chunk.time = chunkStart;
+                chunk.duration = chunkEnd - chunkStart;
+                chunk.values = source.results[n].values;
+
+                std::cerr << "chunk for segment " << segmentStart << ": from " << chunk.time << ", duration " << chunk.duration << std::endl;
+
+                m_segmentedAccumulators[output][segmentStart].results
+                    .push_back(chunk);
+
+                resultStart = chunkEnd;
+            }
+        }
+    }
+            
             
 
 /*
