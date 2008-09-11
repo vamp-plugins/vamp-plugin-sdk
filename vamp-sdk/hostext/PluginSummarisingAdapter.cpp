@@ -67,20 +67,29 @@ protected:
     float m_inputSampleRate;
 
     SegmentBoundaries m_boundaries;
-    
+
     typedef std::vector<float> ValueList;
-    typedef std::map<int, ValueList> BinValueMap;
-    typedef std::vector<RealTime> DurationList;
-    
+
+    struct Result { // smaller than Feature
+        RealTime time;
+        RealTime duration;
+        ValueList values; // bin number -> value
+    };
+
+    typedef std::vector<Result> ResultList;
+
     struct OutputAccumulator {
-        int count;
-        BinValueMap values; // bin number -> values ordered by time
-        DurationList durations;
-        OutputAccumulator() : count(0), values(), durations() { }
+        int bins;
+        ResultList results;
+        OutputAccumulator() : bins(0) { }
     };
 
     typedef std::map<int, OutputAccumulator> OutputAccumulatorMap;
     OutputAccumulatorMap m_accumulators; // output number -> accumulator
+
+    typedef std::map<RealTime, OutputAccumulator> SegmentAccumulatorMap;
+    typedef std::map<int, SegmentAccumulatorMap> OutputSegmentAccumulatorMap;
+    OutputSegmentAccumulatorMap m_segmentedAccumulators;
 
     typedef std::map<int, RealTime> OutputTimestampMap;
     OutputTimestampMap m_prevTimestamps; // output number -> timestamp
@@ -119,6 +128,7 @@ protected:
     void accumulate(const FeatureSet &fs, RealTime, bool final);
     void accumulate(int output, const Feature &f, RealTime, bool final);
     void accumulateFinalDurations();
+    void segment();
     void reduce();
 };
 
@@ -181,6 +191,7 @@ PluginSummarisingAdapter::Impl::process(const float *const *inputBuffers, RealTi
     }
     FeatureSet fs = m_plugin->process(inputBuffers, timestamp);
     accumulate(fs, timestamp, false);
+    //!!! should really be "timestamp plus step size"
     m_lastTimestamp = timestamp;
     return fs;
 }
@@ -201,7 +212,11 @@ PluginSummarisingAdapter::Impl::getSummaryForOutput(int output,
                                                     SummaryType type,
                                                     AveragingMethod avg)
 {
-    if (!m_reduced) reduce();
+    if (!m_reduced) {
+        segment();
+        reduce();
+        m_reduced = true;
+    }
 
     bool continuous = (avg == ContinuousTimeAverage);
 
@@ -286,7 +301,11 @@ Plugin::FeatureSet
 PluginSummarisingAdapter::Impl::getSummaryForAllOutputs(SummaryType type,
                                                         AveragingMethod avg)
 {
-    if (!m_reduced) reduce();
+    if (!m_reduced) {
+        segment();
+        reduce();
+        m_reduced = true;
+    }
 
     FeatureSet fs;
     for (OutputSummarySegmentMap::const_iterator i = m_summaries.begin();
@@ -321,8 +340,22 @@ PluginSummarisingAdapter::Impl::accumulate(int output,
                                            bool final)
 {
 //!!! to do: use timestamp to determine which segment we're on
+    
+//!!! What should happen if a feature's duration spans a segment
+// boundary?  I think we probably want to chop it, and pretend that it
+// appears in both -- don't we? do we?  A very long feature (e.g. key,
+// if the whole audio is in a single key) might span many or all
+// segments, and we want that to be reflected in the results (e.g. it
+// is the modal key in all of those segments, not just the first).
+// That is actually quite complicated to do!
 
-    m_accumulators[output].count++;
+//!!! This affects how we record things.  If features spanning a
+// boundary should be chopped, then we need to have per-segment
+// accumulators (and the feature value goes into both -- perhaps we
+// need a separate phase to split the accumulator up into segments).
+// If features spanning a boundary should be counted only in the first
+// segment, with their full duration, then we should store them in a
+// single accumulator and distribute into segments only on reduce.
 
     std::cerr << "output " << output << ": timestamp " << timestamp << ", prev timestamp " << m_prevTimestamps[output] << ", final " << final << std::endl;
 
@@ -373,18 +406,33 @@ PluginSummarisingAdapter::Impl::accumulate(int output,
         std::cerr << "output " << output << ": ";
 
         std::cerr << "Pushing previous duration as " << prevDuration << std::endl;
-        m_accumulators[output].durations.push_back(prevDuration);
+        
+        m_accumulators[output].results
+            [m_accumulators[output].results.size() - 1]
+            .duration = prevDuration;
     }
 
     if (f.hasDuration) m_prevDurations[output] = f.duration;
     else m_prevDurations[output] = INVALID_DURATION;
 
     m_prevTimestamps[output] = timestamp;
+
+    //!!! should really be "timestamp plus duration" or "timestamp plus output resolution"
     if (timestamp > m_lastTimestamp) m_lastTimestamp = timestamp;
 
-    for (int i = 0; i < int(f.values.size()); ++i) {
-        m_accumulators[output].values[i].push_back(f.values[i]);
+    Result result;
+    result.time = timestamp;
+    result.duration = INVALID_DURATION;
+
+    if (f.values.size() > m_accumulators[output].bins) {
+        m_accumulators[output].bins = f.values.size();
     }
+
+    for (int i = 0; i < int(f.values.size()); ++i) {
+        result.values.push_back(f.values[i]);
+    }
+
+    m_accumulators[output].results.push_back(result);
 }
 
 void
@@ -394,6 +442,11 @@ PluginSummarisingAdapter::Impl::accumulateFinalDurations()
          i != m_prevTimestamps.end(); ++i) {
 
         int output = i->first;
+
+        int acount = m_accumulators[output].results.size();
+
+        if (acount == 0) continue;
+
         RealTime prevTimestamp = i->second;
 
         std::cerr << "output " << output << ": ";
@@ -403,16 +456,48 @@ PluginSummarisingAdapter::Impl::accumulateFinalDurations()
 
             std::cerr << "Pushing final duration from feature as " << m_prevDurations[output] << std::endl;
 
-            m_accumulators[output].durations.push_back(m_prevDurations[output]);
+            m_accumulators[output].results[acount - 1].duration =
+                m_prevDurations[output];
 
         } else {
 
             std::cerr << "Pushing final duration from diff as " << m_lastTimestamp << " - " << m_prevTimestamps[output] << std::endl;
 
-            m_accumulators[output].durations.push_back
-                (m_lastTimestamp - m_prevTimestamps[output]);
+            m_accumulators[output].results[acount - 1].duration =
+                m_lastTimestamp - m_prevTimestamps[output];
         }
     }
+}
+
+void
+PluginSummarisingAdapter::Impl::segment()
+{
+/*
+    SegmentBoundaries::iterator boundaryitr = m_boundaries.begin();
+    RealTime segmentStart = RealTime::zeroTime;
+
+    for (OutputAccumulatorMap::iterator i = m_accumulators.begin();
+         i != m_accumulators.end(); ++i) {
+
+        int output = i->first;
+        OutputAccumulator &source = i->second;
+        RealTime accumulatedTime = RealTime::zeroTime;
+
+        for (int n = 0; n < source.durations.size(); ++n) {
+*/          
+            
+
+/*
+        if (boundaryitr == m_boundaries.end()) {
+            m_segmentedAccumulators[output][segmentStart] = source;
+            source.clear();
+            continue;
+        }
+*/
+        
+            
+
+        
 }
 
 struct ValueDurationFloatPair
@@ -450,23 +535,22 @@ PluginSummarisingAdapter::Impl::reduce()
         int output = i->first;
         OutputAccumulator &accumulator = i->second;
 
+        int sz = accumulator.results.size();
+
         double totalDuration = 0.0;
-        for (int k = 0; k < accumulator.durations.size(); ++k) {
-            totalDuration += toSec(accumulator.durations[k]);
+        //!!! is this right?
+        if (sz > 0) {
+            totalDuration = toSec(accumulator.results[sz-1].time +
+                                  accumulator.results[sz-1].duration);
         }
 
-        for (BinValueMap::iterator j = accumulator.values.begin();
-             j != accumulator.values.end(); ++j) {
+        for (int bin = 0; bin < accumulator.bins; ++bin) {
 
             // work on all values over time for a single bin
 
-            int bin = j->first;
-            const ValueList &values = j->second;
-            const DurationList &durations = accumulator.durations;
-
             OutputBinSummary summary;
 
-            summary.count = accumulator.count;
+            summary.count = sz;
 
             summary.minimum = 0.f;
             summary.maximum = 0.f;
@@ -481,24 +565,22 @@ PluginSummarisingAdapter::Impl::reduce()
             summary.mean_c = 0.f;
             summary.variance_c = 0.f;
 
-            if (summary.count == 0 || values.empty()) continue;
-
-            int sz = values.size();
-
-            if (sz != durations.size()) {
-                std::cerr << "WARNING: sz " << sz << " != durations.size() "
-                          << durations.size() << std::endl;
-//                while (durations.size() < sz) {
-//                    durations.push_back(RealTime::zeroTime);
-//                }
-//!!! then what?
-            }
+            if (sz == 0) continue;
 
             std::vector<ValueDurationFloatPair> valvec;
 
             for (int k = 0; k < sz; ++k) {
-                valvec.push_back(ValueDurationFloatPair(values[k],
-                                                        toSec(durations[k])));
+                while (accumulator.results[k].values.size() <
+                       accumulator.bins) {
+                    accumulator.results[k].values.push_back(0.f);
+                }
+            }
+
+            for (int k = 0; k < sz; ++k) {
+                float value = accumulator.results[k].values[bin];
+                valvec.push_back(ValueDurationFloatPair
+                                 (value,
+                                  toSec(accumulator.results[k].duration)));
             }
 
             std::sort(valvec.begin(), valvec.end());
@@ -522,12 +604,15 @@ PluginSummarisingAdapter::Impl::reduce()
                     break;
                 }
             }
+
+            std::cerr << "median_c = " << summary.median_c << std::endl;
+            std::cerr << "median = " << summary.median << std::endl;
                 
             std::map<float, int> distribution;
 
             for (int k = 0; k < sz; ++k) {
-                summary.sum += values[k];
-                distribution[values[k]] += 1;
+                summary.sum += accumulator.results[k].values[bin];
+                distribution[accumulator.results[k].values[bin]] += 1;
             }
 
             int md = 0;
@@ -542,13 +627,11 @@ PluginSummarisingAdapter::Impl::reduce()
 
             distribution.clear();
 
-            //!!! we want to omit this bit if the features all have
-            //!!! equal duration (and set mode_c equal to mode instead)
-            
             std::map<float, double> distribution_c;
 
             for (int k = 0; k < sz; ++k) {
-                distribution_c[values[k]] += toSec(durations[k]);
+                distribution_c[accumulator.results[k].values[bin]]
+                    += toSec(accumulator.results[k].duration);
             }
 
             double mrd = 0.0;
@@ -568,7 +651,8 @@ PluginSummarisingAdapter::Impl::reduce()
                 double sum_c = 0.0;
 
                 for (int k = 0; k < sz; ++k) {
-                    double value = values[k] * toSec(durations[k]);
+                    double value = accumulator.results[k].values[bin]
+                        * toSec(accumulator.results[k].duration);
                     sum_c += value;
                 }
 
@@ -578,7 +662,8 @@ PluginSummarisingAdapter::Impl::reduce()
                 summary.mean_c = sum_c / totalDuration;
 
                 for (int k = 0; k < sz; ++k) {
-                    double value = values[k] * toSec(durations[k]);
+                    double value = accumulator.results[k].values[bin]
+                        * toSec(accumulator.results[k].duration);
                     summary.variance_c +=
                         (value - summary.mean_c) * (value - summary.mean_c);
                 }
@@ -586,15 +671,14 @@ PluginSummarisingAdapter::Impl::reduce()
                 summary.variance_c /= summary.count;
             }
 
-            //!!! still to handle: median_c
-
             float mean = summary.sum / summary.count;
 
             std::cerr << "mean = " << summary.sum << " / " << summary.count << " = "
                       << summary.sum / summary.count << std::endl;
 
             for (int k = 0; k < sz; ++k) {
-                summary.variance += (values[k] - mean) * (values[k] - mean);
+                float value = accumulator.results[k].values[bin];
+                summary.variance += (value - mean) * (value - mean);
             }
             summary.variance /= summary.count;
 
@@ -603,7 +687,6 @@ PluginSummarisingAdapter::Impl::reduce()
     }
 
     m_accumulators.clear();
-    m_reduced = true;
 }
 
 
