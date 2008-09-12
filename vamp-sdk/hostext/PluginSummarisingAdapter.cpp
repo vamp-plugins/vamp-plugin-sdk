@@ -89,7 +89,7 @@ protected:
 
     typedef std::map<RealTime, OutputAccumulator> SegmentAccumulatorMap;
     typedef std::map<int, SegmentAccumulatorMap> OutputSegmentAccumulatorMap;
-    OutputSegmentAccumulatorMap m_segmentedAccumulators;
+    OutputSegmentAccumulatorMap m_segmentedAccumulators; // output -> segmented
 
     typedef std::map<int, RealTime> OutputTimestampMap;
     OutputTimestampMap m_prevTimestamps; // output number -> timestamp
@@ -158,6 +158,12 @@ PluginSummarisingAdapter::getRemainingFeatures()
     return m_impl->getRemainingFeatures();
 }
 
+void
+PluginSummarisingAdapter::setSummarySegmentBoundaries(const SegmentBoundaries &b)
+{
+    m_impl->setSummarySegmentBoundaries(b);
+}
+
 Plugin::FeatureList
 PluginSummarisingAdapter::getSummaryForOutput(int output,
                                               SummaryType type,
@@ -206,6 +212,18 @@ PluginSummarisingAdapter::Impl::getRemainingFeatures()
     FeatureSet fs = m_plugin->getRemainingFeatures();
     accumulate(fs, m_lastTimestamp, true);
     return fs;
+}
+
+void
+PluginSummarisingAdapter::Impl::setSummarySegmentBoundaries(const SegmentBoundaries &b)
+{
+    m_boundaries = b;
+    std::cerr << "PluginSummarisingAdapter::setSummarySegmentBoundaries: boundaries are:" << std::endl;
+    for (SegmentBoundaries::const_iterator i = m_boundaries.begin();
+         i != m_boundaries.end(); ++i) {
+        std::cerr << *i << "  ";
+    }
+    std::cerr << std::endl;
 }
 
 Plugin::FeatureList
@@ -477,7 +495,7 @@ PluginSummarisingAdapter::Impl::findSegmentBounds(RealTime t,
 {
     std::cerr << "findSegmentBounds: t = " << t <<  std::endl;
 
-    SegmentBoundaries::const_iterator i = std::lower_bound
+    SegmentBoundaries::const_iterator i = std::upper_bound
         (m_boundaries.begin(), m_boundaries.end(), t);
 
     start = RealTime::zeroTime;
@@ -485,10 +503,10 @@ PluginSummarisingAdapter::Impl::findSegmentBounds(RealTime t,
 
     if (i != m_boundaries.end()) {
 
-        start = *i;
+        end = *i;
 
-        if (++i != m_boundaries.end()) {
-            end = *i;
+        if (i != m_boundaries.begin()) {
+            start = *--i;
         }
     }
     
@@ -507,6 +525,11 @@ PluginSummarisingAdapter::Impl::segment()
         int output = i->first;
         OutputAccumulator &source = i->second;
 
+        //!!! This is basically nonsense if the results have no values
+        //!!! (i.e. their times and counts are the only things of
+        //!!! interest) but perhaps it's the user's problem if they
+        //!!! ask for segmentation in that case
+
         for (int n = 0; n < source.results.size(); ++n) {
             
             // This result spans source.results[n].time to
@@ -515,6 +538,8 @@ PluginSummarisingAdapter::Impl::segment()
 
             RealTime resultStart = source.results[n].time;
             RealTime resultEnd = resultStart + source.results[n].duration;
+
+            std::cerr << "output: " << output << ", result start = " << resultStart << ", end = " << resultEnd << std::endl;
 
             RealTime segmentStart = RealTime::zeroTime;
             RealTime segmentEnd = resultEnd - RealTime(1, 0);
@@ -588,165 +613,172 @@ PluginSummarisingAdapter::Impl::reduce()
 {
     accumulateFinalDurations();
 
-    RealTime segmentStart = RealTime::zeroTime; //!!!
-
-    for (OutputAccumulatorMap::iterator i = m_accumulators.begin();
-         i != m_accumulators.end(); ++i) {
+    for (OutputSegmentAccumulatorMap::iterator i =
+             m_segmentedAccumulators.begin();
+         i != m_segmentedAccumulators.end(); ++i) {
 
         int output = i->first;
-        OutputAccumulator &accumulator = i->second;
+        SegmentAccumulatorMap &segments = i->second;
 
-        int sz = accumulator.results.size();
+        for (SegmentAccumulatorMap::iterator j = segments.begin();
+             j != segments.end(); ++j) {
 
-        double totalDuration = 0.0;
-        //!!! is this right?
-        if (sz > 0) {
-            totalDuration = toSec(accumulator.results[sz-1].time +
-                                  accumulator.results[sz-1].duration);
-        }
+            RealTime segmentStart = j->first;
+            OutputAccumulator &accumulator = j->second;
 
-        for (int bin = 0; bin < accumulator.bins; ++bin) {
+            int sz = accumulator.results.size();
 
-            // work on all values over time for a single bin
+            double totalDuration = 0.0;
+            //!!! is this right?
+            if (sz > 0) {
+                totalDuration = toSec(accumulator.results[sz-1].time +
+                                      accumulator.results[sz-1].duration);
+            }
 
-            OutputBinSummary summary;
+            for (int bin = 0; bin < accumulator.bins; ++bin) {
 
-            summary.count = sz;
+                // work on all values over time for a single bin
 
-            summary.minimum = 0.f;
-            summary.maximum = 0.f;
+                OutputBinSummary summary;
 
-            summary.median = 0.f;
-            summary.mode = 0.f;
-            summary.sum = 0.f;
-            summary.variance = 0.f;
+                summary.count = sz;
 
-            summary.median_c = 0.f;
-            summary.mode_c = 0.f;
-            summary.mean_c = 0.f;
-            summary.variance_c = 0.f;
+                summary.minimum = 0.f;
+                summary.maximum = 0.f;
 
-            if (sz == 0) continue;
+                summary.median = 0.f;
+                summary.mode = 0.f;
+                summary.sum = 0.f;
+                summary.variance = 0.f;
 
-            std::vector<ValueDurationFloatPair> valvec;
+                summary.median_c = 0.f;
+                summary.mode_c = 0.f;
+                summary.mean_c = 0.f;
+                summary.variance_c = 0.f;
 
-            for (int k = 0; k < sz; ++k) {
-                while (accumulator.results[k].values.size() <
-                       accumulator.bins) {
-                    accumulator.results[k].values.push_back(0.f);
+                if (sz == 0) continue;
+
+                std::vector<ValueDurationFloatPair> valvec;
+
+                for (int k = 0; k < sz; ++k) {
+                    while (accumulator.results[k].values.size() <
+                           accumulator.bins) {
+                        accumulator.results[k].values.push_back(0.f);
+                    }
                 }
-            }
 
-            for (int k = 0; k < sz; ++k) {
-                float value = accumulator.results[k].values[bin];
-                valvec.push_back(ValueDurationFloatPair
-                                 (value,
-                                  toSec(accumulator.results[k].duration)));
-            }
+                for (int k = 0; k < sz; ++k) {
+                    float value = accumulator.results[k].values[bin];
+                    valvec.push_back(ValueDurationFloatPair
+                                     (value,
+                                      toSec(accumulator.results[k].duration)));
+                }
 
-            std::sort(valvec.begin(), valvec.end());
+                std::sort(valvec.begin(), valvec.end());
 
-            summary.minimum = valvec[0].value;
-            summary.maximum = valvec[sz-1].value;
+                summary.minimum = valvec[0].value;
+                summary.maximum = valvec[sz-1].value;
 
-            if (sz % 2 == 1) {
-                summary.median = valvec[sz/2].value;
-            } else {
-                summary.median = (valvec[sz/2].value + valvec[sz/2 + 1].value) / 2;
-            }
+                if (sz % 2 == 1) {
+                    summary.median = valvec[sz/2].value;
+                } else {
+                    summary.median = (valvec[sz/2].value + valvec[sz/2 + 1].value) / 2;
+                }
             
-            double duracc = 0.0;
-            summary.median_c = valvec[sz-1].value;
-
-            for (int k = 0; k < sz; ++k) {
-                duracc += valvec[k].duration;
-                if (duracc > totalDuration/2) {
-                    summary.median_c = valvec[k].value;
-                    break;
-                }
-            }
-
-            std::cerr << "median_c = " << summary.median_c << std::endl;
-            std::cerr << "median = " << summary.median << std::endl;
-                
-            std::map<float, int> distribution;
-
-            for (int k = 0; k < sz; ++k) {
-                summary.sum += accumulator.results[k].values[bin];
-                distribution[accumulator.results[k].values[bin]] += 1;
-            }
-
-            int md = 0;
-
-            for (std::map<float, int>::iterator di = distribution.begin();
-                 di != distribution.end(); ++di) {
-                if (di->second > md) {
-                    md = di->second;
-                    summary.mode = di->first;
-                }
-            }
-
-            distribution.clear();
-
-            std::map<float, double> distribution_c;
-
-            for (int k = 0; k < sz; ++k) {
-                distribution_c[accumulator.results[k].values[bin]]
-                    += toSec(accumulator.results[k].duration);
-            }
-
-            double mrd = 0.0;
-
-            for (std::map<float, double>::iterator di = distribution_c.begin();
-                 di != distribution_c.end(); ++di) {
-                if (di->second > mrd) {
-                    mrd = di->second;
-                    summary.mode_c = di->first;
-                }
-            }
-
-            distribution_c.clear();
-
-            if (totalDuration > 0.0) {
-
-                double sum_c = 0.0;
+                double duracc = 0.0;
+                summary.median_c = valvec[sz-1].value;
 
                 for (int k = 0; k < sz; ++k) {
-                    double value = accumulator.results[k].values[bin]
-                        * toSec(accumulator.results[k].duration);
-                    sum_c += value;
+                    duracc += valvec[k].duration;
+                    if (duracc > totalDuration/2) {
+                        summary.median_c = valvec[k].value;
+                        break;
+                    }
                 }
 
-                std::cerr << "mean_c = " << sum_c << " / " << totalDuration << " = "
-                          << sum_c / totalDuration << " (sz = " << sz << ")" << std::endl;
+                std::cerr << "median_c = " << summary.median_c << std::endl;
+                std::cerr << "median = " << summary.median << std::endl;
                 
-                summary.mean_c = sum_c / totalDuration;
+                std::map<float, int> distribution;
 
                 for (int k = 0; k < sz; ++k) {
-                    double value = accumulator.results[k].values[bin]
-                        * toSec(accumulator.results[k].duration);
-                    summary.variance_c +=
-                        (value - summary.mean_c) * (value - summary.mean_c);
+                    summary.sum += accumulator.results[k].values[bin];
+                    distribution[accumulator.results[k].values[bin]] += 1;
                 }
 
-                summary.variance_c /= summary.count;
+                int md = 0;
+
+                for (std::map<float, int>::iterator di = distribution.begin();
+                     di != distribution.end(); ++di) {
+                    if (di->second > md) {
+                        md = di->second;
+                        summary.mode = di->first;
+                    }
+                }
+
+                distribution.clear();
+
+                std::map<float, double> distribution_c;
+
+                for (int k = 0; k < sz; ++k) {
+                    distribution_c[accumulator.results[k].values[bin]]
+                        += toSec(accumulator.results[k].duration);
+                }
+
+                double mrd = 0.0;
+
+                for (std::map<float, double>::iterator di = distribution_c.begin();
+                     di != distribution_c.end(); ++di) {
+                    if (di->second > mrd) {
+                        mrd = di->second;
+                        summary.mode_c = di->first;
+                    }
+                }
+
+                distribution_c.clear();
+
+                if (totalDuration > 0.0) {
+
+                    double sum_c = 0.0;
+
+                    for (int k = 0; k < sz; ++k) {
+                        double value = accumulator.results[k].values[bin]
+                            * toSec(accumulator.results[k].duration);
+                        sum_c += value;
+                    }
+
+                    std::cerr << "mean_c = " << sum_c << " / " << totalDuration << " = "
+                              << sum_c / totalDuration << " (sz = " << sz << ")" << std::endl;
+                
+                    summary.mean_c = sum_c / totalDuration;
+
+                    for (int k = 0; k < sz; ++k) {
+                        double value = accumulator.results[k].values[bin]
+                            * toSec(accumulator.results[k].duration);
+                        summary.variance_c +=
+                            (value - summary.mean_c) * (value - summary.mean_c);
+                    }
+
+                    summary.variance_c /= summary.count;
+                }
+
+                float mean = summary.sum / summary.count;
+
+                std::cerr << "mean = " << summary.sum << " / " << summary.count << " = "
+                          << summary.sum / summary.count << std::endl;
+
+                for (int k = 0; k < sz; ++k) {
+                    float value = accumulator.results[k].values[bin];
+                    summary.variance += (value - mean) * (value - mean);
+                }
+                summary.variance /= summary.count;
+
+                m_summaries[output][segmentStart][bin] = summary;
             }
-
-            float mean = summary.sum / summary.count;
-
-            std::cerr << "mean = " << summary.sum << " / " << summary.count << " = "
-                      << summary.sum / summary.count << std::endl;
-
-            for (int k = 0; k < sz; ++k) {
-                float value = accumulator.results[k].values[bin];
-                summary.variance += (value - mean) * (value - mean);
-            }
-            summary.variance /= summary.count;
-
-            m_summaries[output][segmentStart][bin] = summary;
         }
     }
 
+    m_segmentedAccumulators.clear();
     m_accumulators.clear();
 }
 
