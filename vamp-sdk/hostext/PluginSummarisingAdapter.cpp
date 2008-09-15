@@ -232,6 +232,7 @@ PluginSummarisingAdapter::Impl::getSummaryForOutput(int output,
                                                     AveragingMethod avg)
 {
     if (!m_reduced) {
+        accumulateFinalDurations();
         segment();
         reduce();
         m_reduced = true;
@@ -321,6 +322,7 @@ PluginSummarisingAdapter::Impl::getSummaryForAllOutputs(SummaryType type,
                                                         AveragingMethod avg)
 {
     if (!m_reduced) {
+        accumulateFinalDurations();
         segment();
         reduce();
         m_reduced = true;
@@ -485,6 +487,10 @@ PluginSummarisingAdapter::Impl::accumulateFinalDurations()
             m_accumulators[output].results[acount - 1].duration =
                 m_lastTimestamp - m_prevTimestamps[output];
         }
+        
+        std::cerr << "so duration for result no " << acount-1 << " is "
+                  << m_accumulators[output].results[acount-1].duration
+                  << std::endl;
     }
 }
 
@@ -502,12 +508,11 @@ PluginSummarisingAdapter::Impl::findSegmentBounds(RealTime t,
     end = m_lastTimestamp;
 
     if (i != m_boundaries.end()) {
-
         end = *i;
+    }
 
-        if (i != m_boundaries.begin()) {
-            start = *--i;
-        }
+    if (i != m_boundaries.begin()) {
+        start = *--i;
     }
     
     std::cerr << "findSegmentBounds: " << t << " is in segment " << start << " -> " << end << std::endl;
@@ -524,6 +529,9 @@ PluginSummarisingAdapter::Impl::segment()
 
         int output = i->first;
         OutputAccumulator &source = i->second;
+
+        std::cerr << "segment: total results for output " << output << " = "
+                  << source.results.size() << std::endl;
 
         //!!! This is basically nonsense if the results have no values
         //!!! (i.e. their times and counts are the only things of
@@ -611,8 +619,6 @@ static double toSec(const RealTime &r)
 void
 PluginSummarisingAdapter::Impl::reduce()
 {
-    accumulateFinalDurations();
-
     for (OutputSegmentAccumulatorMap::iterator i =
              m_segmentedAccumulators.begin();
          i != m_segmentedAccumulators.end(); ++i) {
@@ -628,11 +634,18 @@ PluginSummarisingAdapter::Impl::reduce()
 
             int sz = accumulator.results.size();
 
+            std::cerr << "reduce: segment starting at " << segmentStart
+                      << " on output " << output << " has " << sz << " result(s)" << std::endl;
+
             double totalDuration = 0.0;
             //!!! is this right?
             if (sz > 0) {
-                totalDuration = toSec(accumulator.results[sz-1].time +
-                                      accumulator.results[sz-1].duration);
+                std::cerr << "last time = " << accumulator.results[sz-1].time 
+                          << ", duration = " << accumulator.results[sz-1].duration
+                          << std::endl;
+                totalDuration = toSec((accumulator.results[sz-1].time +
+                                       accumulator.results[sz-1].duration) -
+                                      segmentStart);
             }
 
             for (int bin = 0; bin < accumulator.bins; ++bin) {
@@ -678,6 +691,14 @@ PluginSummarisingAdapter::Impl::reduce()
 
                 summary.minimum = valvec[0].value;
                 summary.maximum = valvec[sz-1].value;
+
+                std::cerr << "total duration = " << totalDuration << std::endl;
+
+                std::cerr << "value vector for medians:" << std::endl;
+                for (int k = 0; k < sz; ++k) {
+                    std::cerr << "(" << valvec[k].value << "," << valvec[k].duration << ") ";
+                }
+                std::cerr << std::endl;
 
                 if (sz % 2 == 1) {
                     summary.median = valvec[sz/2].value;
