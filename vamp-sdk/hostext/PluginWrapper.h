@@ -94,6 +94,30 @@ public:
 
     FeatureSet getRemainingFeatures();
 
+    /**
+     * Return a pointer to the plugin wrapper of type WrapperType
+     * surrounding this wrapper's plugin, if present.
+     *
+     * This is useful in situations where a plugin is wrapped by
+     * multiple different wrappers (one inside another) and the host
+     * wants to call some wrapper-specific function on one of the
+     * layers without having to care about the order in which they are
+     * wrapped.  For example, the plugin returned by
+     * PluginLoader::loadPlugin may have more than one wrapper; if the
+     * host wanted to query or fine-tune some property of one of them,
+     * it would be hard to do so without knowing the order of the
+     * wrappers.  This function therefore gives direct access to the
+     * wrapper of a particular type.
+     */
+    template <typename WrapperType>
+    WrapperType *getWrapper() {
+        WrapperType *w = dynamic_cast<WrapperType *>(this);
+        if (w) return w;
+        PluginWrapper *pw = dynamic_cast<PluginWrapper *>(m_plugin);
+        if (pw) return pw->getWrapper<WrapperType>();
+        return 0;
+    }
+
 protected:
     PluginWrapper(Plugin *plugin); // I take ownership of plugin
     Plugin *m_plugin;

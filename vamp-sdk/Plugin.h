@@ -378,9 +378,9 @@ public:
      * If the plugin's inputDomain is TimeDomain, inputBuffers will
      * point to one array of floats per input channel, and each of
      * these arrays will contain blockSize consecutive audio samples
-     * (the host will zero-pad as necessary).  The timestamp will be
-     * the real time in seconds of the start of the supplied block of
-     * samples.
+     * (the host will zero-pad as necessary).  The timestamp in this
+     * case will be the real time in seconds of the start of the
+     * supplied block of samples.
      *
      * If the plugin's inputDomain is FrequencyDomain, inputBuffers
      * will point to one array of floats per input channel, and each

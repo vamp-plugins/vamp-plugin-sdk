@@ -133,8 +133,10 @@ SpectralCentroid::getOutputDescriptors() const
     return list;
 }
 
+//static int scount = 0;
+
 SpectralCentroid::FeatureSet
-SpectralCentroid::process(const float *const *inputBuffers, Vamp::RealTime)
+SpectralCentroid::process(const float *const *inputBuffers, Vamp::RealTime timestamp)
 {
     if (m_stepSize == 0) {
 	cerr << "ERROR: SpectralCentroid::process: "
@@ -142,6 +144,8 @@ SpectralCentroid::process(const float *const *inputBuffers, Vamp::RealTime)
 	     << endl;
 	return FeatureSet();
     }
+
+//    std::cerr << "SpectralCentroid::process: count = " << scount++ << ", timestamp = " << timestamp << ", total power = ";
 
     double numLin = 0.0, numLog = 0.0, denom = 0.0;
 
@@ -155,9 +159,9 @@ SpectralCentroid::process(const float *const *inputBuffers, Vamp::RealTime)
 	denom += power;
     }
 
-    FeatureSet returnFeatures;
+//    std::cerr << denom << std::endl;
 
-//    std::cerr << "power " << denom << ", block size " << m_blockSize << std::endl;
+    FeatureSet returnFeatures;
 
     if (denom != 0.0) {
 	float centroidLin = float(numLin / denom);

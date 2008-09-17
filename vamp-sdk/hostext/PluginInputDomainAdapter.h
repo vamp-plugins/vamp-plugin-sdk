@@ -91,6 +91,29 @@ public:
 
     FeatureSet process(const float *const *inputBuffers, RealTime timestamp);
 
+    /**
+     * Return the amount by which the timestamps supplied to process()
+     * are being incremented when they are passed to the plugin's own
+     * process() implementation.
+     *
+     * The Vamp API mandates that the timestamp passed to the plugin
+     * for time-domain input should be the time of the first sample in
+     * the block, but the timestamp passed for frequency-domain input
+     * should be the timestamp of the centre of the block.
+     *
+     * The PluginInputDomainAdapter adjusts its timestamps properly so
+     * that the plugin receives correct times, but in some
+     * circumstances (such as for establishing the correct timing of
+     * implicitly-timed features, i.e. features without their own
+     * timestamps) the host may need to be aware that this adjustment
+     * is taking place.
+     *
+     * If the plugin requires time-domain input, this function will
+     * return zero.  The result of calling this function before
+     * initialise() has been called is undefined.
+     */
+    RealTime getTimestampAdjustment() const;
+
 protected:
     class Impl;
     Impl *m_impl;

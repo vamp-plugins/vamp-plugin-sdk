@@ -36,7 +36,6 @@
 */
 
 #include "vamp-sdk/PluginHostAdapter.h"
-#include "vamp-sdk/hostext/PluginChannelAdapter.h"
 #include "vamp-sdk/hostext/PluginInputDomainAdapter.h"
 #include "vamp-sdk/hostext/PluginLoader.h"
 #include "vamp/vamp.h"
@@ -59,8 +58,10 @@ using Vamp::Plugin;
 using Vamp::PluginHostAdapter;
 using Vamp::RealTime;
 using Vamp::HostExt::PluginLoader;
+using Vamp::HostExt::PluginWrapper;
+using Vamp::HostExt::PluginInputDomainAdapter;
 
-#define HOST_VERSION "1.1"
+#define HOST_VERSION "1.3"
 
 enum Verbosity {
     PluginIds,
@@ -328,6 +329,10 @@ int runPlugin(string myname, string soname, string id,
     int returnValue = 1;
     int progress = 0;
 
+    RealTime rt;
+    PluginWrapper *wrapper = 0;
+    RealTime adjustment = RealTime::zeroTime;
+
     if (outputs.empty()) {
 	cerr << "ERROR: Plugin has no outputs!" << endl;
         goto done;
@@ -365,6 +370,13 @@ int runPlugin(string myname, string soname, string id,
         goto done;
     }
 
+    wrapper = dynamic_cast<PluginWrapper *>(plugin);
+    if (wrapper) {
+        PluginInputDomainAdapter *ida =
+            wrapper->getWrapper<PluginInputDomainAdapter>();
+        if (ida) adjustment = ida->getTimestampAdjustment();
+    }
+
     for (size_t i = 0; i < sfinfo.frames; i += stepSize) {
 
         int count;
@@ -391,9 +403,11 @@ int runPlugin(string myname, string soname, string id,
             }
         }
 
+        rt = RealTime::frame2RealTime(i, sfinfo.samplerate);
+
         printFeatures
-            (i, sfinfo.samplerate, outputNo, plugin->process
-             (plugbuf, RealTime::frame2RealTime(i, sfinfo.samplerate)),
+            (RealTime::realTime2Frame(rt + adjustment, sfinfo.samplerate),
+             sfinfo.samplerate, outputNo, plugin->process(plugbuf, rt),
              out, useFrames);
 
         int pp = progress;
@@ -404,7 +418,10 @@ int runPlugin(string myname, string soname, string id,
     }
     if (out) cerr << "\rDone" << endl;
 
-    printFeatures(sfinfo.frames, sfinfo.samplerate, outputNo,
+    rt = RealTime::frame2RealTime(sfinfo.frames, sfinfo.samplerate);
+
+    printFeatures(RealTime::realTime2Frame(rt + adjustment, sfinfo.samplerate),
+                  sfinfo.samplerate, outputNo,
                   plugin->getRemainingFeatures(), out, useFrames);
 
     returnValue = 0;
