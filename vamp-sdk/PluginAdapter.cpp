@@ -839,7 +839,7 @@ PluginAdapterBase::Impl::resizeFL(Plugin *plugin, int n, size_t sz)
         m_fs[plugin][n].features[m_fsizes[plugin][n]].v1.valueCount = 0;
         m_fs[plugin][n].features[m_fsizes[plugin][n]].v1.values = 0;
         m_fs[plugin][n].features[m_fsizes[plugin][n]].v1.label = 0;
-        m_fs[plugin][n].features[m_fsizes[plugin][n + sz]].v2.hasDuration = 0;
+        m_fs[plugin][n].features[m_fsizes[plugin][n] + sz].v2.hasDuration = 0;
         m_fvsizes[plugin][n].push_back(0);
         m_fsizes[plugin][n]++;
     }
