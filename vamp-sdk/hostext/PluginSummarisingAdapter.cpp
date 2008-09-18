@@ -305,6 +305,9 @@ PluginSummarisingAdapter::Impl::getSummaryForOutput(int output,
                 result = summary.count;
                 break;
 
+            case UnknownSummaryType:
+                break;
+
             default:
                 break;
             }
