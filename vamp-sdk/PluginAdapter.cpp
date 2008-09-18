@@ -166,6 +166,8 @@ PluginAdapterBase::Impl::getDescriptor()
                   << plugin->getVampApiVersion()
                   << " does not match actual API version "
                   << VAMP_API_VERSION << std::endl;
+        std::cerr << "(Plugin identifier is: "
+                  << plugin->getIdentifier() << ")" << std::endl;
         delete plugin;
         return 0;
     }
@@ -682,6 +684,7 @@ PluginAdapterBase::Impl::getOutputDescriptor(Plugin *plugin,
     }
 
     desc->sampleRate = od.sampleRate;
+    desc->hasDuration = od.hasDuration;
 
     return desc;
 }

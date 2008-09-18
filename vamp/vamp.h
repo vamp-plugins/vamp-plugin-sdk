@@ -160,6 +160,15 @@ typedef struct _VampOutputDescriptor
        "Resolution" of result, if sampleType is vampVariableSampleRate. */
     float sampleRate;
 
+    /** 1 if the returned results for this output are known to have a
+        duration field.
+
+        This field is new in Vamp API version 2; it must not be tested
+        for plugins that report an older API version in their plugin
+        descriptor.
+    */
+    int hasDuration;
+
 } VampOutputDescriptor;
 
 typedef struct _VampFeature
@@ -214,14 +223,14 @@ typedef struct _VampFeatureList
         zero.
 
         If present, this array must contain featureCount feature
-        structures for a Vamp 1.0 plugin, or 2*featureCount feature
-        unions for a Vamp 2.0 plugin.
+        structures for a Vamp API version 1 plugin, or 2*featureCount
+        feature unions for a Vamp API version 2 plugin.
 
-        The features returned by a Vamp 2.0 plugin must consist of the
-        same feature structures as in 1.0 for the first featureCount
-        array elements, followed by featureCount unions that contain
-        pointers to V2 feature structures (or NULL pointers if no V2
-        feature structures are present).
+        The features returned by an API version 2 plugin must consist
+        of the same feature structures as in API version 1 for the
+        first featureCount array elements, followed by featureCount
+        unions that contain VampFeatureV2 structures (or NULL pointers
+        if no V2 feature structures are present).
      */
     VampFeatureUnion *features;
 
@@ -322,7 +331,7 @@ typedef struct _VampPluginDescriptor
         handle, or releaseOutputDescriptor for this descriptor. Host
         must call releaseOutputDescriptor after use. */
     VampOutputDescriptor *(*getOutputDescriptor)(VampPluginHandle,
-                                                unsigned int);
+                                                 unsigned int);
 
     /** Destroy a descriptor for a feature output. */
     void (*releaseOutputDescriptor)(VampOutputDescriptor *);

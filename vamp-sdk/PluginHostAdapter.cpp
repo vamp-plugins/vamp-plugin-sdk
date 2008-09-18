@@ -341,6 +341,12 @@ PluginHostAdapter::getOutputDescriptors() const
 
         d.sampleRate = sd->sampleRate;
 
+        if (m_descriptor->vampApiVersion >= 2) {
+            d.hasDuration = sd->hasDuration;
+        } else {
+            d.hasDuration = false;
+        }
+
         list.push_back(d);
 
         m_descriptor->releaseOutputDescriptor(sd);

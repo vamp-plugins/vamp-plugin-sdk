@@ -305,9 +305,15 @@ public:
 	 */
 	float sampleRate;
 
+        /**
+         * True if the returned results for this output are known to
+         * have a duration field.
+         */
+        bool hasDuration;
+
         OutputDescriptor() : // defaults for mandatory non-class-type members
             hasFixedBinCount(false), hasKnownExtents(false), isQuantized(false),
-            sampleType(OneSamplePerStep) { }
+            sampleType(OneSamplePerStep), hasDuration(false) { }
     };
 
     typedef std::vector<OutputDescriptor> OutputList;
