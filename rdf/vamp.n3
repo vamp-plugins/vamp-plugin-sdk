@@ -338,10 +338,22 @@ vamp:quantize_step
 	a owl:DatatypeProperty;
 	rdfs:label "quantized step";
 	rdfs:comment """
-		Quantize step. Only defined if is_quantized is true
+		Quantize step. Only defined for quantized outputs
 	""";
 	rdfs:domain vamp:QuantizedOutput;
 	rdfs:domain vamp:QuantizedParameter;
+	vs:term_status "unstable";
+	.
+
+vamp:has_duration
+	a rdf:Property;
+	a owl:FunctionalProperty;
+	a owl:DatatypeProperty;
+	rdfs:label "has duration";
+	rdfs:comment """
+		True if features on this output are known to have durations
+	""";
+	rdfs:domain vamp:PluginOutput;
 	vs:term_status "unstable";
 	.
 
@@ -428,7 +440,7 @@ vamp:sample_type
 	vs:term_status "unstable";
 	.
 
-#These last 2 properties are included to match the Audio Features Ontology (not estrictly from the Vamp API).
+# The next 3 properties are included to link in the Audio Features Ontology (not estrictly from the Vamp API).
 
 vamp:computes_event_type
 	a rdf:Property;
