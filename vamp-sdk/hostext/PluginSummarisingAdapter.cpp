@@ -40,6 +40,8 @@
 #include <cmath>
 #include <climits>
 
+//#define DEBUG_PLUGIN_SUMMARISING_ADAPTER 1
+
 namespace Vamp {
 
 namespace HostExt {
@@ -218,12 +220,14 @@ void
 PluginSummarisingAdapter::Impl::setSummarySegmentBoundaries(const SegmentBoundaries &b)
 {
     m_boundaries = b;
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
     std::cerr << "PluginSummarisingAdapter::setSummarySegmentBoundaries: boundaries are:" << std::endl;
     for (SegmentBoundaries::const_iterator i = m_boundaries.begin();
          i != m_boundaries.end(); ++i) {
         std::cerr << *i << "  ";
     }
     std::cerr << std::endl;
+#endif
 }
 
 Plugin::FeatureList
@@ -381,7 +385,9 @@ PluginSummarisingAdapter::Impl::accumulate(int output,
 // segment, with their full duration, then we should store them in a
 // single accumulator and distribute into segments only on reduce.
 
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
     std::cerr << "output " << output << ": timestamp " << timestamp << ", prev timestamp " << m_prevTimestamps[output] << ", final " << final << std::endl;
+#endif
 
     // At each process step, accumulate() is called once for each
     // feature on each output within that process's returned feature
@@ -420,16 +426,21 @@ PluginSummarisingAdapter::Impl::accumulate(int output,
 
         if (m_prevDurations[output] != INVALID_DURATION) {
             prevDuration = m_prevDurations[output];
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
             std::cerr << "Previous duration from previous feature: " << prevDuration << std::endl;
+#endif
         } else {
             prevDuration = timestamp - m_prevTimestamps[output];
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
             std::cerr << "Previous duration from diff: " << timestamp << " - "
                       << m_prevTimestamps[output] << std::endl;
+#endif
         }
 
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
         std::cerr << "output " << output << ": ";
-
         std::cerr << "Pushing previous duration as " << prevDuration << std::endl;
+#endif
         
         m_accumulators[output].results
             [m_accumulators[output].results.size() - 1]
@@ -473,27 +484,35 @@ PluginSummarisingAdapter::Impl::accumulateFinalDurations()
 
         RealTime prevTimestamp = i->second;
 
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
         std::cerr << "output " << output << ": ";
+#endif
 
         if (m_prevDurations.find(output) != m_prevDurations.end() &&
             m_prevDurations[output] != INVALID_DURATION) {
 
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
             std::cerr << "Pushing final duration from feature as " << m_prevDurations[output] << std::endl;
+#endif
 
             m_accumulators[output].results[acount - 1].duration =
                 m_prevDurations[output];
 
         } else {
 
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
             std::cerr << "Pushing final duration from diff as " << m_lastTimestamp << " - " << m_prevTimestamps[output] << std::endl;
+#endif
 
             m_accumulators[output].results[acount - 1].duration =
                 m_lastTimestamp - m_prevTimestamps[output];
         }
         
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
         std::cerr << "so duration for result no " << acount-1 << " is "
                   << m_accumulators[output].results[acount-1].duration
                   << std::endl;
+#endif
     }
 }
 
@@ -502,7 +521,9 @@ PluginSummarisingAdapter::Impl::findSegmentBounds(RealTime t,
                                                   RealTime &start,
                                                   RealTime &end)
 {
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
     std::cerr << "findSegmentBounds: t = " << t <<  std::endl;
+#endif
 
     SegmentBoundaries::const_iterator i = std::upper_bound
         (m_boundaries.begin(), m_boundaries.end(), t);
@@ -517,8 +538,10 @@ PluginSummarisingAdapter::Impl::findSegmentBounds(RealTime t,
     if (i != m_boundaries.begin()) {
         start = *--i;
     }
-    
+
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER    
     std::cerr << "findSegmentBounds: " << t << " is in segment " << start << " -> " << end << std::endl;
+#endif
 }
 
 void
@@ -533,8 +556,10 @@ PluginSummarisingAdapter::Impl::segment()
         int output = i->first;
         OutputAccumulator &source = i->second;
 
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
         std::cerr << "segment: total results for output " << output << " = "
                   << source.results.size() << std::endl;
+#endif
 
         //!!! This is basically nonsense if the results have no values
         //!!! (i.e. their times and counts are the only things of
@@ -550,7 +575,9 @@ PluginSummarisingAdapter::Impl::segment()
             RealTime resultStart = source.results[n].time;
             RealTime resultEnd = resultStart + source.results[n].duration;
 
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
             std::cerr << "output: " << output << ", result start = " << resultStart << ", end = " << resultEnd << std::endl;
+#endif
 
             RealTime segmentStart = RealTime::zeroTime;
             RealTime segmentEnd = resultEnd - RealTime(1, 0);
@@ -572,7 +599,9 @@ PluginSummarisingAdapter::Impl::segment()
                 chunk.duration = chunkEnd - chunkStart;
                 chunk.values = source.results[n].values;
 
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
                 std::cerr << "chunk for segment " << segmentStart << ": from " << chunk.time << ", duration " << chunk.duration << std::endl;
+#endif
 
                 m_segmentedAccumulators[output][segmentStart].results
                     .push_back(chunk);
@@ -637,15 +666,19 @@ PluginSummarisingAdapter::Impl::reduce()
 
             int sz = accumulator.results.size();
 
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
             std::cerr << "reduce: segment starting at " << segmentStart
                       << " on output " << output << " has " << sz << " result(s)" << std::endl;
+#endif
 
             double totalDuration = 0.0;
             //!!! is this right?
             if (sz > 0) {
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
                 std::cerr << "last time = " << accumulator.results[sz-1].time 
                           << ", duration = " << accumulator.results[sz-1].duration
                           << std::endl;
+#endif
                 totalDuration = toSec((accumulator.results[sz-1].time +
                                        accumulator.results[sz-1].duration) -
                                       segmentStart);
@@ -695,13 +728,17 @@ PluginSummarisingAdapter::Impl::reduce()
                 summary.minimum = valvec[0].value;
                 summary.maximum = valvec[sz-1].value;
 
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
                 std::cerr << "total duration = " << totalDuration << std::endl;
+#endif
 
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
                 std::cerr << "value vector for medians:" << std::endl;
                 for (int k = 0; k < sz; ++k) {
                     std::cerr << "(" << valvec[k].value << "," << valvec[k].duration << ") ";
                 }
                 std::cerr << std::endl;
+#endif
 
                 if (sz % 2 == 1) {
                     summary.median = valvec[sz/2].value;
@@ -720,8 +757,10 @@ PluginSummarisingAdapter::Impl::reduce()
                     }
                 }
 
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
                 std::cerr << "median_c = " << summary.median_c << std::endl;
                 std::cerr << "median = " << summary.median << std::endl;
+#endif
                 
                 std::map<float, int> distribution;
 
@@ -771,8 +810,10 @@ PluginSummarisingAdapter::Impl::reduce()
                         sum_c += value;
                     }
 
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
                     std::cerr << "mean_c = " << sum_c << " / " << totalDuration << " = "
                               << sum_c / totalDuration << " (sz = " << sz << ")" << std::endl;
+#endif
                 
                     summary.mean_c = sum_c / totalDuration;
 
@@ -788,8 +829,10 @@ PluginSummarisingAdapter::Impl::reduce()
 
                 float mean = summary.sum / summary.count;
 
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
                 std::cerr << "mean = " << summary.sum << " / " << summary.count << " = "
                           << summary.sum / summary.count << std::endl;
+#endif
 
                 for (int k = 0; k < sz; ++k) {
                     float value = accumulator.results[k].values[bin];

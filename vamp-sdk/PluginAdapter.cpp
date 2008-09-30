@@ -162,12 +162,13 @@ PluginAdapterBase::Impl::getDescriptor()
 
     if (plugin->getVampApiVersion() != VAMP_API_VERSION) {
         std::cerr << "Vamp::PluginAdapterBase::Impl::getDescriptor: ERROR: "
-                  << "Plugin object API version "
-                  << plugin->getVampApiVersion()
-                  << " does not match actual API version "
-                  << VAMP_API_VERSION << std::endl;
-        std::cerr << "(Plugin identifier is: "
-                  << plugin->getIdentifier() << ")" << std::endl;
+                  << "API version " << plugin->getVampApiVersion()
+                  << " for\nplugin \"" << plugin->getIdentifier() << "\" "
+                  << "differs from version "
+                  << VAMP_API_VERSION << " for adapter.\n"
+                  << "This plugin is probably linked against a different version of the Vamp SDK\n"
+                  << "from the version it was compiled with.  It will need to be re-linked correctly\n"
+                  << "before it can be used." << std::endl;
         delete plugin;
         return 0;
     }

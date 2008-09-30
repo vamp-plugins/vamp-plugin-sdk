@@ -102,13 +102,14 @@ string describe_plugin(Plugin* plugin)
     if (plugin->getInputDomain() == Vamp::Plugin::FrequencyDomain)
         res+="    vamp:input_domain     vamp:FrequencyDomain ;\n\n";
     else
-        res+="    vamp:input_domain     vamp:TimeDomain ;\n\n";
+        res+="    vamp:input_domain     vamp:TimeDomain ;\n";
 	
 
     Plugin::ParameterList params = plugin->getParameterDescriptors();
+    if (!params.empty()) res+="\n";
     for (Plugin::ParameterList::const_iterator i = params.begin(); i != params.end(); i++)
         res+="    vamp:parameter   plugbase:"+plugin->getIdentifier()+"_param_"+(*i).identifier+" ;\n";
-    res+="\n";
+    if (!params.empty()) res+="\n";
 
     Plugin::OutputList outputs = plugin->getOutputDescriptors();
     for (Plugin::OutputList::const_iterator i = outputs.begin(); i!= outputs.end(); i++)
