@@ -40,7 +40,8 @@
 #include <cmath>
 #include <climits>
 
-//#define DEBUG_PLUGIN_SUMMARISING_ADAPTER 1
+#define DEBUG_PLUGIN_SUMMARISING_ADAPTER 1
+//#define DEBUG_PLUGIN_SUMMARISING_ADAPTER_SEGMENT 1
 
 namespace Vamp {
 
@@ -51,6 +52,8 @@ class PluginSummarisingAdapter::Impl
 public:
     Impl(Plugin *plugin, float inputSampleRate);
     ~Impl();
+
+    bool initialise(size_t channels, size_t stepSize, size_t blockSize);
 
     FeatureSet process(const float *const *inputBuffers, RealTime timestamp);
     FeatureSet getRemainingFeatures();
@@ -67,6 +70,8 @@ public:
 protected:
     Plugin *m_plugin;
     float m_inputSampleRate;
+    size_t m_stepSize;
+    size_t m_blockSize;
 
     SegmentBoundaries m_boundaries;
 
@@ -102,20 +107,20 @@ protected:
         int count;
 
         // extents
-        float minimum;
-        float maximum;
-        float sum;
+        double minimum;
+        double maximum;
+        double sum;
 
         // sample-average results
-        float median;
-        float mode;
-        float variance;
+        double median;
+        double mode;
+        double variance;
 
         // continuous-time average results
-        float median_c;
-        float mode_c;
-        float mean_c;
-        float variance_c;
+        double median_c;
+        double mode_c;
+        double mean_c;
+        double variance_c;
     };
 
     typedef std::map<int, OutputBinSummary> OutputSummary;
@@ -125,7 +130,7 @@ protected:
     OutputSummarySegmentMap m_summaries;
 
     bool m_reduced;
-    RealTime m_lastTimestamp;
+    RealTime m_endTime;
 
     void accumulate(const FeatureSet &fs, RealTime, bool final);
     void accumulate(int output, const Feature &f, RealTime, bool final);
@@ -133,6 +138,8 @@ protected:
     void findSegmentBounds(RealTime t, RealTime &start, RealTime &end);
     void segment();
     void reduce();
+
+    std::string getSummaryLabel(SummaryType type, AveragingMethod avg);
 };
 
 static RealTime INVALID_DURATION(INT_MIN, INT_MIN);
@@ -146,6 +153,15 @@ PluginSummarisingAdapter::PluginSummarisingAdapter(Plugin *plugin) :
 PluginSummarisingAdapter::~PluginSummarisingAdapter()
 {
     delete m_impl;
+}
+
+bool
+PluginSummarisingAdapter::initialise(size_t channels,
+                                     size_t stepSize, size_t blockSize)
+{
+    return
+        PluginWrapper::initialise(channels, stepSize, blockSize) &&
+        m_impl->initialise(channels, stepSize, blockSize);
 }
 
 Plugin::FeatureSet
@@ -192,16 +208,26 @@ PluginSummarisingAdapter::Impl::~Impl()
 {
 }
 
+bool
+PluginSummarisingAdapter::Impl::initialise(size_t channels,
+                                           size_t stepSize, size_t blockSize)
+{
+    m_stepSize = stepSize;
+    m_blockSize = blockSize;
+    return true;
+}
+
 Plugin::FeatureSet
-PluginSummarisingAdapter::Impl::process(const float *const *inputBuffers, RealTime timestamp)
+PluginSummarisingAdapter::Impl::process(const float *const *inputBuffers,
+                                        RealTime timestamp)
 {
     if (m_reduced) {
         std::cerr << "WARNING: Cannot call PluginSummarisingAdapter::process() or getRemainingFeatures() after one of the getSummary methods" << std::endl;
     }
     FeatureSet fs = m_plugin->process(inputBuffers, timestamp);
     accumulate(fs, timestamp, false);
-    //!!! should really be "timestamp plus step size"
-    m_lastTimestamp = timestamp;
+    m_endTime = timestamp + 
+        RealTime::frame2RealTime(m_stepSize, m_inputSampleRate);
     return fs;
 }
 
@@ -212,7 +238,7 @@ PluginSummarisingAdapter::Impl::getRemainingFeatures()
         std::cerr << "WARNING: Cannot call PluginSummarisingAdapter::process() or getRemainingFeatures() after one of the getSummary methods" << std::endl;
     }
     FeatureSet fs = m_plugin->getRemainingFeatures();
-    accumulate(fs, m_lastTimestamp, true);
+    accumulate(fs, m_endTime, true);
     return fs;
 }
 
@@ -249,9 +275,19 @@ PluginSummarisingAdapter::Impl::getSummaryForOutput(int output,
          i != m_summaries[output].end(); ++i) {
 
         Feature f;
+
         f.hasTimestamp = true;
         f.timestamp = i->first;
-        f.hasDuration = false;
+
+        f.hasDuration = true;
+        SummarySegmentMap::const_iterator ii = i;
+        if (++ii == m_summaries[output].end()) {
+            f.duration = m_endTime - f.timestamp;
+        } else {
+            f.duration = ii->first - f.timestamp;
+        }
+
+        f.label = getSummaryLabel(type, avg);
 
         for (OutputSummary::const_iterator j = i->second.begin();
              j != i->second.end(); ++j) {
@@ -261,7 +297,7 @@ PluginSummarisingAdapter::Impl::getSummaryForOutput(int output,
             // the accumulators were initially filled in accumulate())
 
             const OutputBinSummary &summary = j->second;
-            float result = 0.f;
+            double result = 0.f;
 
             switch (type) {
 
@@ -361,6 +397,32 @@ PluginSummarisingAdapter::Impl::accumulate(const FeatureSet &fs,
     }
 }
 
+std::string
+PluginSummarisingAdapter::Impl::getSummaryLabel(SummaryType type,
+                                                AveragingMethod avg)
+{
+    std::string label;
+    std::string avglabel;
+
+    if (avg == SampleAverage) avglabel = ", sample average";
+    else avglabel = ", continuous-time average";
+
+    switch (type) {
+    case Minimum:  label = "(minimum value)"; break;
+    case Maximum:  label = "(maximum value)"; break;
+    case Mean:     label = "(mean value" + avglabel + ")"; break;
+    case Median:   label = "(median value" + avglabel + ")"; break;
+    case Mode:     label = "(modal value" + avglabel + ")"; break;
+    case Sum:      label = "(sum)"; break;
+    case Variance: label = "(variance" + avglabel + ")"; break;
+    case StandardDeviation: label = "(standard deviation" + avglabel + ")"; break;
+    case Count:    label = "(count)"; break;
+    case UnknownSummaryType: label = "(unknown summary)"; break;
+    }
+    
+    return label;
+}
+
 void
 PluginSummarisingAdapter::Impl::accumulate(int output,
                                            const Feature &f,
@@ -452,8 +514,11 @@ PluginSummarisingAdapter::Impl::accumulate(int output,
 
     m_prevTimestamps[output] = timestamp;
 
-    //!!! should really be "timestamp plus duration" or "timestamp plus output resolution"
-    if (timestamp > m_lastTimestamp) m_lastTimestamp = timestamp;
+    if (f.hasDuration) {
+        RealTime et = timestamp;
+        et = et + f.duration;
+        if (et > m_endTime) m_endTime = et;
+    }
 
     Result result;
     result.time = timestamp;
@@ -501,11 +566,11 @@ PluginSummarisingAdapter::Impl::accumulateFinalDurations()
         } else {
 
 #ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
-            std::cerr << "Pushing final duration from diff as " << m_lastTimestamp << " - " << m_prevTimestamps[output] << std::endl;
+            std::cerr << "Pushing final duration from diff as " << m_endTime << " - " << m_prevTimestamps[output] << std::endl;
 #endif
 
             m_accumulators[output].results[acount - 1].duration =
-                m_lastTimestamp - m_prevTimestamps[output];
+                m_endTime - m_prevTimestamps[output];
         }
         
 #ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
@@ -521,7 +586,7 @@ PluginSummarisingAdapter::Impl::findSegmentBounds(RealTime t,
                                                   RealTime &start,
                                                   RealTime &end)
 {
-#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER_SEGMENT
     std::cerr << "findSegmentBounds: t = " << t <<  std::endl;
 #endif
 
@@ -529,7 +594,7 @@ PluginSummarisingAdapter::Impl::findSegmentBounds(RealTime t,
         (m_boundaries.begin(), m_boundaries.end(), t);
 
     start = RealTime::zeroTime;
-    end = m_lastTimestamp;
+    end = m_endTime;
 
     if (i != m_boundaries.end()) {
         end = *i;
@@ -539,7 +604,7 @@ PluginSummarisingAdapter::Impl::findSegmentBounds(RealTime t,
         start = *--i;
     }
 
-#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER    
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER_SEGMENT
     std::cerr << "findSegmentBounds: " << t << " is in segment " << start << " -> " << end << std::endl;
 #endif
 }
@@ -556,7 +621,7 @@ PluginSummarisingAdapter::Impl::segment()
         int output = i->first;
         OutputAccumulator &source = i->second;
 
-#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER_SEGMENT
         std::cerr << "segment: total results for output " << output << " = "
                   << source.results.size() << std::endl;
 #endif
@@ -575,7 +640,7 @@ PluginSummarisingAdapter::Impl::segment()
             RealTime resultStart = source.results[n].time;
             RealTime resultEnd = resultStart + source.results[n].duration;
 
-#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER_SEGMENT
             std::cerr << "output: " << output << ", result start = " << resultStart << ", end = " << resultEnd << std::endl;
 #endif
 
@@ -599,7 +664,7 @@ PluginSummarisingAdapter::Impl::segment()
                 chunk.duration = chunkEnd - chunkStart;
                 chunk.values = source.results[n].values;
 
-#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER_SEGMENT
                 std::cerr << "chunk for segment " << segmentStart << ": from " << chunk.time << ", duration " << chunk.duration << std::endl;
 #endif
 
@@ -610,20 +675,6 @@ PluginSummarisingAdapter::Impl::segment()
             }
         }
     }
-            
-            
-
-/*
-        if (boundaryitr == m_boundaries.end()) {
-            m_segmentedAccumulators[output][segmentStart] = source;
-            source.clear();
-            continue;
-        }
-*/
-        
-            
-
-        
 }
 
 struct ValueDurationFloatPair
@@ -677,6 +728,7 @@ PluginSummarisingAdapter::Impl::reduce()
 #ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
                 std::cerr << "last time = " << accumulator.results[sz-1].time 
                           << ", duration = " << accumulator.results[sz-1].duration
+                          << " (step = " << m_stepSize << ", block = " << m_blockSize << ")"
                           << std::endl;
 #endif
                 totalDuration = toSec((accumulator.results[sz-1].time +
@@ -733,11 +785,13 @@ PluginSummarisingAdapter::Impl::reduce()
 #endif
 
 #ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
+/*
                 std::cerr << "value vector for medians:" << std::endl;
                 for (int k = 0; k < sz; ++k) {
                     std::cerr << "(" << valvec[k].value << "," << valvec[k].duration << ") ";
                 }
                 std::cerr << std::endl;
+*/
 #endif
 
                 if (sz % 2 == 1) {
@@ -818,16 +872,18 @@ PluginSummarisingAdapter::Impl::reduce()
                     summary.mean_c = sum_c / totalDuration;
 
                     for (int k = 0; k < sz; ++k) {
-                        double value = accumulator.results[k].values[bin]
-                            * toSec(accumulator.results[k].duration);
+                        double value = accumulator.results[k].values[bin];
+//                            * toSec(accumulator.results[k].duration);
                         summary.variance_c +=
-                            (value - summary.mean_c) * (value - summary.mean_c);
+                            (value - summary.mean_c) * (value - summary.mean_c)
+                            * toSec(accumulator.results[k].duration);
                     }
 
-                    summary.variance_c /= summary.count;
+//                    summary.variance_c /= summary.count;
+                    summary.variance_c /= totalDuration;
                 }
 
-                float mean = summary.sum / summary.count;
+                double mean = summary.sum / summary.count;
 
 #ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
                 std::cerr << "mean = " << summary.sum << " / " << summary.count << " = "

@@ -51,15 +51,7 @@ public:
     PluginSummarisingAdapter(Plugin *plugin); // I take ownership of plugin
     virtual ~PluginSummarisingAdapter();
 
-    //!!! perhaps it should return the summaries as if they were the
-    //!!! original features?  if so, it will need to be told in
-    //!!! advance which summaries you want.  and that won't work if
-    //!!! you want more than one.  so, probably, no.
-
-    //!!! however, it is useful to have results in the same FeatureSet
-    //!!! structure as the original results -- rather than a single
-    //!!! FeatureList.  perhaps even useful to get a summary for all
-    //!!! outputs?
+    bool initialise(size_t channels, size_t stepSize, size_t blockSize);
 
     FeatureSet process(const float *const *inputBuffers, RealTime timestamp);
     FeatureSet getRemainingFeatures();
