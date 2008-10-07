@@ -507,6 +507,8 @@ PluginBufferingAdapter::Impl::reset()
     for (size_t i = 0; i < m_queue.size(); ++i) {
         m_queue[i]->reset();
     }
+
+    m_plugin->reset();
 }
 
 PluginBufferingAdapter::FeatureSet
