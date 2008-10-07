@@ -45,6 +45,12 @@ namespace Vamp {
 
 namespace HostExt {
 
+/**
+ * \class PluginSummarisingAdapter PluginSummarisingAdapter.h <vamp-sdk/hostext/PluginSummarisingAdapter.h>
+ *
+ * \note This class was introduced in version 1.1 of the Vamp plugin SDK.
+ */
+
 class PluginSummarisingAdapter : public PluginWrapper
 {
 public:

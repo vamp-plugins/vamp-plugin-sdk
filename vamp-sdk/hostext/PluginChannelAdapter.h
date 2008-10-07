@@ -116,6 +116,17 @@ public:
 
     FeatureSet process(const float *const *inputBuffers, RealTime timestamp);
 
+    /**
+     * Call process(), providing interleaved audio data with the
+     * number of channels passed to initialise().  The adapter will
+     * de-interleave into temporary buffers as appropriate before
+     * calling process().
+     *
+     * \note This function was introduced in version 1.4 of the Vamp
+     * plugin SDK.
+     */
+    FeatureSet processInterleaved(const float *inputBuffer, RealTime timestamp);
+
 protected:
     class Impl;
     Impl *m_impl;

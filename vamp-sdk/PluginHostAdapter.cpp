@@ -127,7 +127,11 @@ PluginHostAdapter::initialise(size_t channels,
 void
 PluginHostAdapter::reset()
 {
-    if (!m_handle) return;
+    if (!m_handle) {
+//        std::cerr << "PluginHostAdapter::reset: no handle" << std::endl;
+        return;
+    }
+//    std::cerr << "PluginHostAdapter::reset(" << m_handle << ")" << std::endl;
     m_descriptor->reset(m_handle);
 }
 

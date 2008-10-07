@@ -49,6 +49,7 @@ public:
     bool initialise(size_t channels, size_t stepSize, size_t blockSize);
 
     FeatureSet process(const float *const *inputBuffers, RealTime timestamp);
+    FeatureSet processInterleaved(const float *inputBuffers, RealTime timestamp);
 
 protected:
     Plugin *m_plugin;
@@ -56,6 +57,7 @@ protected:
     size_t m_inputChannels;
     size_t m_pluginChannels;
     float **m_buffer;
+    float **m_deinterleave;
     const float **m_forwardPtrs;
 };
 
@@ -83,12 +85,20 @@ PluginChannelAdapter::process(const float *const *inputBuffers,
     return m_impl->process(inputBuffers, timestamp);
 }
 
+PluginChannelAdapter::FeatureSet
+PluginChannelAdapter::processInterleaved(const float *inputBuffers,
+                                         RealTime timestamp)
+{
+    return m_impl->processInterleaved(inputBuffers, timestamp);
+}
+
 PluginChannelAdapter::Impl::Impl(Plugin *plugin) :
     m_plugin(plugin),
     m_blockSize(0),
     m_inputChannels(0),
     m_pluginChannels(0),
     m_buffer(0),
+    m_deinterleave(0),
     m_forwardPtrs(0)
 {
 }
@@ -107,6 +117,14 @@ PluginChannelAdapter::Impl::~Impl()
         }
         delete[] m_buffer;
         m_buffer = 0;
+    }
+
+    if (m_deinterleave) {
+        for (size_t i = 0; i < m_inputChannels; ++i) {
+            delete[] m_deinterleave[i];
+        }
+        delete[] m_deinterleave;
+        m_deinterleave = 0;
     }
 
     if (m_forwardPtrs) {
@@ -171,6 +189,26 @@ PluginChannelAdapter::Impl::initialise(size_t channels, size_t stepSize, size_t 
     }
 
     return m_plugin->initialise(m_pluginChannels, stepSize, blockSize);
+}
+
+PluginChannelAdapter::FeatureSet
+PluginChannelAdapter::Impl::processInterleaved(const float *inputBuffers,
+                                               RealTime timestamp)
+{
+    if (!m_deinterleave) {
+        m_deinterleave = new float *[m_inputChannels];
+        for (size_t i = 0; i < m_inputChannels; ++i) {
+            m_deinterleave[i] = new float[m_blockSize];
+        }
+    }
+
+    for (size_t i = 0; i < m_inputChannels; ++i) {
+        for (size_t j = 0; j < m_blockSize; ++j) {
+            m_deinterleave[i][j] = inputBuffers[j * m_inputChannels + i];
+        }
+    }
+
+    return process(m_deinterleave, timestamp);
 }
 
 PluginChannelAdapter::FeatureSet
