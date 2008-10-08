@@ -153,12 +153,14 @@ HOSTSDK_LA	= \
 PLUGIN_HEADERS	= \
 		$(EXAMPLEDIR)/SpectralCentroid.h \
 		$(EXAMPLEDIR)/PercussionOnsetDetector.h \
+		$(EXAMPLEDIR)/FixedTempoEstimator.h \
 		$(EXAMPLEDIR)/AmplitudeFollower.h \
 		$(EXAMPLEDIR)/ZeroCrossing.h
 
 PLUGIN_OBJECTS	= \
 		$(EXAMPLEDIR)/SpectralCentroid.o \
 		$(EXAMPLEDIR)/PercussionOnsetDetector.o \
+		$(EXAMPLEDIR)/FixedTempoEstimator.o \
 		$(EXAMPLEDIR)/AmplitudeFollower.o \
 		$(EXAMPLEDIR)/ZeroCrossing.o \
 		$(EXAMPLEDIR)/plugins.o
@@ -261,6 +263,9 @@ examples/AmplitudeFollower.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
 examples/AmplitudeFollower.o: vamp-sdk/RealTime.h
 examples/PercussionOnsetDetector.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
 examples/PercussionOnsetDetector.o: vamp-sdk/RealTime.h
+examples/FixedTempoEstimator.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
+examples/FixedTempoEstimator.o: vamp-sdk/RealTime.h
+examples/FixedTempoEstimator.o: examples/FixedTempoEstimator.h
 examples/SpectralCentroid.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
 examples/SpectralCentroid.o: vamp-sdk/RealTime.h
 examples/ZeroCrossing.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h

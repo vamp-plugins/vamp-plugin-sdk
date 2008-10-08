@@ -6,7 +6,7 @@
     An API for audio analysis and feature extraction plugins.
 
     Centre for Digital Music, Queen Mary, University of London.
-    Copyright 2006 Chris Cannam.
+    Copyright 2006-2008 Chris Cannam and QMUL.
   
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
@@ -34,33 +34,63 @@
     authorization.
 */
 
-#include "vamp/vamp.h"
-#include "vamp-sdk/PluginAdapter.h"
+#ifndef _FIXED_TEMPO_ESTIMATOR_PLUGIN_H_
+#define _FIXED_TEMPO_ESTIMATOR_PLUGIN_H_
 
-#include "ZeroCrossing.h"
-#include "SpectralCentroid.h"
-#include "PercussionOnsetDetector.h"
-#include "FixedTempoEstimator.h"
-#include "AmplitudeFollower.h"
+#include "vamp-sdk/Plugin.h"
 
-static Vamp::PluginAdapter<ZeroCrossing> zeroCrossingAdapter;
-static Vamp::PluginAdapter<SpectralCentroid> spectralCentroidAdapter;
-static Vamp::PluginAdapter<PercussionOnsetDetector> percussionOnsetAdapter;
-static Vamp::PluginAdapter<FixedTempoEstimator> fixedTempoAdapter;
-static Vamp::PluginAdapter<AmplitudeFollower> amplitudeAdapter;
+/**
+ * Example plugin that estimates the tempo of a short fixed-tempo sample.
+ */
 
-const VampPluginDescriptor *vampGetPluginDescriptor(unsigned int version,
-                                                    unsigned int index)
+class FixedTempoEstimator : public Vamp::Plugin
 {
-    if (version < 1) return 0;
+public:
+    FixedTempoEstimator(float inputSampleRate);
+    virtual ~FixedTempoEstimator();
 
-    switch (index) {
-    case  0: return zeroCrossingAdapter.getDescriptor();
-    case  1: return spectralCentroidAdapter.getDescriptor();
-    case  2: return percussionOnsetAdapter.getDescriptor();
-    case  3: return amplitudeAdapter.getDescriptor();
-    case  4: return fixedTempoAdapter.getDescriptor();
-    default: return 0;
-    }
-}
+    bool initialise(size_t channels, size_t stepSize, size_t blockSize);
+    void reset();
 
+    InputDomain getInputDomain() const { return FrequencyDomain; }
+
+    std::string getIdentifier() const;
+    std::string getName() const;
+    std::string getDescription() const;
+    std::string getMaker() const;
+    int getPluginVersion() const;
+    std::string getCopyright() const;
+
+    size_t getPreferredStepSize() const;
+    size_t getPreferredBlockSize() const;
+
+    ParameterList getParameterDescriptors() const;
+    float getParameter(std::string id) const;
+    void setParameter(std::string id, float value);
+
+    OutputList getOutputDescriptors() const;
+
+    FeatureSet process(const float *const *inputBuffers,
+                       Vamp::RealTime timestamp);
+
+    FeatureSet getRemainingFeatures();
+
+protected:
+    size_t m_stepSize;
+    size_t m_blockSize;
+
+    float *m_priorMagnitudes;
+
+    size_t m_dfsize;
+    float *m_df;
+    size_t m_n;
+
+    Vamp::RealTime m_start;
+    Vamp::RealTime m_lasttime;
+
+    FeatureSet calculateFeatures();
+    float lag2tempo(int);
+};
+
+
+#endif
