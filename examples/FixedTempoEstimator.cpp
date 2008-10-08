@@ -287,7 +287,8 @@ FixedTempoEstimator::getRemainingFeatures()
 }
 
 float
-FixedTempoEstimator::lag2tempo(int lag) {
+FixedTempoEstimator::lag2tempo(int lag)
+{
     return 60.f / ((lag * m_stepSize) / m_inputSampleRate);
 }
 
@@ -314,7 +315,6 @@ FixedTempoEstimator::calculateFeatures()
     for (int i = 0; i < n; ++i) {
         feature.timestamp = RealTime::frame2RealTime(i * m_stepSize,
                                                      m_inputSampleRate);
-        std::cerr << "step = " << m_stepSize << ", timestamp = " << feature.timestamp << std::endl;
         feature.values[0] = f[i];
         feature.label = "";
         fs[1].push_back(feature);
@@ -332,11 +332,11 @@ FixedTempoEstimator::calculateFeatures()
         r[i] /= n - i - 1;
     }
 
-    for (int i = 0; i < n/2; ++i) {
+    for (int i = 1; i < n/2; ++i) {
         feature.timestamp = RealTime::frame2RealTime(i * m_stepSize,
                                                      m_inputSampleRate);
         feature.values[0] = r[i];
-        sprintf(buffer, "%f bpm", lag2tempo(i));
+        sprintf(buffer, "%.1f bpm", lag2tempo(i));
         feature.label = buffer;
         fs[2].push_back(feature);
     }
@@ -388,10 +388,11 @@ FixedTempoEstimator::calculateFeatures()
 
         float filtered = 0.f;
         
-        for (int j = 1; j <= (n/2)/p1; ++j) {
-            std::cerr << "j = " << j << ", i = " << i << std::endl;
+        for (int j = 1; j <= (n/2 - 1)/i; ++j) {
+//            std::cerr << "j = " << j << ", i = " << i << std::endl;
             filtered += r[i * j];
         }
+        filtered /= (n/2 - 1)/i;
 
         if (i == p0 || filtered > maxp) {
             maxp = filtered;
@@ -401,7 +402,7 @@ FixedTempoEstimator::calculateFeatures()
         feature.timestamp = RealTime::frame2RealTime(i * m_stepSize,
                                                      m_inputSampleRate);
         feature.values[0] = filtered;
-        sprintf(buffer, "%f bpm", lag2tempo(i));
+        sprintf(buffer, "%.1f bpm", lag2tempo(i));
         feature.label = buffer;
         fs[3].push_back(feature);
     }
@@ -419,6 +420,9 @@ FixedTempoEstimator::calculateFeatures()
     feature.duration = m_lasttime - m_start;
 
     feature.values[0] = tempo;
+
+    sprintf(buffer, "%.1f bpm", tempo);
+    feature.label = buffer;
 
     fs[0].push_back(feature);
 
