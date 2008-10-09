@@ -51,7 +51,10 @@ FixedTempoEstimator::FixedTempoEstimator(float inputSampleRate) :
     m_stepSize(0),
     m_blockSize(0),
     m_priorMagnitudes(0),
-    m_df(0)
+    m_df(0),
+    m_r(0),
+    m_fr(0),
+    m_n(0)
 {
 }
 
@@ -59,6 +62,8 @@ FixedTempoEstimator::~FixedTempoEstimator()
 {
     delete[] m_priorMagnitudes;
     delete[] m_df;
+    delete[] m_r;
+    delete[] m_fr;
 }
 
 string
@@ -106,7 +111,7 @@ FixedTempoEstimator::getPreferredStepSize() const
 size_t
 FixedTempoEstimator::getPreferredBlockSize() const
 {
-    return 128;
+    return 64;
 }
 
 bool
@@ -152,6 +157,12 @@ FixedTempoEstimator::reset()
         m_df[i] = 0.f;
     }
 
+    delete[] m_r;
+    m_r = 0;
+
+    delete[] m_fr; 
+    m_fr = 0;
+
     m_n = 0;
 
     m_start = RealTime::zeroTime;
@@ -176,6 +187,12 @@ FixedTempoEstimator::setParameter(std::string id, float value)
 {
 }
 
+static int TempoOutput = 0;
+static int CandidatesOutput = 1;
+static int DFOutput = 2;
+static int ACFOutput = 3;
+static int FilteredACFOutput = 4;
+
 FixedTempoEstimator::OutputList
 FixedTempoEstimator::getOutputDescriptors() const
 {
@@ -193,6 +210,13 @@ FixedTempoEstimator::getOutputDescriptors() const
     d.sampleType = OutputDescriptor::VariableSampleRate;
     d.sampleRate = m_inputSampleRate;
     d.hasDuration = true; // our returned tempo spans a certain range
+    list.push_back(d);
+
+    d.identifier = "candidates";
+    d.name = "Tempo candidates";
+    d.description = "Possible tempo estimates, one per bin with the most likely in the first bin";
+    d.unit = "bpm";
+    d.hasFixedBinCount = false;
     list.push_back(d);
 
     d.identifier = "detectionfunction";
@@ -241,13 +265,14 @@ FixedTempoEstimator::process(const float *const *inputBuffers, RealTime ts)
 	return fs;
     }
 
-    if (m_n < m_dfsize) std::cerr << "m_n = " << m_n << std::endl;
+//    if (m_n < m_dfsize) std::cerr << "m_n = " << m_n << std::endl;
 
     if (m_n == 0) m_start = ts;
     m_lasttime = ts;
 
     if (m_n == m_dfsize) {
-        fs = calculateFeatures();
+        calculate();
+        fs = assembleFeatures();
         ++m_n;
         return fs;
     }
@@ -281,7 +306,8 @@ FixedTempoEstimator::getRemainingFeatures()
 {
     FeatureSet fs;
     if (m_n > m_dfsize) return fs;
-    fs = calculateFeatures();
+    calculate();
+    fs = assembleFeatures();
     ++m_n;
     return fs;
 }
@@ -292,10 +318,76 @@ FixedTempoEstimator::lag2tempo(int lag)
     return 60.f / ((lag * m_stepSize) / m_inputSampleRate);
 }
 
+void
+FixedTempoEstimator::calculate()
+{    
+    std::cerr << "FixedTempoEstimator::calculate: m_n = " << m_n << std::endl;
+    
+    if (m_r) {
+        std::cerr << "FixedTempoEstimator::calculate: calculation already happened?" << std::endl;
+        return;
+    }
+
+    if (m_n < m_dfsize / 6) {
+        std::cerr << "FixedTempoEstimator::calculate: Not enough data to go on (have " << m_n << ", want at least " << m_dfsize/4 << ")" << std::endl;
+        return; // not enough data (perhaps we should return the duration of the input as the "estimated" beat length?)
+    }
+
+    int n = m_n;
+
+    m_r = new float[n/2];
+    m_fr = new float[n/2];
+
+    for (int i = 0; i < n/2; ++i) {
+        m_r[i] = 0.f;
+        m_fr[i] = 0.f;
+    }
+
+    for (int i = 0; i < n/2; ++i) {
+
+        for (int j = i; j < n-1; ++j) {
+            m_r[i] += m_df[j] * m_df[j - i];
+        }
+
+        m_r[i] /= n - i - 1;
+    }
+
+    for (int i = 1; i < n/2; ++i) {
+
+        m_fr[i] = m_r[i];
+
+        int div = 1;
+
+        int j = i;
+        
+        while (j < n/2) {
+            m_fr[i] += m_r[j];
+            j *= 2;
+            ++div;
+        }
+/*
+        for (int j = 1; j <= (n/2 - 1)/i; ++j) {
+            m_fr[i] += m_r[i * j];
+            ++div;
+        }
+*/
+        std::cerr << "i = " << i << ", (n/2 - 1)/i = " << (n/2 - 1)/i << ", sum = " << m_fr[i] << ", div = " << div << ", val = " << m_fr[i] / div << ", t = " << lag2tempo(i) << std::endl;
+
+
+//        m_fr[i] /= 1 + (n/2 - 1)/i;
+        m_fr[i] /= div;
+    }
+
+    std::cerr << "FixedTempoEstimator::calculate done" << std::endl;
+}
+    
+
 FixedTempoEstimator::FeatureSet
-FixedTempoEstimator::calculateFeatures()
+FixedTempoEstimator::assembleFeatures()
 {
     FeatureSet fs;
+    if (!m_r) return fs; // No results
+
     Feature feature;
     feature.hasTimestamp = true;
     feature.hasDuration = false;
@@ -303,68 +395,27 @@ FixedTempoEstimator::calculateFeatures()
     feature.values.clear();
     feature.values.push_back(0.f);
 
-    char buffer[20];
-    
-    if (m_n < m_dfsize / 4) return fs; // not enough data (perhaps we should return the duration of the input as the "estimated" beat length?)
+    char buffer[40];
 
-    std::cerr << "FixedTempoEstimator::calculateTempo: m_n = " << m_n << std::endl;
-    
     int n = m_n;
-    float *f = m_df;
 
     for (int i = 0; i < n; ++i) {
         feature.timestamp = RealTime::frame2RealTime(i * m_stepSize,
                                                      m_inputSampleRate);
-        feature.values[0] = f[i];
+        feature.values[0] = m_df[i];
         feature.label = "";
-        fs[1].push_back(feature);
-    }
-
-    float *r = new float[n/2];
-    for (int i = 0; i < n/2; ++i) r[i] = 0.f;
-
-    int minlag = 10;
-
-    for (int i = 0; i < n/2; ++i) {
-        for (int j = i; j < n-1; ++j) {
-            r[i] += f[j] * f[j - i];
-        }
-        r[i] /= n - i - 1;
+        fs[DFOutput].push_back(feature);
     }
 
     for (int i = 1; i < n/2; ++i) {
         feature.timestamp = RealTime::frame2RealTime(i * m_stepSize,
                                                      m_inputSampleRate);
-        feature.values[0] = r[i];
+        feature.values[0] = m_r[i];
         sprintf(buffer, "%.1f bpm", lag2tempo(i));
-        feature.label = buffer;
-        fs[2].push_back(feature);
+        if (i == n/2-1) feature.label = "";
+        else feature.label = buffer;
+        fs[ACFOutput].push_back(feature);
     }
-
-    float max = 0.f;
-    int maxindex = 0;
-
-    std::cerr << "n/2 = " << n/2 << std::endl;
-
-    for (int i = minlag; i < n/2; ++i) {
-        
-        if (i == minlag || r[i] > max) {
-            max = r[i];
-            maxindex = i;
-        }
-
-        if (i == 0 || i == n/2-1) continue;
-
-        if (r[i] > r[i-1] && r[i] > r[i+1]) {
-            std::cerr << "peak at " << i << " (value=" << r[i] << ", tempo would be " << lag2tempo(i) << ")" << std::endl;
-        }
-    }
-
-    std::cerr << "overall max at " << maxindex << " (value=" << max << ")" << std::endl;
-    
-    float tempo = lag2tempo(maxindex);
-
-    std::cerr << "provisional tempo = " << tempo << std::endl;
 
     float t0 = 60.f;
     float t1 = 180.f;
@@ -372,46 +423,41 @@ FixedTempoEstimator::calculateFeatures()
     int p0 = ((60.f / t1) * m_inputSampleRate) / m_stepSize;
     int p1 = ((60.f / t0) * m_inputSampleRate) / m_stepSize;
 
-    std::cerr << "p0 = " << p0 << ", p1 = " << p1 << std::endl;
+//    std::cerr << "p0 = " << p0 << ", p1 = " << p1 << std::endl;
 
     int pc = p1 - p0 + 1;
-    std::cerr << "pc = " << pc << std::endl;
-//    float *filtered = new float[pc];
-//    for (int i = 0; i < pc; ++i) filtered[i] = 0.f;
+//    std::cerr << "pc = " << pc << std::endl;
 
-    int maxpi = 0;
-    float maxp = 0.f;
+//    int maxpi = 0;
+//    float maxp = 0.f;
 
-    for (int i = p0; i <= p1; ++i) {
+    std::map<float, int> candidates;
 
-//        int fi = i - p0;
+    for (int i = p0; i <= p1 && i < n/2-1; ++i) {
 
-        float filtered = 0.f;
-        
-        for (int j = 1; j <= (n/2 - 1)/i; ++j) {
-//            std::cerr << "j = " << j << ", i = " << i << std::endl;
-            filtered += r[i * j];
-        }
-        filtered /= (n/2 - 1)/i;
+        // Only candidates here are those that were peaks in the
+        // original acf
+//        if (r[i] > r[i-1] && r[i] > r[i+1]) {
+//            candidates[filtered] = i;
+//        }
 
-        if (i == p0 || filtered > maxp) {
-            maxp = filtered;
-            maxpi = i;
-        }
+        candidates[m_fr[i]] = i;
 
         feature.timestamp = RealTime::frame2RealTime(i * m_stepSize,
                                                      m_inputSampleRate);
-        feature.values[0] = filtered;
+        feature.values[0] = m_fr[i];
         sprintf(buffer, "%.1f bpm", lag2tempo(i));
-        feature.label = buffer;
-        fs[3].push_back(feature);
+        if (i == p1 || i == n/2-2) feature.label = "";
+        else feature.label = buffer;
+        fs[FilteredACFOutput].push_back(feature);
     }
 
-    std::cerr << "maxpi = " << maxpi << " for tempo " << lag2tempo(maxpi) << " (value = " << maxp << ")" << std::endl;
-    
-    tempo = lag2tempo(maxpi);
+//    std::cerr << "maxpi = " << maxpi << " for tempo " << lag2tempo(maxpi) << " (value = " << maxp << ")" << std::endl;
 
-    delete[] r;
+    if (candidates.empty()) {
+        std::cerr << "No tempo candidates!" << std::endl;
+        return fs;
+    }
 
     feature.hasTimestamp = true;
     feature.timestamp = m_start;
@@ -419,12 +465,27 @@ FixedTempoEstimator::calculateFeatures()
     feature.hasDuration = true;
     feature.duration = m_lasttime - m_start;
 
-    feature.values[0] = tempo;
+    std::map<float, int>::const_iterator ci = candidates.end();
+    --ci;
+    int maxpi = ci->second;
+    
+    feature.values[0] = lag2tempo(maxpi);
 
-    sprintf(buffer, "%.1f bpm", tempo);
+    sprintf(buffer, "%.1f bpm", lag2tempo(maxpi));
     feature.label = buffer;
 
-    fs[0].push_back(feature);
+    fs[TempoOutput].push_back(feature);
 
+    feature.values.clear();
+    feature.label = "";
+
+    while (feature.values.size() < 8) {
+        feature.values.push_back(lag2tempo(ci->second));
+        if (ci == candidates.begin()) break;
+        --ci;
+    }
+
+    fs[CandidatesOutput].push_back(feature);
+    
     return fs;
 }

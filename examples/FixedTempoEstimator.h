@@ -76,6 +76,9 @@ public:
     FeatureSet getRemainingFeatures();
 
 protected:
+    class D;
+    D *m_d;
+
     size_t m_stepSize;
     size_t m_blockSize;
 
@@ -83,12 +86,15 @@ protected:
 
     size_t m_dfsize;
     float *m_df;
+    float *m_r;
+    float *m_fr;
     size_t m_n;
 
     Vamp::RealTime m_start;
     Vamp::RealTime m_lasttime;
 
-    FeatureSet calculateFeatures();
+    void calculate();
+    FeatureSet assembleFeatures();
     float lag2tempo(int);
 };
 
