@@ -243,11 +243,13 @@ FixedTempoEstimator::getOutputDescriptors() const
     d.name = "Autocorrelation Function";
     d.description = "Autocorrelation of onset detection function";
     d.hasKnownExtents = false;
+    d.unit = "r";
     list.push_back(d);
 
     d.identifier = "filtered_acf";
     d.name = "Filtered Autocorrelation";
     d.description = "Filtered autocorrelation of onset detection function";
+    d.unit = "r";
     list.push_back(d);
 
     return list;
