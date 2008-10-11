@@ -111,7 +111,7 @@ FixedTempoEstimator::getPreferredStepSize() const
 size_t
 FixedTempoEstimator::getPreferredBlockSize() const
 {
-    return 64;
+    return 128;
 }
 
 bool
@@ -373,7 +373,7 @@ FixedTempoEstimator::calculate()
             ++div;
         }
 */
-        std::cerr << "i = " << i << ", (n/2 - 1)/i = " << (n/2 - 1)/i << ", sum = " << m_fr[i] << ", div = " << div << ", val = " << m_fr[i] / div << ", t = " << lag2tempo(i) << std::endl;
+//        std::cerr << "i = " << i << ", (n/2 - 1)/i = " << (n/2 - 1)/i << ", sum = " << m_fr[i] << ", div = " << div << ", val = " << m_fr[i] / div << ", t = " << lag2tempo(i) << std::endl;
 
 
 //        m_fr[i] /= 1 + (n/2 - 1)/i;
