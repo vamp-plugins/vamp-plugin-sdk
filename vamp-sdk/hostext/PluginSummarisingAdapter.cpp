@@ -37,6 +37,7 @@
 #include "PluginSummarisingAdapter.h"
 
 #include <map>
+#include <algorithm>
 #include <cmath>
 #include <climits>
 

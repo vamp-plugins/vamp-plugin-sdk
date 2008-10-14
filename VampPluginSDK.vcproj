@@ -179,6 +179,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\vamp-sdk\hostext\PluginSummarisingAdapter.h"
+				>
+			</File>
+			<File
 				RelativePath=".\vamp-sdk\hostext\PluginWrapper.h"
 				>
 			</File>
@@ -224,6 +228,10 @@
 			</File>
 			<File
 				RelativePath=".\vamp-sdk\hostext\PluginLoader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\vamp-sdk\hostext\PluginSummarisingAdapter.cpp"
 				>
 			</File>
 			<File
