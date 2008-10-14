@@ -88,6 +88,7 @@ protected:
     float *m_df;
     float *m_r;
     float *m_fr;
+    float *m_t;
     size_t m_n;
 
     Vamp::RealTime m_start;

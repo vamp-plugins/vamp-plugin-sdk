@@ -54,6 +54,7 @@ FixedTempoEstimator::FixedTempoEstimator(float inputSampleRate) :
     m_df(0),
     m_r(0),
     m_fr(0),
+    m_t(0),
     m_n(0)
 {
 }
@@ -64,6 +65,7 @@ FixedTempoEstimator::~FixedTempoEstimator()
     delete[] m_df;
     delete[] m_r;
     delete[] m_fr;
+    delete[] m_t;
 }
 
 string
@@ -162,6 +164,9 @@ FixedTempoEstimator::reset()
 
     delete[] m_fr; 
     m_fr = 0;
+
+    delete[] m_t; 
+    m_t = 0;
 
     m_n = 0;
 
@@ -339,10 +344,12 @@ FixedTempoEstimator::calculate()
 
     m_r = new float[n/2];
     m_fr = new float[n/2];
+    m_t = new float[n/2];
 
     for (int i = 0; i < n/2; ++i) {
         m_r[i] = 0.f;
         m_fr[i] = 0.f;
+        m_t[i] = 0.f;
     }
 
     for (int i = 0; i < n/2; ++i) {
@@ -356,30 +363,77 @@ FixedTempoEstimator::calculate()
 
     for (int i = 1; i < n/2; ++i) {
 
-        m_fr[i] = m_r[i];
+        float weight = 1.f - fabsf(128.f - lag2tempo(i)) * 0.005;
+        if (weight < 0.f) weight = 0.f;
+        weight = weight * weight;
+        std::cerr << "i = " << i << ": tempo = " << lag2tempo(i) << ", weight = " << weight << std::endl;
+
+//        m_fr[i] = m_r[i];
+        m_fr[i] = 0;
+
+        m_fr[i] = m_r[i] * (1 + weight/20.f);
+    }
+
+    float related[4] = { 1.5, 0.66666667, 0.5 };
+
+    for (int i = 1; i < n/2 - 1; ++i) {
+
+        if (!(m_fr[i] > m_fr[i-1] &&
+              m_fr[i] >= m_fr[i+1])) {
+            continue;
+        }
+
+        m_t[i] = lag2tempo(i);
 
         int div = 1;
 
-        int j = i;
+        for (int j = 0; j < sizeof(related)/sizeof(related[0]); ++j) {
+
+            int k0 = i / related[j];
+            
+            if (k0 > 1 && k0 < n/2 - 2) {
+
+                for (int k = k0 - 1; k <= k0 + 1; ++k) {
+
+                    if (m_r[k] > m_r[k-1] &&
+                        m_r[k] >= m_r[k+1]) {
+
+                        std::cerr << "peak at " << i << " (val " << m_r[i] << ", tempo " << lag2tempo(i) << ") has sympathetic peak at " << k << " (val " << m_r[k] << " for relative tempo " << lag2tempo(k) / related[j] << ")" << std::endl;
+
+                        m_t[i] = m_t[i] + lag2tempo(k) / related[j];
+                        ++div;
+                    }
+                }
+            }
+        }
+
+        m_t[i] /= div;
+        
+        if (div > 1) {
+            std::cerr << "adjusting tempo from " << lag2tempo(i) << " to "
+                      << m_t[i] << std::endl;
+        }
+    }
+/*
+    for (int i = 1; i < n/2; ++i) {
+
+//        int div = 1;
+        int j = i * 2;
         
         while (j < n/2) {
-            m_fr[i] += m_r[j];
+            m_fr[i] += m_fr[j] * 0.1;
             j *= 2;
-            ++div;
+//            ++div;
         }
-/*
-        for (int j = 1; j <= (n/2 - 1)/i; ++j) {
-            m_fr[i] += m_r[i * j];
-            ++div;
-        }
-*/
+
+//        m_fr[i] /= div;
+    }
+
 //        std::cerr << "i = " << i << ", (n/2 - 1)/i = " << (n/2 - 1)/i << ", sum = " << m_fr[i] << ", div = " << div << ", val = " << m_fr[i] / div << ", t = " << lag2tempo(i) << std::endl;
 
 
-//        m_fr[i] /= 1 + (n/2 - 1)/i;
-        m_fr[i] /= div;
-    }
-
+//    }
+*/
     std::cerr << "FixedTempoEstimator::calculate done" << std::endl;
 }
     
@@ -470,10 +524,16 @@ FixedTempoEstimator::assembleFeatures()
     std::map<float, int>::const_iterator ci = candidates.end();
     --ci;
     int maxpi = ci->second;
-    
-    feature.values[0] = lag2tempo(maxpi);
 
-    sprintf(buffer, "%.1f bpm", lag2tempo(maxpi));
+    if (m_t[maxpi] > 0) {
+        feature.values[0] = m_t[maxpi];
+    } else {
+        // shouldn't happen -- it would imply that this high value was not a peak!
+        feature.values[0] = lag2tempo(maxpi);
+        std::cerr << "WARNING: No stored tempo for index " << maxpi << std::endl;
+    }
+
+    sprintf(buffer, "%.1f bpm", feature.values[0]);
     feature.label = buffer;
 
     fs[TempoOutput].push_back(feature);
@@ -482,7 +542,7 @@ FixedTempoEstimator::assembleFeatures()
     feature.label = "";
 
     while (feature.values.size() < 8) {
-        feature.values.push_back(lag2tempo(ci->second));
+        feature.values.push_back(lag2tempo(ci->second)); //!!!??? use m_t?
         if (ci == candidates.begin()) break;
         --ci;
     }
