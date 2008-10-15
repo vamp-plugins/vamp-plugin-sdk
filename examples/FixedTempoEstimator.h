@@ -97,6 +97,7 @@ protected:
     void calculate();
     FeatureSet assembleFeatures();
     float lag2tempo(int);
+    int tempo2lag(float);
 };
 
 

@@ -107,13 +107,13 @@ FixedTempoEstimator::getCopyright() const
 size_t
 FixedTempoEstimator::getPreferredStepSize() const
 {
-    return 0;
+    return 64;
 }
 
 size_t
 FixedTempoEstimator::getPreferredBlockSize() const
 {
-    return 128;
+    return 256;
 }
 
 bool
@@ -146,11 +146,11 @@ FixedTempoEstimator::initialise(size_t channels, size_t stepSize, size_t blockSi
 void
 FixedTempoEstimator::reset()
 {
-    std::cerr << "FixedTempoEstimator: reset called" << std::endl;
+    cerr << "FixedTempoEstimator: reset called" << endl;
 
     if (!m_priorMagnitudes) return;
 
-    std::cerr << "FixedTempoEstimator: resetting" << std::endl;
+    cerr << "FixedTempoEstimator: resetting" << endl;
 
     for (size_t i = 0; i < m_blockSize/2; ++i) {
         m_priorMagnitudes[i] = 0.f;
@@ -272,7 +272,7 @@ FixedTempoEstimator::process(const float *const *inputBuffers, RealTime ts)
 	return fs;
     }
 
-//    if (m_n < m_dfsize) std::cerr << "m_n = " << m_n << std::endl;
+//    if (m_n < m_dfsize) cerr << "m_n = " << m_n << endl;
 
     if (m_n == 0) m_start = ts;
     m_lasttime = ts;
@@ -286,7 +286,9 @@ FixedTempoEstimator::process(const float *const *inputBuffers, RealTime ts)
 
     if (m_n > m_dfsize) return FeatureSet();
 
-    int count = 0;
+    float value = 0.f;
+
+    bool print = (ts == RealTime::zeroTime);
 
     for (size_t i = 1; i < m_blockSize/2; ++i) {
 
@@ -294,16 +296,17 @@ FixedTempoEstimator::process(const float *const *inputBuffers, RealTime ts)
         float imag = inputBuffers[0][i*2 + 1];
 
         float sqrmag = real * real + imag * imag;
+        value += fabsf(sqrmag - m_priorMagnitudes[i]);
 
-        if (m_priorMagnitudes[i] > 0.f) {
-            float diff = 10.f * log10f(sqrmag / m_priorMagnitudes[i]);
-            if (diff >= 3.f) ++count;
-        }
+//        if (i == 1 && ts == RealTime::zeroTime) {
+//            cerr << "First sqrmag: " << sqrmag << ", value = " << value << endl;
+//        }
 
         m_priorMagnitudes[i] = sqrmag;
     }
 
-    m_df[m_n] = float(count) / float(m_blockSize/2);
+    m_df[m_n] = value;
+
     ++m_n;
     return fs;
 }
@@ -325,18 +328,24 @@ FixedTempoEstimator::lag2tempo(int lag)
     return 60.f / ((lag * m_stepSize) / m_inputSampleRate);
 }
 
+int
+FixedTempoEstimator::tempo2lag(float tempo)
+{
+    return ((60.f / tempo) * m_inputSampleRate) / m_stepSize;
+}
+
 void
 FixedTempoEstimator::calculate()
 {    
-    std::cerr << "FixedTempoEstimator::calculate: m_n = " << m_n << std::endl;
+    cerr << "FixedTempoEstimator::calculate: m_n = " << m_n << endl;
     
     if (m_r) {
-        std::cerr << "FixedTempoEstimator::calculate: calculation already happened?" << std::endl;
+        cerr << "FixedTempoEstimator::calculate: calculation already happened?" << endl;
         return;
     }
 
     if (m_n < m_dfsize / 6) {
-        std::cerr << "FixedTempoEstimator::calculate: Not enough data to go on (have " << m_n << ", want at least " << m_dfsize/4 << ")" << std::endl;
+        cerr << "FixedTempoEstimator::calculate: Not enough data to go on (have " << m_n << ", want at least " << m_dfsize/4 << ")" << endl;
         return; // not enough data (perhaps we should return the duration of the input as the "estimated" beat length?)
     }
 
@@ -349,7 +358,7 @@ FixedTempoEstimator::calculate()
     for (int i = 0; i < n/2; ++i) {
         m_r[i] = 0.f;
         m_fr[i] = 0.f;
-        m_t[i] = 0.f;
+        m_t[i] = lag2tempo(i);
     }
 
     for (int i = 0; i < n/2; ++i) {
@@ -366,75 +375,84 @@ FixedTempoEstimator::calculate()
         float weight = 1.f - fabsf(128.f - lag2tempo(i)) * 0.005;
         if (weight < 0.f) weight = 0.f;
         weight = weight * weight;
-        std::cerr << "i = " << i << ": tempo = " << lag2tempo(i) << ", weight = " << weight << std::endl;
 
-//        m_fr[i] = m_r[i];
-        m_fr[i] = 0;
+        cerr << "i = " << i << ": tempo = " << lag2tempo(i) << ", weight = " << weight << endl;
 
-        m_fr[i] = m_r[i] * (1 + weight/20.f);
+        m_fr[i] = m_r[i] * (1 + weight / 3.f);
     }
 
-    float related[4] = { 1.5, 0.66666667, 0.5 };
+    float related[4] = { 2, 3, 4 };
 
-    for (int i = 1; i < n/2 - 1; ++i) {
+    for (int i = 0; i < n/2; ++i) {
 
-        if (!(m_fr[i] > m_fr[i-1] &&
+        if (i == 0 || i == n/2 - 1 ||
+            !(m_fr[i] > m_fr[i-1] &&
               m_fr[i] >= m_fr[i+1])) {
             continue;
         }
-
-        m_t[i] = lag2tempo(i);
 
         int div = 1;
 
         for (int j = 0; j < sizeof(related)/sizeof(related[0]); ++j) {
 
-            int k0 = i / related[j];
+            int k0 = i * related[j];
             
             if (k0 > 1 && k0 < n/2 - 2) {
 
-                for (int k = k0 - 1; k <= k0 + 1; ++k) {
+                int kmax = 0, kmin = 0;
+                float kvmax = 0, kvmin = 0;
 
-                    if (m_r[k] > m_r[k-1] &&
-                        m_r[k] >= m_r[k+1]) {
+                for (int k = k0 - 2; k <= k0 + 2; ++k) {
 
-                        std::cerr << "peak at " << i << " (val " << m_r[i] << ", tempo " << lag2tempo(i) << ") has sympathetic peak at " << k << " (val " << m_r[k] << " for relative tempo " << lag2tempo(k) / related[j] << ")" << std::endl;
-
-                        m_t[i] = m_t[i] + lag2tempo(k) / related[j];
-                        ++div;
+                    if (k == k0 - 2 || m_r[k] > kvmax) {
+                        kmax = k;
+                        kvmax = m_r[k];
                     }
+
+                    if (k == k0 - 2 || m_r[k] < kvmin) {
+                        kmin = k;
+                        kvmin = m_r[k];
+                    }
+                }
+
+                if (m_r[kmax] > m_r[kmax-1] &&
+                    m_r[kmax] > m_r[kmax+1] &&
+                    kvmax > kvmin * 1.05) {
+
+//                        cerr << "peak at " << i << " (val " << m_r[i] << ", tempo " << lag2tempo(i) << ") has sympathetic peak at " << kmax << " (val " << m_r[kmax] << " for relative tempo " << lag2tempo(kmax) * related[j] << ")" << endl;
+
+                    m_t[i] = m_t[i] + lag2tempo(kmax) * related[j];
+                    ++div;
                 }
             }
         }
 
         m_t[i] /= div;
         
-        if (div > 1) {
-            std::cerr << "adjusting tempo from " << lag2tempo(i) << " to "
-                      << m_t[i] << std::endl;
-        }
-    }
-/*
-    for (int i = 1; i < n/2; ++i) {
-
-//        int div = 1;
-        int j = i * 2;
-        
-        while (j < n/2) {
-            m_fr[i] += m_fr[j] * 0.1;
-            j *= 2;
-//            ++div;
-        }
-
-//        m_fr[i] /= div;
+//        if (div > 1) {
+//            cerr << "adjusting tempo from " << lag2tempo(i) << " to "
+//                      << m_t[i] << endl;
+//        }
     }
 
-//        std::cerr << "i = " << i << ", (n/2 - 1)/i = " << (n/2 - 1)/i << ", sum = " << m_fr[i] << ", div = " << div << ", val = " << m_fr[i] / div << ", t = " << lag2tempo(i) << std::endl;
+    int e = tempo2lag(60.f);
+    int div = (n/2 - 1) / e;
+
+//    cerr << "e = " << e << ", n/2 = " << n/2 << ", div = " << div << endl;
+    if (div > 1) {
+        for (int j = 2; j <= div && j <= 8; j *= 2) {
+            for (int i = 1; i <= e; ++i) {
+                m_fr[i] += m_fr[i * j] * (1.f / j);
+            }
+        }
+    }
+
+//        cerr << "i = " << i << ", (n/2 - 1)/i = " << (n/2 - 1)/i << ", sum = " << m_fr[i] << ", div = " << div << ", val = " << m_fr[i] / div << ", t = " << lag2tempo(i) << endl;
 
 
 //    }
-*/
-    std::cerr << "FixedTempoEstimator::calculate done" << std::endl;
+
+    cerr << "FixedTempoEstimator::calculate done" << endl;
 }
     
 
@@ -476,13 +494,13 @@ FixedTempoEstimator::assembleFeatures()
     float t0 = 60.f;
     float t1 = 180.f;
 
-    int p0 = ((60.f / t1) * m_inputSampleRate) / m_stepSize;
-    int p1 = ((60.f / t0) * m_inputSampleRate) / m_stepSize;
+    int p0 = tempo2lag(t1);
+    int p1 = tempo2lag(t0);
 
-//    std::cerr << "p0 = " << p0 << ", p1 = " << p1 << std::endl;
+    cerr << "p0 = " << p0 << ", p1 = " << p1 << endl;
 
     int pc = p1 - p0 + 1;
-//    std::cerr << "pc = " << pc << std::endl;
+//    cerr << "pc = " << pc << endl;
 
 //    int maxpi = 0;
 //    float maxp = 0.f;
@@ -490,12 +508,6 @@ FixedTempoEstimator::assembleFeatures()
     std::map<float, int> candidates;
 
     for (int i = p0; i <= p1 && i < n/2-1; ++i) {
-
-        // Only candidates here are those that were peaks in the
-        // original acf
-//        if (r[i] > r[i-1] && r[i] > r[i+1]) {
-//            candidates[filtered] = i;
-//        }
 
         candidates[m_fr[i]] = i;
 
@@ -508,10 +520,10 @@ FixedTempoEstimator::assembleFeatures()
         fs[FilteredACFOutput].push_back(feature);
     }
 
-//    std::cerr << "maxpi = " << maxpi << " for tempo " << lag2tempo(maxpi) << " (value = " << maxp << ")" << std::endl;
+//    cerr << "maxpi = " << maxpi << " for tempo " << lag2tempo(maxpi) << " (value = " << maxp << ")" << endl;
 
     if (candidates.empty()) {
-        std::cerr << "No tempo candidates!" << std::endl;
+        cerr << "No tempo candidates!" << endl;
         return fs;
     }
 
@@ -526,11 +538,12 @@ FixedTempoEstimator::assembleFeatures()
     int maxpi = ci->second;
 
     if (m_t[maxpi] > 0) {
+        cerr << "*** Using adjusted tempo " << m_t[maxpi] << " instead of lag tempo " << lag2tempo(maxpi) << endl;
         feature.values[0] = m_t[maxpi];
     } else {
         // shouldn't happen -- it would imply that this high value was not a peak!
         feature.values[0] = lag2tempo(maxpi);
-        std::cerr << "WARNING: No stored tempo for index " << maxpi << std::endl;
+        cerr << "WARNING: No stored tempo for index " << maxpi << endl;
     }
 
     sprintf(buffer, "%.1f bpm", feature.values[0]);
@@ -542,7 +555,11 @@ FixedTempoEstimator::assembleFeatures()
     feature.label = "";
 
     while (feature.values.size() < 8) {
-        feature.values.push_back(lag2tempo(ci->second)); //!!!??? use m_t?
+        if (m_t[ci->second] > 0) {
+            feature.values.push_back(m_t[ci->second]);
+        } else {
+            feature.values.push_back(lag2tempo(ci->second));
+        }
         if (ci == candidates.begin()) break;
         --ci;
     }
