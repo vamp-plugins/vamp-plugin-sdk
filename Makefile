@@ -285,6 +285,7 @@ examples/plugins.o: vamp-sdk/PluginBase.h vamp-sdk/RealTime.h
 examples/plugins.o: examples/ZeroCrossing.h vamp-sdk/Plugin.h
 examples/plugins.o: examples/SpectralCentroid.h
 examples/plugins.o: examples/PercussionOnsetDetector.h
+examples/plugins.o: examples/FixedTempoEstimator.h
 examples/plugins.o: examples/AmplitudeFollower.h
 examples/SpectralCentroid.o: examples/SpectralCentroid.h vamp-sdk/Plugin.h
 examples/SpectralCentroid.o: vamp-sdk/PluginBase.h vamp-sdk/RealTime.h
