@@ -125,7 +125,7 @@ FixedTempoEstimator::initialise(size_t channels, size_t stepSize, size_t blockSi
     m_stepSize = stepSize;
     m_blockSize = blockSize;
 
-    float dfLengthSecs = 8.f;
+    float dfLengthSecs = 10.f;
     m_dfsize = (dfLengthSecs * m_inputSampleRate) / m_stepSize;
 
     m_priorMagnitudes = new float[m_blockSize/2];
@@ -298,9 +298,9 @@ FixedTempoEstimator::process(const float *const *inputBuffers, RealTime ts)
         float sqrmag = real * real + imag * imag;
         value += fabsf(sqrmag - m_priorMagnitudes[i]);
 
-//        if (i == 1 && ts == RealTime::zeroTime) {
-//            cerr << "First sqrmag: " << sqrmag << ", value = " << value << endl;
-//        }
+        if (i == 1 && ts == RealTime::zeroTime) {
+            cerr << "First sqrmag: " << sqrmag << ", value = " << value << endl;
+        }
 
         m_priorMagnitudes[i] = sqrmag;
     }
@@ -344,7 +344,7 @@ FixedTempoEstimator::calculate()
         return;
     }
 
-    if (m_n < m_dfsize / 6) {
+    if (m_n < m_dfsize / 9) {
         cerr << "FixedTempoEstimator::calculate: Not enough data to go on (have " << m_n << ", want at least " << m_dfsize/4 << ")" << endl;
         return; // not enough data (perhaps we should return the duration of the input as the "estimated" beat length?)
     }
@@ -369,83 +369,104 @@ FixedTempoEstimator::calculate()
 
         m_r[i] /= n - i - 1;
     }
-
+/*
     for (int i = 1; i < n/2; ++i) {
 
         float weight = 1.f - fabsf(128.f - lag2tempo(i)) * 0.005;
         if (weight < 0.f) weight = 0.f;
         weight = weight * weight;
 
-        cerr << "i = " << i << ": tempo = " << lag2tempo(i) << ", weight = " << weight << endl;
+        cerr << "i = " << i << ": tempo = " << lag2tempo(i) << ", weight = " << weight << ", " << m_r[i] << " -> ";
 
-        m_fr[i] = m_r[i] * (1 + weight / 3.f);
+        m_fr[i] = m_r[i] * weight; //(1 + weight / 2.f);
+        
+        cerr << m_fr[i] << endl;
     }
+*/
+    int related[] = { 2, 3, 4 };
 
-    int related[4] = { 2, 3, 4 };
+    int e = tempo2lag(50.f);
+//    int universalDiv = (n/2 - 1) / e;
+//    cerr << "universalDiv = " << universalDiv << endl;
 
-    int e = tempo2lag(60.f);
-    int universalDiv = (n/2 - 1) / e;
-    cerr << "universalDiv = " << universalDiv << endl;
+    for (int i = 1; i < n/2-1; ++i) {
 
-    for (int i = 0; i < n/2; ++i) {
+        float weight = 1.f - fabsf(128.f - lag2tempo(i)) * 0.005;
+        if (weight < 0.f) weight = 0.f;
+        weight = weight * weight;
 
-        if (i == 0 || i == n/2 - 1
+//        cerr << "i = " << i << ": tempo = " << lag2tempo(i) << ", weight = " << weight << ", " << m_r[i] << " -> ";
+
+        m_fr[i] = m_r[i];
+//        m_fr[i] = m_r[i] * weight; //(1 + weight / 2.f);
+        
+//        if (i == 0 || i == n/2 - 1
 /*
             ||
             !(m_fr[i] > m_fr[i-1] &&
               m_fr[i] >= m_fr[i+1])
 */
-            ) {
-            continue;
-        }
+//            ) {
+//            continue;
+//        }
 
         int div = 1;
 
         for (int j = 0; j < sizeof(related)/sizeof(related[0]); ++j) {
 
             int k0 = i * related[j];
-            
-            if (k0 > 1 && k0 < n/2 - 2) {
+
+            if (k0 >= 0 && k0 < n/2) {
 
                 int kmax = 0, kmin = 0;
                 float kvmax = 0, kvmin = 0;
+                bool have = false;
 
-                for (int k = k0 - 2; k <= k0 + 2; ++k) {
+                for (int k = k0 - 1; k <= k0 + 1; ++k) {
 
-                    if (k == k0 - 2 || m_r[k] > kvmax) {
+                    if (k < 0 || k >= n/2) continue;
+
+                    if (!have || (m_r[k] > kvmax)) {
                         kmax = k;
                         kvmax = m_r[k];
                     }
-
-                    if (k == k0 - 2 || m_r[k] < kvmin) {
+                    
+                    if (!have || (m_r[k] < kvmin)) {
                         kmin = k;
                         kvmin = m_r[k];
                     }
+                    
+                    have = true;
                 }
+                
 
-                if (related[j] <= universalDiv) {
-//                    m_fr[i] += m_fr[kmax]; //!!!
-                    m_fr[i] += m_r[kmax] / related[j];
-                }
+                m_fr[i] += m_r[kmax] / 4;
 
-                if (m_r[kmax] > m_r[kmax-1] &&
-                    m_r[kmax] > m_r[kmax+1] &&
+//                if (related[j] <= universalDiv) {
+//                m_fr[i] += m_fr[kmax]; //!!!
+//                    m_fr[i] += m_r[kmax] / related[j];
+//                }
+
+                if ((kmax == 0 || m_r[kmax] > m_r[kmax-1]) &&
+                    (kmax == n/2-1 || m_r[kmax] > m_r[kmax+1]) &&
                     kvmax > kvmin * 1.05) {
-
-//                        cerr << "peak at " << i << " (val " << m_r[i] << ", tempo " << lag2tempo(i) << ") has sympathetic peak at " << kmax << " (val " << m_r[kmax] << " for relative tempo " << lag2tempo(kmax) * related[j] << ")" << endl;
+                    
+//                    cerr << "peak at " << i << " (val " << m_r[i] << ", tempo " << lag2tempo(i) << ") has sympathetic peak at " << kmax << " (val " << m_r[kmax] << " for relative tempo " << lag2tempo(kmax) * related[j] << ")" << endl;
 
                     m_t[i] = m_t[i] + lag2tempo(kmax) * related[j];
                     ++div;
                 }
             }
         }
-
+        
         m_t[i] /= div;
         
-//        if (div > 1) {
-//            cerr << "adjusting tempo from " << lag2tempo(i) << " to "
-//                      << m_t[i] << endl;
-//        }
+        if (div > 1) {
+            cerr << "adjusting tempo from " << lag2tempo(i) << " to "
+                 << m_t[i] << " for fr = " << m_fr[i] << " (div = " << div << ")" << endl;
+        }
+        
+        m_fr[i] += m_fr[i] * (weight / 5);
     }
 
 /*
@@ -505,8 +526,8 @@ FixedTempoEstimator::assembleFeatures()
         fs[ACFOutput].push_back(feature);
     }
 
-    float t0 = 60.f;
-    float t1 = 180.f;
+    float t0 = 50.f;
+    float t1 = 190.f;
 
     int p0 = tempo2lag(t1);
     int p1 = tempo2lag(t0);
@@ -523,7 +544,10 @@ FixedTempoEstimator::assembleFeatures()
 
     for (int i = p0; i <= p1 && i < n/2-1; ++i) {
 
-        candidates[m_fr[i]] = i;
+        if (m_fr[i] > m_fr[i-1] &&
+            m_fr[i] > m_fr[i+1]) {
+            candidates[m_fr[i]] = i;
+        }
 
         feature.timestamp = m_start +
             RealTime::frame2RealTime(i * m_stepSize, m_inputSampleRate);
