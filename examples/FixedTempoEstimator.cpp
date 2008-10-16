@@ -381,13 +381,21 @@ FixedTempoEstimator::calculate()
         m_fr[i] = m_r[i] * (1 + weight / 3.f);
     }
 
-    float related[4] = { 2, 3, 4 };
+    int related[4] = { 2, 3, 4 };
+
+    int e = tempo2lag(60.f);
+    int universalDiv = (n/2 - 1) / e;
+    cerr << "universalDiv = " << universalDiv << endl;
 
     for (int i = 0; i < n/2; ++i) {
 
-        if (i == 0 || i == n/2 - 1 ||
+        if (i == 0 || i == n/2 - 1
+/*
+            ||
             !(m_fr[i] > m_fr[i-1] &&
-              m_fr[i] >= m_fr[i+1])) {
+              m_fr[i] >= m_fr[i+1])
+*/
+            ) {
             continue;
         }
 
@@ -415,6 +423,11 @@ FixedTempoEstimator::calculate()
                     }
                 }
 
+                if (related[j] <= universalDiv) {
+//                    m_fr[i] += m_fr[kmax]; //!!!
+                    m_fr[i] += m_r[kmax] / related[j];
+                }
+
                 if (m_r[kmax] > m_r[kmax-1] &&
                     m_r[kmax] > m_r[kmax+1] &&
                     kvmax > kvmin * 1.05) {
@@ -435,6 +448,7 @@ FixedTempoEstimator::calculate()
 //        }
     }
 
+/*
     int e = tempo2lag(60.f);
     int div = (n/2 - 1) / e;
 
@@ -446,7 +460,7 @@ FixedTempoEstimator::calculate()
             }
         }
     }
-
+*/
 //        cerr << "i = " << i << ", (n/2 - 1)/i = " << (n/2 - 1)/i << ", sum = " << m_fr[i] << ", div = " << div << ", val = " << m_fr[i] / div << ", t = " << lag2tempo(i) << endl;
 
 
@@ -474,16 +488,16 @@ FixedTempoEstimator::assembleFeatures()
     int n = m_n;
 
     for (int i = 0; i < n; ++i) {
-        feature.timestamp = RealTime::frame2RealTime(i * m_stepSize,
-                                                     m_inputSampleRate);
+        feature.timestamp = m_start +
+            RealTime::frame2RealTime(i * m_stepSize, m_inputSampleRate);
         feature.values[0] = m_df[i];
         feature.label = "";
         fs[DFOutput].push_back(feature);
     }
 
     for (int i = 1; i < n/2; ++i) {
-        feature.timestamp = RealTime::frame2RealTime(i * m_stepSize,
-                                                     m_inputSampleRate);
+        feature.timestamp = m_start +
+            RealTime::frame2RealTime(i * m_stepSize, m_inputSampleRate);
         feature.values[0] = m_r[i];
         sprintf(buffer, "%.1f bpm", lag2tempo(i));
         if (i == n/2-1) feature.label = "";
@@ -511,8 +525,8 @@ FixedTempoEstimator::assembleFeatures()
 
         candidates[m_fr[i]] = i;
 
-        feature.timestamp = RealTime::frame2RealTime(i * m_stepSize,
-                                                     m_inputSampleRate);
+        feature.timestamp = m_start +
+            RealTime::frame2RealTime(i * m_stepSize, m_inputSampleRate);
         feature.values[0] = m_fr[i];
         sprintf(buffer, "%.1f bpm", lag2tempo(i));
         if (i == p1 || i == n/2-2) feature.label = "";
