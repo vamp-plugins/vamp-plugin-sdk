@@ -41,8 +41,12 @@ using std::vector;
 using std::cerr;
 using std::endl;
 
-#include <cmath>
+#include <math.h>
 
+#ifdef WIN32
+#define isnan(x) false
+#define isinf(x) false
+#endif
 
 SpectralCentroid::SpectralCentroid(float inputSampleRate) :
     Plugin(inputSampleRate),
@@ -169,15 +173,15 @@ SpectralCentroid::process(const float *const *inputBuffers, Vamp::RealTime times
 
 	Feature feature;
 	feature.hasTimestamp = false;
-        if (!std::isnan(centroidLog) && !std::isinf(centroidLog)) {
-            feature.values.push_back(centroidLog);
-        }
+    if (!isnan(centroidLog) && !isinf(centroidLog)) {
+        feature.values.push_back(centroidLog);
+    }
 	returnFeatures[0].push_back(feature);
 
-        feature.values.clear();
-        if (!std::isnan(centroidLin) && !std::isinf(centroidLin)) {
-            feature.values.push_back(centroidLin);
-        }
+    feature.values.clear();
+    if (!isnan(centroidLin) && !isinf(centroidLin)) {
+        feature.values.push_back(centroidLin);
+    }
 	returnFeatures[1].push_back(feature);
     }
 
