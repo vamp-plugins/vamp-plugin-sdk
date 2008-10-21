@@ -184,13 +184,27 @@ platforms.
 
  * Windows
 
-A project file for Visual Studio is included (VampPluginSDK.vcproj).
-This builds the SDK library, but does not build the example plugins or
-command-line host.
+Two Visual C++ project files are included:
+
+   VampPluginSDK.vcproj -- builds the SDK into a single static
+   library, but does not build the example plugins or host
+
+   VampExamplePlugins.vcproj -- builds the example plugins DLL, but
+   does not build the library or command-line host
 
 Alternatively, when using Visual Studio or another IDE to build a
-plugin or host using the SDK, you can simply add the .cpp files in the
-vamp-sdk and vamp-sdk/hostext directories to your existing project.
+plugin or host using the SDK, you may prefer to simply add the .h and
+.cpp files in the vamp-sdk and vamp-sdk/hostext directories to your
+existing project.
+
+As the command-line host has additional library dependencies (namely
+libsndfile), no pre-packaged project is included to build it.
+
+When using Visual C++ to build plugins, you will need to ensure that
+the plugin entry point (vampGetPluginDescriptor) is exported from the
+DLL so that the plugins can be loaded.  One way to achieve this is to
+add the linker option /EXPORT:vampGetPluginDescriptor to your project.
+The included VampExamplePlugins.vcproj does this.
 
 If you are using a Cygwin or MinGW GNU toolchain, use the included
 Makefile (see Linux and other POSIX platforms below).
@@ -204,9 +218,9 @@ Note that the host requires that you have libsndfile
 (http://www.mega-nerd.com/libsndfile/) installed.  To build only the
 SDK and examples, "make -f Makefile.osx sdk examples".
 
-If you are using an IDE, you may prefer to simply add the .cpp files
-in the vamp-sdk and vamp-sdk/hostext directories to your existing
-project.
+If you are using an IDE, you may prefer to simply add the .h and .cpp
+files in the vamp-sdk and vamp-sdk/hostext directories to your
+existing project.
 
  * Linux and other POSIX platforms
 
