@@ -593,6 +593,7 @@ FixedTempoEstimator::assembleFeatures()
     feature.label = "";
 
     while (feature.values.size() < 8) {
+//        cerr << "adding tempo value from lag " << ci->second << endl;
         if (m_t[ci->second] > 0) {
             feature.values.push_back(m_t[ci->second]);
         } else {
