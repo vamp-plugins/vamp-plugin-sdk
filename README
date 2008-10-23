@@ -190,7 +190,7 @@ Two Visual C++ project files are included:
    library, but does not build the example plugins or host
 
    VampExamplePlugins.vcproj -- builds the example plugins DLL, but
-   does not build the library or command-line host
+   does not build the library or host
 
 Alternatively, when using Visual Studio or another IDE to build a
 plugin or host using the SDK, you may prefer to simply add the .h and
@@ -222,7 +222,7 @@ If you are using an IDE, you may prefer to simply add the .h and .cpp
 files in the vamp-sdk and vamp-sdk/hostext directories to your
 existing project.
 
- * Linux and other POSIX platforms
+ * Linux and other Unixesque platforms
 
 To build the SDK, example plugins, and command-line host, edit the
 Makefile to suit your platform according to the comments in it, then

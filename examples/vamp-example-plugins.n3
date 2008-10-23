@@ -16,6 +16,7 @@
 
 :vamp-example-plugins a  vamp:PluginLibrary ;
     vamp:identifier "vamp-example-plugins" ; 
+    foaf:page <http://www.vamp-plugins.org/download.html> ;
     vamp:available_plugin plugbase:amplitudefollower; 
     vamp:available_plugin plugbase:percussiononsets; 
     vamp:available_plugin plugbase:spectralcentroid; 
