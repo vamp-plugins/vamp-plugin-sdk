@@ -53,6 +53,9 @@ This is version 1.3 of the Vamp plugin Software Development Kit.
 Plugins and hosts built with this SDK are binary compatible with those
 built using version 1.0 of the SDK.
 
+A documentation guide to writing plugins using the Vamp SDK can be
+found at http://www.vamp-plugins.org/guide.pdf .
+
 This SDK contains the following:
 
  * vamp/vamp.h

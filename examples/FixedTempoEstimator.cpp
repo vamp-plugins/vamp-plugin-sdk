@@ -288,8 +288,6 @@ FixedTempoEstimator::process(const float *const *inputBuffers, RealTime ts)
 
     float value = 0.f;
 
-    bool print = (ts == RealTime::zeroTime);
-
     for (size_t i = 1; i < m_blockSize/2; ++i) {
 
         float real = inputBuffers[0][i*2];
@@ -297,10 +295,6 @@ FixedTempoEstimator::process(const float *const *inputBuffers, RealTime ts)
 
         float sqrmag = real * real + imag * imag;
         value += fabsf(sqrmag - m_priorMagnitudes[i]);
-
-        if (i == 1 && ts == RealTime::zeroTime) {
-            cerr << "First sqrmag: " << sqrmag << ", value = " << value << endl;
-        }
 
         m_priorMagnitudes[i] = sqrmag;
     }
@@ -369,54 +363,24 @@ FixedTempoEstimator::calculate()
 
         m_r[i] /= n - i - 1;
     }
-/*
-    for (int i = 1; i < n/2; ++i) {
 
-        float weight = 1.f - fabsf(128.f - lag2tempo(i)) * 0.005;
-        if (weight < 0.f) weight = 0.f;
-        weight = weight * weight;
-
-        cerr << "i = " << i << ": tempo = " << lag2tempo(i) << ", weight = " << weight << ", " << m_r[i] << " -> ";
-
-        m_fr[i] = m_r[i] * weight; //(1 + weight / 2.f);
-        
-        cerr << m_fr[i] << endl;
-    }
-*/
-    int related[] = { 2, 3, 4 };
-
-    int e = tempo2lag(50.f);
-//    int universalDiv = (n/2 - 1) / e;
-//    cerr << "universalDiv = " << universalDiv << endl;
+    float related[] = { 0.5, 2, 3, 4 };
 
     for (int i = 1; i < n/2-1; ++i) {
 
         float weight = 1.f - fabsf(128.f - lag2tempo(i)) * 0.005;
         if (weight < 0.f) weight = 0.f;
-        weight = weight * weight;
-
-//        cerr << "i = " << i << ": tempo = " << lag2tempo(i) << ", weight = " << weight << ", " << m_r[i] << " -> ";
+        weight = weight * weight * weight;
 
         m_fr[i] = m_r[i];
-//        m_fr[i] = m_r[i] * weight; //(1 + weight / 2.f);
-        
-//        if (i == 0 || i == n/2 - 1
-/*
-            ||
-            !(m_fr[i] > m_fr[i-1] &&
-              m_fr[i] >= m_fr[i+1])
-*/
-//            ) {
-//            continue;
-//        }
 
         int div = 1;
 
-        for (int j = 0; j < sizeof(related)/sizeof(related[0]); ++j) {
+        for (int j = 0; j < int(sizeof(related)/sizeof(related[0])); ++j) {
 
-            int k0 = i * related[j];
+            int k0 = int(i * related[j] + 0.5);
 
-            if (k0 >= 0 && k0 < n/2) {
+            if (k0 >= 0 && k0 < int(n/2)) {
 
                 int kmax = 0, kmin = 0;
                 float kvmax = 0, kvmin = 0;
@@ -426,33 +390,18 @@ FixedTempoEstimator::calculate()
 
                     if (k < 0 || k >= n/2) continue;
 
-                    if (!have || (m_r[k] > kvmax)) {
-                        kmax = k;
-                        kvmax = m_r[k];
-                    }
-                    
-                    if (!have || (m_r[k] < kvmin)) {
-                        kmin = k;
-                        kvmin = m_r[k];
-                    }
+                    if (!have || (m_r[k] > kvmax)) { kmax = k; kvmax = m_r[k]; }
+                    if (!have || (m_r[k] < kvmin)) { kmin = k; kvmin = m_r[k]; }
                     
                     have = true;
                 }
                 
-
-                m_fr[i] += m_r[kmax] / 4;
-
-//                if (related[j] <= universalDiv) {
-//                m_fr[i] += m_fr[kmax]; //!!!
-//                    m_fr[i] += m_r[kmax] / related[j];
-//                }
+                m_fr[i] += m_r[kmax] / 5;
 
                 if ((kmax == 0 || m_r[kmax] > m_r[kmax-1]) &&
                     (kmax == n/2-1 || m_r[kmax] > m_r[kmax+1]) &&
                     kvmax > kvmin * 1.05) {
                     
-//                    cerr << "peak at " << i << " (val " << m_r[i] << ", tempo " << lag2tempo(i) << ") has sympathetic peak at " << kmax << " (val " << m_r[kmax] << " for relative tempo " << lag2tempo(kmax) * related[j] << ")" << endl;
-
                     m_t[i] = m_t[i] + lag2tempo(kmax) * related[j];
                     ++div;
                 }
@@ -461,33 +410,13 @@ FixedTempoEstimator::calculate()
         
         m_t[i] /= div;
         
-        if (div > 1) {
-            cerr << "adjusting tempo from " << lag2tempo(i) << " to "
-                 << m_t[i] << " for fr = " << m_fr[i] << " (div = " << div << ")" << endl;
-        }
+//        if (div > 1) {
+//            cerr << "adjusting tempo from " << lag2tempo(i) << " to "
+//                 << m_t[i] << " for fr = " << m_fr[i] << " (div = " << div << ")" << endl;
+//        }
         
-        m_fr[i] += m_fr[i] * (weight / 5);
+        m_fr[i] += m_fr[i] * (weight / 3);
     }
-
-/*
-    int e = tempo2lag(60.f);
-    int div = (n/2 - 1) / e;
-
-//    cerr << "e = " << e << ", n/2 = " << n/2 << ", div = " << div << endl;
-    if (div > 1) {
-        for (int j = 2; j <= div && j <= 8; j *= 2) {
-            for (int i = 1; i <= e; ++i) {
-                m_fr[i] += m_fr[i * j] * (1.f / j);
-            }
-        }
-    }
-*/
-//        cerr << "i = " << i << ", (n/2 - 1)/i = " << (n/2 - 1)/i << ", sum = " << m_fr[i] << ", div = " << div << ", val = " << m_fr[i] / div << ", t = " << lag2tempo(i) << endl;
-
-
-//    }
-
-    cerr << "FixedTempoEstimator::calculate done" << endl;
 }
     
 
@@ -526,19 +455,11 @@ FixedTempoEstimator::assembleFeatures()
         fs[ACFOutput].push_back(feature);
     }
 
-    float t0 = 50.f;
-    float t1 = 190.f;
+    float t0 = 50.f; // our minimum detected tempo (could be a parameter)
+    float t1 = 190.f; // our maximum detected tempo
 
     int p0 = tempo2lag(t1);
     int p1 = tempo2lag(t0);
-
-    cerr << "p0 = " << p0 << ", p1 = " << p1 << endl;
-
-    int pc = p1 - p0 + 1;
-//    cerr << "pc = " << pc << endl;
-
-//    int maxpi = 0;
-//    float maxp = 0.f;
 
     std::map<float, int> candidates;
 
