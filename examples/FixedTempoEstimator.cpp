@@ -458,6 +458,10 @@ FixedTempoEstimator::assembleFeatures()
     float t0 = 50.f; // our minimum detected tempo (could be a parameter)
     float t1 = 190.f; // our maximum detected tempo
 
+    //!!! need some way for the host (or at least, the user) to know
+    //!!! that it should only pass a certain amount of
+    //!!! input... e.g. by making the amount configurable
+
     int p0 = tempo2lag(t1);
     int p1 = tempo2lag(t0);
 
