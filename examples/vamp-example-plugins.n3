@@ -10,17 +10,18 @@
 @prefix :         <> .
 
 <>  a   vamp:PluginDescription ;
-    foaf:maker          <x> ;
     foaf:maker          <http://www.vamp-plugins.org/doap.rdf#template-generator> ;
     foaf:primaryTopic   <http://vamp-plugins.org/rdf/plugins/vamp-example-plugins> .
 
 :vamp-example-plugins a  vamp:PluginLibrary ;
-    vamp:identifier "vamp-example-plugins" ; 
-    foaf:page <http://www.vamp-plugins.org/download.html> ;
-    vamp:available_plugin plugbase:amplitudefollower; 
-    vamp:available_plugin plugbase:percussiononsets; 
-    vamp:available_plugin plugbase:spectralcentroid; 
-    vamp:available_plugin plugbase:zerocrossing .
+    vamp:identifier "vamp-example-plugins"  ; 
+    foaf:page <http://www.vamp-plugins.org/plugin-doc/vamp-example-plugins.html> ;
+    vamp:available_plugin plugbase:amplitudefollower ; 
+    vamp:available_plugin plugbase:fixedtempo ; 
+    vamp:available_plugin plugbase:percussiononsets ; 
+    vamp:available_plugin plugbase:spectralcentroid ; 
+    vamp:available_plugin plugbase:zerocrossing ; 
+    .
 
 plugbase:amplitudefollower a   vamp:Plugin ;
     dc:title              "Amplitude Follower" ;
@@ -29,7 +30,7 @@ plugbase:amplitudefollower a   vamp:Plugin ;
     foaf:maker            [ foaf:name "Vamp SDK Example Plugins" ] ; # FIXME could give plugin author's URI here
 #   cc:license            <Place plugin license URI here and uncomment> ; 
     vamp:identifier       "amplitudefollower" ;
-    vamp:vamp_API_version vamp:api_version_1 ;
+    vamp:vamp_API_version vamp:api_version_2 ;
     owl:versionInfo       "1" ;
     vamp:input_domain     vamp:TimeDomain ;
 
@@ -66,9 +67,77 @@ plugbase:amplitudefollower_output_amplitude a  vamp:DenseOutput ;
     vamp:unit             "V" ;
     vamp:bin_count        1 ;
     vamp:bin_names        ( "");
-#   vamp:computes_event_type   <Place event type URI here and uncomment> ;
-#   vamp:computes_feature      <Place feature attribute URI here and uncomment> ;
-#   vamp:computes_signal_type  <Place signal type URI here and uncomment> ;
+    vamp:computes_signal_type  af:Signal ;
+    .
+plugbase:fixedtempo a   vamp:Plugin ;
+    dc:title              "Simple Fixed Tempo Estimator" ;
+    vamp:name             "Simple Fixed Tempo Estimator" ;
+    dc:description        "Study a short section of audio and estimate its tempo, assuming the tempo is constant" ;
+    foaf:maker            [ foaf:name "Vamp SDK Example Plugins" ] ; # FIXME could give plugin author's URI here
+#   cc:license            <Place plugin license URI here and uncomment> ; 
+    vamp:identifier       "fixedtempo" ;
+    vamp:vamp_API_version vamp:api_version_2 ;
+    owl:versionInfo       "1" ;
+    vamp:input_domain     vamp:FrequencyDomain ;
+
+    vamp:output      plugbase:fixedtempo_output_tempo ;
+    vamp:output      plugbase:fixedtempo_output_candidates ;
+    vamp:output      plugbase:fixedtempo_output_detectionfunction ;
+    vamp:output      plugbase:fixedtempo_output_acf ;
+    vamp:output      plugbase:fixedtempo_output_filtered_acf ;
+    .
+plugbase:fixedtempo_output_tempo a  vamp:SparseOutput ;
+    vamp:identifier       "tempo" ;
+    dc:title              "Tempo" ;
+    dc:description        "Estimated tempo"  ;
+    vamp:fixed_bin_count  "true" ;
+    vamp:unit             "bpm" ;
+    vamp:bin_count        1 ;
+    vamp:bin_names        ( "");
+    vamp:sample_type      vamp:VariableSampleRate ;
+    vamp:computes_event_type   af:Tempo ;
+    .
+plugbase:fixedtempo_output_candidates a  vamp:SparseOutput ;
+    vamp:identifier       "candidates" ;
+    dc:title              "Tempo candidates" ;
+    dc:description        "Possible tempo estimates, one per bin with the most likely in the first bin"  ;
+    vamp:fixed_bin_count  "false" ;
+    vamp:unit             "bpm" ;
+    vamp:sample_type      vamp:VariableSampleRate ;
+    vamp:computes_event_type   af:Tempo ;
+    .
+plugbase:fixedtempo_output_detectionfunction a  vamp:DenseOutput ;
+    vamp:identifier       "detectionfunction" ;
+    dc:title              "Detection Function" ;
+    dc:description        "Onset detection function"  ;
+    vamp:fixed_bin_count  "true" ;
+    vamp:unit             "" ;
+    a                 vamp:KnownExtentsOutput ;
+    vamp:min_value    0  ;
+    vamp:max_value    1  ;
+    vamp:bin_count        1 ;
+    vamp:bin_names        ( "");
+    vamp:computes_signal_type  af:OnsetDetectionFunction ;
+    .
+plugbase:fixedtempo_output_acf a  vamp:DenseOutput ;
+    vamp:identifier       "acf" ;
+    dc:title              "Autocorrelation Function" ;
+    dc:description        "Autocorrelation of onset detection function"  ;
+    vamp:fixed_bin_count  "true" ;
+    vamp:unit             "r" ;
+    vamp:bin_count        1 ;
+    vamp:bin_names        ( "");
+    vamp:computes_signal_type  af:Signal ;
+    .
+plugbase:fixedtempo_output_filtered_acf a  vamp:DenseOutput ;
+    vamp:identifier       "filtered_acf" ;
+    dc:title              "Filtered Autocorrelation" ;
+    dc:description        "Filtered autocorrelation of onset detection function"  ;
+    vamp:fixed_bin_count  "true" ;
+    vamp:unit             "r" ;
+    vamp:bin_count        1 ;
+    vamp:bin_names        ( "");
+    vamp:computes_signal_type  af:Signal ;
     .
 plugbase:percussiononsets a   vamp:Plugin ;
     dc:title              "Simple Percussion Onset Detector" ;
@@ -77,7 +146,7 @@ plugbase:percussiononsets a   vamp:Plugin ;
     foaf:maker            [ foaf:name "Vamp SDK Example Plugins" ] ; # FIXME could give plugin author's URI here
 #   cc:license            <Place plugin license URI here and uncomment> ; 
     vamp:identifier       "percussiononsets" ;
-    vamp:vamp_API_version vamp:api_version_1 ;
+    vamp:vamp_API_version vamp:api_version_2 ;
     owl:versionInfo       "2" ;
     vamp:input_domain     vamp:FrequencyDomain ;
 
@@ -116,10 +185,7 @@ plugbase:percussiononsets_output_onsets a  vamp:SparseOutput ;
     vamp:bin_count        0 ;
     vamp:bin_names        ();
     vamp:sample_type      vamp:VariableSampleRate ;
-    vamp:sample_rate      44100 ;
-#   vamp:computes_event_type   <Place event type URI here and uncomment> ;
-#   vamp:computes_feature      <Place feature attribute URI here and uncomment> ;
-#   vamp:computes_signal_type  <Place signal type URI here and uncomment> ;
+    vamp:computes_event_type  af:Onset ;
     .
 plugbase:percussiononsets_output_detectionfunction a  vamp:DenseOutput ;
     vamp:identifier       "detectionfunction" ;
@@ -131,9 +197,7 @@ plugbase:percussiononsets_output_detectionfunction a  vamp:DenseOutput ;
     vamp:quantize_step    1  ;
     vamp:bin_count        1 ;
     vamp:bin_names        ( "");
-#   vamp:computes_event_type   <Place event type URI here and uncomment> ;
-#   vamp:computes_feature      <Place feature attribute URI here and uncomment> ;
-#   vamp:computes_signal_type  <Place signal type URI here and uncomment> ;
+    vamp:computes_signal_type  af:OnsetDetectionFunction ;
     .
 plugbase:spectralcentroid a   vamp:Plugin ;
     dc:title              "Spectral Centroid" ;
@@ -142,10 +206,9 @@ plugbase:spectralcentroid a   vamp:Plugin ;
     foaf:maker            [ foaf:name "Vamp SDK Example Plugins" ] ; # FIXME could give plugin author's URI here
 #   cc:license            <Place plugin license URI here and uncomment> ; 
     vamp:identifier       "spectralcentroid" ;
-    vamp:vamp_API_version vamp:api_version_1 ;
+    vamp:vamp_API_version vamp:api_version_2 ;
     owl:versionInfo       "2" ;
     vamp:input_domain     vamp:FrequencyDomain ;
-
 
     vamp:output      plugbase:spectralcentroid_output_logcentroid ;
     vamp:output      plugbase:spectralcentroid_output_linearcentroid ;
@@ -158,9 +221,7 @@ plugbase:spectralcentroid_output_logcentroid a  vamp:DenseOutput ;
     vamp:unit             "Hz" ;
     vamp:bin_count        1 ;
     vamp:bin_names        ( "");
-#   vamp:computes_event_type   <Place event type URI here and uncomment> ;
-#   vamp:computes_feature      <Place feature attribute URI here and uncomment> ;
-#   vamp:computes_signal_type  <Place signal type URI here and uncomment> ;
+    vamp:computes_signal_type  af:LogFrequencyCentroid ;
     .
 plugbase:spectralcentroid_output_linearcentroid a  vamp:DenseOutput ;
     vamp:identifier       "linearcentroid" ;
@@ -170,9 +231,7 @@ plugbase:spectralcentroid_output_linearcentroid a  vamp:DenseOutput ;
     vamp:unit             "Hz" ;
     vamp:bin_count        1 ;
     vamp:bin_names        ( "");
-#   vamp:computes_event_type   <Place event type URI here and uncomment> ;
-#   vamp:computes_feature      <Place feature attribute URI here and uncomment> ;
-#   vamp:computes_signal_type  <Place signal type URI here and uncomment> ;
+    vamp:computes_signal_type  af:LinearFrequencyCentroid ;
     .
 plugbase:zerocrossing a   vamp:Plugin ;
     dc:title              "Zero Crossings" ;
@@ -181,11 +240,9 @@ plugbase:zerocrossing a   vamp:Plugin ;
     foaf:maker            [ foaf:name "Vamp SDK Example Plugins" ] ; # FIXME could give plugin author's URI here
 #   cc:license            <Place plugin license URI here and uncomment> ; 
     vamp:identifier       "zerocrossing" ;
-    vamp:vamp_API_version vamp:api_version_1 ;
+    vamp:vamp_API_version vamp:api_version_2 ;
     owl:versionInfo       "2" ;
     vamp:input_domain     vamp:TimeDomain ;
-
-
     vamp:output      plugbase:zerocrossing_output_counts ;
     vamp:output      plugbase:zerocrossing_output_zerocrossings ;
     .
@@ -199,9 +256,7 @@ plugbase:zerocrossing_output_counts a  vamp:DenseOutput ;
     vamp:quantize_step    1  ;
     vamp:bin_count        1 ;
     vamp:bin_names        ( "");
-#   vamp:computes_event_type   <Place event type URI here and uncomment> ;
-#   vamp:computes_feature      <Place feature attribute URI here and uncomment> ;
-#   vamp:computes_signal_type  <Place signal type URI here and uncomment> ;
+    vamp:computes_signal_type   af:ZeroCrossingCount ;
     .
 plugbase:zerocrossing_output_zerocrossings a  vamp:SparseOutput ;
     vamp:identifier       "zerocrossings" ;
@@ -214,9 +269,6 @@ plugbase:zerocrossing_output_zerocrossings a  vamp:SparseOutput ;
     vamp:bin_count        0 ;
     vamp:bin_names        ();
     vamp:sample_type      vamp:VariableSampleRate ;
-    vamp:sample_rate      44100 ;
-#   vamp:computes_event_type   <Place event type URI here and uncomment> ;
-#   vamp:computes_feature      <Place feature attribute URI here and uncomment> ;
-#   vamp:computes_signal_type  <Place signal type URI here and uncomment> ;
+    vamp:computes_event_type   af:ZeroCrossing ;
     .
 
