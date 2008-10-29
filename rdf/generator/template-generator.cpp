@@ -92,11 +92,13 @@ string describe_library(string libname, vector<Plugin *> plugins)
     vamp:identifier \""+libname+"\" ";
 
     for (size_t i = 0; i < plugins.size(); ++i) {
-        res += "; \n\
+        res += " ; \n\
     vamp:available_plugin plugbase:"+plugins[i]->getIdentifier();
     }
 
-    res += " .\n\n";
+    res += " ; \n\
+#   foaf:page <Place more-information HTML page URL here and uncomment> ;\n\
+    .\n\n";
     return res;
 }
 
