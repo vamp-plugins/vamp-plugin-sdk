@@ -26,12 +26,22 @@ using std::ios;
 using Vamp::HostExt::PluginLoader;
 using Vamp::Plugin;
 
+//???
 string programURI = "http://www.vamp-plugins.org/doap.rdf#template-generator";
 
 void usage()
 {
-    cerr << "usage: template-generator -i vamp:soname[:plugin] [vamp:soname[:plugin] ...]" << endl;
-    cerr << "usage: template-generator PLUGIN_BASE_URI YOUR_URI vamp:soname[:plugin] [vamp:soname[:plugin] ...]" << endl;
+    cerr << endl;
+    cerr << "template-generator: Create a skeleton RDF description file describing a Vamp" << endl;
+    cerr << "plugin library using the Vamp ontology." << endl;
+    cerr << endl;
+    cerr << "Usage:" << endl;
+    cerr << "   template-generator -i vamp:soname[:plugin] [vamp:soname[:plugin] ...]" << endl;
+    cerr << "   template-generator PLUGIN_BASE_URI [ -m YOUR_URI ] [vamp:]soname[:plugin] [[vamp:]soname[:plugin] ...]" << endl;
+    cerr << endl;
+    cerr << "Example:" << endl;
+    cerr << "   template-generator http://vamp-plugins.org/rdf/plugins/ vamp-example-plugins" << endl;
+    cerr << endl;
     exit(2);
 }
 
@@ -64,8 +74,11 @@ string describe_doc(string describerURI, string pluginBundleBaseURI,
                     string libname)
 {
     string res=\
-        "<>  a   vamp:PluginDescription ;\n\
-    foaf:maker          <"+describerURI+"> ;\n\
+        "<>  a   vamp:PluginDescription ;\n";
+    if (describerURI != "") {
+        res += "    foaf:maker          <"+describerURI+"> ;\n";
+    }
+    res += "\
     foaf:maker          <"+programURI+"> ;\n\
     foaf:primaryTopic   <"+pluginBundleBaseURI+libname+"> .\n\n";
     return res;
@@ -343,7 +356,7 @@ int main(int argc, char **argv)
     bool interactive = false;
     if (!strcmp(argv[1], "-i")) interactive = true;
 
-    if (!interactive && argc < 4) usage();
+    if (!interactive && argc < 3) usage();
 
     string pluginBundleBaseURI, describerURI;
 
@@ -351,12 +364,15 @@ int main(int argc, char **argv)
 	
     if (!interactive) {
         pluginBundleBaseURI = argv[1];
-        describerURI = argv[2];
-        argidx = 3;
+        if (!strcmp(argv[2], "-m")) {
+            if (argc < 5) usage();
+            describerURI = argv[3];
+            argidx = 4;
+        }
     } else {
         cerr << "Please enter the base URI for the plugin bundle : ";
         getline(cin, pluginBundleBaseURI);
-        cerr << "Please enter your URI : ";
+        cerr << "Please enter your URI (empty to omit) : ";
         getline(cin, describerURI);
     }
 
