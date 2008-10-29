@@ -268,7 +268,7 @@ vamp:name
 vamp:vamp_API_version
 	a rdf:Property;
 	a owl:DatatypeProperty;
-	rdfs:label "vamp API version";
+	rdfs:label "Vamp API version";
 	rdfs:comment """
 		Version of the Vamp API used to implement this plugin.
 	""";
@@ -286,6 +286,17 @@ vamp:input_domain
 	rdfs:domain vamp:Plugin;
 	rdfs:range vamp:InputDomain;
 	vs:term_status "stable";
+	.
+
+vamp:copyright_note
+	a rdf:Property;
+	a owl:DatatypeProperty;
+        rdfs:label "Copyright note";
+        rdfs:comment """
+		Semi-formal copyright note for the plugin.
+	""";
+	rdfs:domain vamp:Plugin;
+	vs:term_status "unstable";
 	.
 
 # Note that other properties like maker can be linked to the plugin descriptor using other namespaces
