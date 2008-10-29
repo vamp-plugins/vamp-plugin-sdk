@@ -108,8 +108,9 @@ string describe_plugin(Plugin* plugin)
         "plugbase:"+plugin->getIdentifier()+" a   vamp:Plugin ;\n\
     dc:title              \""+plugin->getName()+"\" ;\n\
     vamp:name             \""+plugin->getName()+"\" ;\n\
-    dc:description        \""+plugin->getDescription()+"\" ;\n\
+    dc:description        \"\"\""+plugin->getDescription()+"\"\"\" ;\n\
     foaf:maker            [ foaf:name \""+plugin->getMaker()+"\" ] ; # FIXME could give plugin author's URI here\n\
+    vamp:copyright_note   \"\"\""+plugin->getCopyright()+"\"\"\" ;\n\
 #   cc:license            <Place plugin license URI here and uncomment> ; \n\
     vamp:identifier       \""+plugin->getIdentifier()+"\" ;\n\
     vamp:vamp_API_version vamp:api_version_"+to_string(plugin->getVampApiVersion())+" ;\n\
