@@ -28,7 +28,8 @@ plugbase:amplitudefollower a   vamp:Plugin ;
     vamp:name             "Amplitude Follower" ;
     dc:description        "Track the amplitude of the audio signal" ;
     foaf:maker            [ foaf:name "Vamp SDK Example Plugins" ] ; # FIXME could give plugin author's URI here
-#   cc:license            <Place plugin license URI here and uncomment> ; 
+    cc:license            <http://creativecommons.org/licenses/BSD/> ;
+    dc:rights             "Freely redistributable (BSD license)" ;
     vamp:identifier       "amplitudefollower" ;
     vamp:vamp_API_version vamp:api_version_2 ;
     owl:versionInfo       "1" ;
@@ -74,7 +75,8 @@ plugbase:fixedtempo a   vamp:Plugin ;
     vamp:name             "Simple Fixed Tempo Estimator" ;
     dc:description        "Study a short section of audio and estimate its tempo, assuming the tempo is constant" ;
     foaf:maker            [ foaf:name "Vamp SDK Example Plugins" ] ; # FIXME could give plugin author's URI here
-#   cc:license            <Place plugin license URI here and uncomment> ; 
+    cc:license            <http://creativecommons.org/licenses/BSD/> ;
+    dc:rights             "Freely redistributable (BSD license)" ;
     vamp:identifier       "fixedtempo" ;
     vamp:vamp_API_version vamp:api_version_2 ;
     owl:versionInfo       "1" ;
@@ -144,7 +146,8 @@ plugbase:percussiononsets a   vamp:Plugin ;
     vamp:name             "Simple Percussion Onset Detector" ;
     dc:description        "Detect percussive note onsets by identifying broadband energy rises" ;
     foaf:maker            [ foaf:name "Vamp SDK Example Plugins" ] ; # FIXME could give plugin author's URI here
-#   cc:license            <Place plugin license URI here and uncomment> ; 
+    cc:license            <http://creativecommons.org/licenses/BSD/> ;
+    dc:rights             "Freely redistributable (BSD license)" ;
     vamp:identifier       "percussiononsets" ;
     vamp:vamp_API_version vamp:api_version_2 ;
     owl:versionInfo       "2" ;
@@ -204,7 +207,8 @@ plugbase:spectralcentroid a   vamp:Plugin ;
     vamp:name             "Spectral Centroid" ;
     dc:description        "Calculate the centroid frequency of the spectrum of the input signal" ;
     foaf:maker            [ foaf:name "Vamp SDK Example Plugins" ] ; # FIXME could give plugin author's URI here
-#   cc:license            <Place plugin license URI here and uncomment> ; 
+    cc:license            <http://creativecommons.org/licenses/BSD/> ;
+    dc:rights             "Freely redistributable (BSD license)" ;
     vamp:identifier       "spectralcentroid" ;
     vamp:vamp_API_version vamp:api_version_2 ;
     owl:versionInfo       "2" ;
@@ -238,7 +242,8 @@ plugbase:zerocrossing a   vamp:Plugin ;
     vamp:name             "Zero Crossings" ;
     dc:description        "Detect and count zero crossing points" ;
     foaf:maker            [ foaf:name "Vamp SDK Example Plugins" ] ; # FIXME could give plugin author's URI here
-#   cc:license            <Place plugin license URI here and uncomment> ; 
+    cc:license            <http://creativecommons.org/licenses/BSD/> ;
+    dc:rights             "Freely redistributable (BSD license)" ;
     vamp:identifier       "zerocrossing" ;
     vamp:vamp_API_version vamp:api_version_2 ;
     owl:versionInfo       "2" ;

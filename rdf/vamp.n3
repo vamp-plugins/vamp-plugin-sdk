@@ -288,17 +288,6 @@ vamp:input_domain
 	vs:term_status "stable";
 	.
 
-vamp:copyright_note
-	a rdf:Property;
-	a owl:DatatypeProperty;
-        rdfs:label "Copyright note";
-        rdfs:comment """
-		Semi-formal copyright note for the plugin.
-	""";
-	rdfs:domain vamp:Plugin;
-	vs:term_status "unstable";
-	.
-
 # Note that other properties like maker can be linked to the plugin descriptor using other namespaces
 
 ##### Parameter Descriptor properties (and some common with PluginOutput)
