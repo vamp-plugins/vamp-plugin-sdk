@@ -45,7 +45,7 @@ namespace Vamp {
 namespace HostExt {
 		
 /**
- * \class PluginBufferingAdapter PluginBufferingAdapter.h <vamp-sdk/hostext/PluginBufferingAdapter.h>
+ * \class PluginBufferingAdapter PluginBufferingAdapter.h <vamp-hostsdk/PluginBufferingAdapter.h>
  *
  * PluginBufferingAdapter is a Vamp plugin adapter that allows plugins
  * to be used by a host supplying an audio stream in non-overlapping

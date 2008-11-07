@@ -44,7 +44,7 @@ namespace Vamp {
 namespace HostExt {
 
 /**
- * \class PluginChannelAdapter PluginChannelAdapter.h <vamp-sdk/hostext/PluginChannelAdapter.h>
+ * \class PluginChannelAdapter PluginChannelAdapter.h <vamp-hostsdk/PluginChannelAdapter.h>
  *
  * PluginChannelAdapter is a Vamp plugin adapter that implements a
  * policy for management of plugins that expect a different number of

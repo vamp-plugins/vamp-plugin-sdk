@@ -35,10 +35,10 @@
 */
 
 #include <vamp-hostsdk/PluginHostAdapter.h>
-#include <vamp-hostsdk/hostext/PluginLoader.h>
-#include <vamp-hostsdk/hostext/PluginInputDomainAdapter.h>
-#include <vamp-hostsdk/hostext/PluginChannelAdapter.h>
-#include <vamp-hostsdk/hostext/PluginBufferingAdapter.h>
+#include <vamp-hostsdk/PluginLoader.h>
+#include <vamp-hostsdk/PluginInputDomainAdapter.h>
+#include <vamp-hostsdk/PluginChannelAdapter.h>
+#include <vamp-hostsdk/PluginBufferingAdapter.h>
 
 #include <fstream>
 #include <cctype> // tolower

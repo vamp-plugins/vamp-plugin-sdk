@@ -34,7 +34,7 @@
     authorization.
 */
 
-#include <vamp-hostsdk/hostext/PluginChannelAdapter.h>
+#include <vamp-hostsdk/PluginChannelAdapter.h>
 
 namespace Vamp {
 

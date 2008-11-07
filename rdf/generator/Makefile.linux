@@ -1,9 +1,0 @@
-
-CXXFLAGS	:= -I../.. -O2 -Wall
-
-template-generator:	template-generator.o
-	g++ $^ -o $@ -L../../vamp-sdk -Wl,-Bstatic -lvamp-hostsdk -Wl,-Bdynamic -ldl
-
-clean:	
-	rm *.o
-

@@ -41,7 +41,7 @@
 #include <vector>
 
 #include "plugguard.h"
-_VAMP_SDK_HEADER_BEGIN(PluginBase.h)
+_VAMP_SDK_PLUGSPACE_BEGIN(PluginBase.h)
 
 namespace Vamp {
 
@@ -253,6 +253,6 @@ public:
 
 }
 
-_VAMP_SDK_HEADER_END(PluginBase.h)
+_VAMP_SDK_PLUGSPACE_END(PluginBase.h)
 
 #endif

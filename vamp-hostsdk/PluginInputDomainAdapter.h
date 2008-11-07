@@ -44,7 +44,7 @@ namespace Vamp {
 namespace HostExt {
 
 /**
- * \class PluginInputDomainAdapter PluginInputDomainAdapter.h <vamp-sdk/hostext/PluginInputDomainAdapter.h>
+ * \class PluginInputDomainAdapter PluginInputDomainAdapter.h <vamp-hostsdk/PluginInputDomainAdapter.h>
  * 
  * PluginInputDomainAdapter is a Vamp plugin adapter that converts
  * time-domain input into frequency-domain input for plugins that need

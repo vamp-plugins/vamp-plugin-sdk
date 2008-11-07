@@ -59,9 +59,7 @@ using std::endl;
 
 #include <vamp-sdk/RealTime.h>
 
-#ifdef _VAMP_IN_PLUGINSDK
-namespace _VampPlugin {
-#endif
+_VAMP_SDK_PLUGSPACE_BEGIN(RealTime.cpp)
 
 namespace Vamp {
 
@@ -248,8 +246,7 @@ const RealTime RealTime::zeroTime(0,0);
 
 }
 
-#ifdef _VAMP_IN_PLUGINSDK
-}
-#endif
+_VAMP_SDK_PLUGSPACE_END(RealTime.cpp)
+
 
 

@@ -1,9 +1,9 @@
 /* -*- c-basic-offset: 4 indent-tabs-mode: nil -*-  vi:set ts=8 sts=4 sw=4: */
 
 #include <vamp-hostsdk/PluginHostAdapter.h>
-#include <vamp-hostsdk/hostext/PluginChannelAdapter.h>
-#include <vamp-hostsdk/hostext/PluginInputDomainAdapter.h>
-#include <vamp-hostsdk/hostext/PluginLoader.h>
+#include <vamp-hostsdk/PluginChannelAdapter.h>
+#include <vamp-hostsdk/PluginInputDomainAdapter.h>
+#include <vamp-hostsdk/PluginLoader.h>
 #include <vamp/vamp.h>
 
 #include <iostream>

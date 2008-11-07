@@ -45,7 +45,7 @@
 #include "RealTime.h"
 
 #include "plugguard.h"
-_VAMP_SDK_HEADER_BEGIN(Plugin.h)
+_VAMP_SDK_PLUGSPACE_BEGIN(Plugin.h)
 
 namespace Vamp {
 
@@ -433,7 +433,7 @@ protected:
 
 }
 
-_VAMP_SDK_HEADER_END(Plugin.h)
+_VAMP_SDK_PLUGSPACE_END(Plugin.h)
 
 #endif
 

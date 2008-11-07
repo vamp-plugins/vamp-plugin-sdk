@@ -38,7 +38,7 @@
 #include <vector>
 #include <map>
 
-#include <vamp-hostsdk/hostext/PluginBufferingAdapter.h>
+#include <vamp-hostsdk/PluginBufferingAdapter.h>
 
 using std::vector;
 using std::map;

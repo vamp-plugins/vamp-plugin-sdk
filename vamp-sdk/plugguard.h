@@ -50,8 +50,8 @@
  *   with non-plugin class implementations in the host on load.
  *
  * - Hosts include vamp-hostsdk/Plugin.h, vamp-hostsdk/PluginBase.h,
- *   vamp-hostsdk/PluginHostAdapter, vamp-hostsdk/hostext/<x>.h etc.
- *   These files include vamp-hostsdk/guards.h, which makes a note
+ *   vamp-hostsdk/PluginHostAdapter, vamp-hostsdk/PluginLoader.h etc.
+ *   These files include vamp-hostsdk/hostguard.h, which makes a note
  *   that we are in a host.  A file such as vamp-hostsdk/Plugin.h
  *   then simply includes vamp-sdk/Plugin.h, and this guard header
  *   takes notice of the fact that it has been included from a host
@@ -73,19 +73,24 @@
 
 #ifdef _VAMP_IN_HOSTSDK
 
-#define _VAMP_SDK_HEADER_BEGIN(h)
-#define _VAMP_SDK_HEADER_END(h)
+#define _VAMP_SDK_PLUGSPACE_BEGIN(h)
+#define _VAMP_SDK_PLUGSPACE_END(h)
 
 #else
 
 #define _VAMP_IN_PLUGINSDK
 
-#define _VAMP_SDK_HEADER_BEGIN(h) \
+#ifdef _VAMP_NO_PLUGIN_NAMESPACE
+#define _VAMP_SDK_PLUGSPACE_BEGIN(h)
+#define _VAMP_SDK_PLUGSPACE_END(h)
+#else
+#define _VAMP_SDK_PLUGSPACE_BEGIN(h) \
 	namespace _VampPlugin {
 
-#define _VAMP_SDK_HEADER_END(h) \
+#define _VAMP_SDK_PLUGSPACE_END(h) \
 	} \
 	using namespace _VampPlugin;
+#endif
 
 #endif
 

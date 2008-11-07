@@ -44,7 +44,7 @@ namespace Vamp {
 namespace HostExt {
 
 /**
- * \class PluginWrapper PluginWrapper.h <vamp-sdk/hostext/PluginWrapper.h>
+ * \class PluginWrapper PluginWrapper.h <vamp-hostsdk/PluginWrapper.h>
  * 
  * PluginWrapper is a simple base class for adapter plugins.  It takes
  * a pointer to a "to be wrapped" Vamp plugin on construction, and

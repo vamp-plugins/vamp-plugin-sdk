@@ -50,7 +50,7 @@ class Plugin;
 namespace HostExt {
 
 /**
- * \class PluginLoader PluginLoader.h <vamp-sdk/hostext/PluginLoader.h>
+ * \class PluginLoader PluginLoader.h <vamp-hostsdk/PluginLoader.h>
  * 
  * Vamp::HostExt::PluginLoader is a convenience class for discovering
  * and loading Vamp plugins using the typical plugin-path, library

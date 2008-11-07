@@ -43,7 +43,7 @@
 #include "Plugin.h"
 
 #include "plugguard.h"
-_VAMP_SDK_HEADER_BEGIN(PluginAdapter.h)
+_VAMP_SDK_PLUGSPACE_BEGIN(PluginAdapter.h)
 
 namespace Vamp {
 
@@ -115,7 +115,7 @@ protected:
     
 }
 
-_VAMP_SDK_HEADER_END(PluginAdapter.h)
+_VAMP_SDK_PLUGSPACE_END(PluginAdapter.h)
 
 #endif
 

@@ -516,10 +516,7 @@ WARN_LOGFILE           = docs/doxygen/warning.log
 INPUT                  = vamp \
                          vamp-sdk \
                          vamp-hostsdk \
-                         vamp-hostsdk/hostext \
-                         src/vamp-sdk \
-                         src/vamp-hostsdk \
-                         src/vamp-hostsdk/hostext \
+                         src \
                          examples \
                          host
 
@@ -1130,17 +1127,7 @@ INCLUDE_FILE_PATTERNS  =
 # undefined via #undef or recursively expanded use the := operator 
 # instead of the = operator.
 
-PREDEFINED             = HAVE_FFTW3F \
-                         HAVE_FISHSOUND \
-                         HAVE_JACK \
-                         HAVE_LIBLO \
-                         HAVE_LRDF \
-                         HAVE_MAD \
-                         HAVE_OGGZ \
-                         HAVE_PORTAUDIO \
-                         HAVE_SAMPLERATE \
-                         HAVE_SNDFILE \
-                         HAVE_VAMP
+PREDEFINED             = _VAMP_NO_PLUGIN_NAMESPACE
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
 # this tag can be used to specify a list of macro names that should be expanded. 

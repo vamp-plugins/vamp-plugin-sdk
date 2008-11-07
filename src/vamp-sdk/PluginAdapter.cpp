@@ -41,7 +41,7 @@
 
 //#define DEBUG_PLUGIN_ADAPTER 1
 
-namespace _VampPlugin {
+_VAMP_SDK_PLUGSPACE_BEGIN(PluginAdapter.cpp)
 
 namespace Vamp {
 
@@ -873,5 +873,5 @@ PluginAdapterBase::Impl::m_adapterMap = 0;
 
 }
 
-}
+_VAMP_SDK_PLUGSPACE_END(PluginAdapter.cpp)
 

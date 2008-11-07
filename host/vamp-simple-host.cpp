@@ -36,8 +36,8 @@
 */
 
 #include <vamp-hostsdk/PluginHostAdapter.h>
-#include <vamp-hostsdk/hostext/PluginInputDomainAdapter.h>
-#include <vamp-hostsdk/hostext/PluginLoader.h>
+#include <vamp-hostsdk/PluginInputDomainAdapter.h>
+#include <vamp-hostsdk/PluginLoader.h>
 
 #include <iostream>
 #include <fstream>
