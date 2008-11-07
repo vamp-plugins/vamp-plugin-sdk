@@ -38,7 +38,7 @@ default:	all
 
 # Compile flags
 #
-CXXFLAGS	:= $(CXXFLAGS) -g -Wall -I. -fPIC
+CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -I. -fPIC
 
 # ar, ranlib
 #
