@@ -38,7 +38,7 @@
 #define _VAMP_PLUGIN_HOST_ADAPTER_H_
 
 #include <vamp/vamp.h>
-#include <vamp-sdk/Plugin.h>
+#include "Plugin.h"
 
 #include <vector>
 

@@ -34,11 +34,11 @@
     authorization.
 */
 
-#include "vamp-sdk/PluginHostAdapter.h"
-#include "PluginLoader.h"
-#include "PluginInputDomainAdapter.h"
-#include "PluginChannelAdapter.h"
-#include "PluginBufferingAdapter.h"
+#include <vamp-hostsdk/PluginHostAdapter.h>
+#include <vamp-hostsdk/hostext/PluginLoader.h>
+#include <vamp-hostsdk/hostext/PluginInputDomainAdapter.h>
+#include <vamp-hostsdk/hostext/PluginChannelAdapter.h>
+#include <vamp-hostsdk/hostext/PluginBufferingAdapter.h>
 
 #include <fstream>
 #include <cctype> // tolower

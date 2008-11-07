@@ -35,10 +35,9 @@
     authorization.
 */
 
-#include "vamp-sdk/PluginHostAdapter.h"
-#include "vamp-sdk/hostext/PluginInputDomainAdapter.h"
-#include "vamp-sdk/hostext/PluginLoader.h"
-#include "vamp/vamp.h"
+#include <vamp-hostsdk/PluginHostAdapter.h>
+#include <vamp-hostsdk/hostext/PluginInputDomainAdapter.h>
+#include <vamp-hostsdk/hostext/PluginLoader.h>
 
 #include <iostream>
 #include <fstream>

@@ -4,8 +4,16 @@
 # suit your operating system requirements.
 
 APIDIR		= vamp
+
 SDKDIR		= vamp-sdk
-HOSTEXTDIR      = vamp-sdk/hostext
+HOSTSDKDIR	= vamp-hostsdk
+HOSTEXTDIR      = vamp-hostsdk/hostext
+
+SRCDIR		= src
+SDKSRCDIR	= src/vamp-sdk
+HOSTSDKSRCDIR	= src/vamp-hostsdk
+HOSTEXTSRCDIR	= src/vamp-hostsdk/hostext
+
 EXAMPLEDIR	= examples
 HOSTDIR		= host
 
@@ -37,7 +45,7 @@ RANLIB		:= ranlib
 
 # Libraries required for the plugins.
 #
-PLUGIN_LIBS	= $(SDKDIR)/libvamp-sdk.a
+PLUGIN_LIBS	= $(SRCDIR)/libvamp-sdk.a
 
 # File extension for a dynamically loadable object
 #
@@ -47,7 +55,7 @@ PLUGIN_EXT	= .so
 
 # Libraries required for the host.
 #
-HOST_LIBS	= $(SDKDIR)/libvamp-hostsdk.a -lsndfile -ldl
+HOST_LIBS	= $(SRCDIR)/libvamp-hostsdk.a -lsndfile -ldl
 
 # Locations for "make install".  This will need quite a bit of 
 # editing for non-Linux platforms.  Of course you don't necessarily
@@ -82,7 +90,7 @@ HOSTSDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS) -Wl,-soname=$(INSTALL_HOSTSDK_LINK_
 # Additional flags for making a plugin.  This version script tells the
 # GNU linker to make all symbols in the library hidden except for the
 # public entry point.  It's not essential, but makes a tidier library.
-PLUGIN_LDFLAGS		= $(DYNAMIC_LDFLAGS) -Wl,--version-script=vamp-plugin.map
+PLUGIN_LDFLAGS		= $(DYNAMIC_LDFLAGS) -Wl,--version-script=build/vamp-plugin.map
 
 
 ## For OS/X with g++:
@@ -105,10 +113,10 @@ SDK_HEADERS	= \
 		$(SDKDIR)/RealTime.h
 
 HOSTSDK_HEADERS	= \
-		$(SDKDIR)/Plugin.h \
-		$(SDKDIR)/PluginBase.h \
-		$(SDKDIR)/PluginHostAdapter.h \
-		$(SDKDIR)/RealTime.h
+		$(HOSTSDKDIR)/Plugin.h \
+		$(HOSTSDKDIR)/PluginBase.h \
+		$(HOSTSDKDIR)/PluginHostAdapter.h \
+		$(HOSTSDKDIR)/RealTime.h
 
 HOSTEXT_HEADERS = \
 		$(HOSTEXTDIR)/PluginBufferingAdapter.h \
@@ -119,36 +127,36 @@ HOSTEXT_HEADERS = \
 		$(HOSTEXTDIR)/PluginWrapper.h
 
 SDK_OBJECTS	= \
-		$(SDKDIR)/PluginAdapter.o \
-		$(SDKDIR)/RealTime.o
+		$(SDKSRCDIR)/PluginAdapter.o \
+		$(SDKSRCDIR)/RealTime.o
 
 HOSTSDK_OBJECTS	= \
-		$(SDKDIR)/PluginHostAdapter.o \
-		$(HOSTEXTDIR)/PluginBufferingAdapter.o \
-		$(HOSTEXTDIR)/PluginChannelAdapter.o \
-		$(HOSTEXTDIR)/PluginInputDomainAdapter.o \
-		$(HOSTEXTDIR)/PluginLoader.o \
-		$(HOSTEXTDIR)/PluginSummarisingAdapter.o \
-		$(HOSTEXTDIR)/PluginWrapper.o \
-		$(SDKDIR)/RealTime.o
+		$(HOSTSDKSRCDIR)/PluginHostAdapter.o \
+		$(HOSTSDKSRCDIR)/RealTime.o \
+		$(HOSTEXTSRCDIR)/PluginBufferingAdapter.o \
+		$(HOSTEXTSRCDIR)/PluginChannelAdapter.o \
+		$(HOSTEXTSRCDIR)/PluginInputDomainAdapter.o \
+		$(HOSTEXTSRCDIR)/PluginLoader.o \
+		$(HOSTEXTSRCDIR)/PluginSummarisingAdapter.o \
+		$(HOSTEXTSRCDIR)/PluginWrapper.o
 
 SDK_STATIC	= \
-		$(SDKDIR)/libvamp-sdk.a
+		$(SRCDIR)/libvamp-sdk.a
 
 HOSTSDK_STATIC	= \
-		$(SDKDIR)/libvamp-hostsdk.a
+		$(SRCDIR)/libvamp-hostsdk.a
 
 SDK_DYNAMIC	= \
-		$(SDKDIR)/libvamp-sdk$(PLUGIN_EXT)
+		$(SRCDIR)/libvamp-sdk$(PLUGIN_EXT)
 
 HOSTSDK_DYNAMIC	= \
-		$(SDKDIR)/libvamp-hostsdk$(PLUGIN_EXT)
+		$(SRCDIR)/libvamp-hostsdk$(PLUGIN_EXT)
 
 SDK_LA		= \
-		$(SDKDIR)/libvamp-sdk.la
+		$(SRCDIR)/libvamp-sdk.la
 
 HOSTSDK_LA	= \
-		$(SDKDIR)/libvamp-hostsdk.la
+		$(SRCDIR)/libvamp-hostsdk.la
 
 PLUGIN_HEADERS	= \
 		$(EXAMPLEDIR)/SpectralCentroid.h \
@@ -257,102 +265,3 @@ install:	$(SDK_STATIC) $(SDK_DYNAMIC) $(HOSTSDK_STATIC) $(HOSTSDK_DYNAMIC) $(PLU
 		    -e "s,%LIBS%,$(INSTALL_SDK_LIBS),g" $(HOSTSDK_LA).in \
 		> $(DESTDIR)$(INSTALL_SDK_LIBS)/$(INSTALL_HOSTSDK_LA)
 
-# DO NOT DELETE
-
-examples/AmplitudeFollower.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
-examples/AmplitudeFollower.o: vamp-sdk/RealTime.h
-examples/PercussionOnsetDetector.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
-examples/PercussionOnsetDetector.o: vamp-sdk/RealTime.h
-examples/FixedTempoEstimator.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
-examples/FixedTempoEstimator.o: vamp-sdk/RealTime.h
-examples/FixedTempoEstimator.o: examples/FixedTempoEstimator.h
-examples/SpectralCentroid.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
-examples/SpectralCentroid.o: vamp-sdk/RealTime.h
-examples/ZeroCrossing.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
-examples/ZeroCrossing.o: vamp-sdk/RealTime.h
-vamp-sdk/PluginAdapter.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
-vamp-sdk/PluginAdapter.o: vamp-sdk/RealTime.h
-vamp-sdk/Plugin.o: vamp-sdk/PluginBase.h vamp-sdk/RealTime.h
-vamp-sdk/PluginHostAdapter.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
-vamp-sdk/PluginHostAdapter.o: vamp-sdk/RealTime.h
-examples/AmplitudeFollower.o: examples/AmplitudeFollower.h vamp-sdk/Plugin.h
-examples/AmplitudeFollower.o: vamp-sdk/PluginBase.h vamp-sdk/RealTime.h
-examples/PercussionOnsetDetector.o: examples/PercussionOnsetDetector.h
-examples/PercussionOnsetDetector.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
-examples/PercussionOnsetDetector.o: vamp-sdk/RealTime.h
-examples/plugins.o: vamp/vamp.h vamp-sdk/PluginAdapter.h vamp-sdk/Plugin.h
-examples/plugins.o: vamp-sdk/PluginBase.h vamp-sdk/RealTime.h
-examples/plugins.o: examples/ZeroCrossing.h vamp-sdk/Plugin.h
-examples/plugins.o: examples/SpectralCentroid.h
-examples/plugins.o: examples/PercussionOnsetDetector.h
-examples/plugins.o: examples/FixedTempoEstimator.h
-examples/plugins.o: examples/AmplitudeFollower.h
-examples/SpectralCentroid.o: examples/SpectralCentroid.h vamp-sdk/Plugin.h
-examples/SpectralCentroid.o: vamp-sdk/PluginBase.h vamp-sdk/RealTime.h
-examples/ZeroCrossing.o: examples/ZeroCrossing.h vamp-sdk/Plugin.h
-examples/ZeroCrossing.o: vamp-sdk/PluginBase.h vamp-sdk/RealTime.h
-host/vamp-simple-host.o: vamp-sdk/PluginHostAdapter.h vamp-sdk/Plugin.h
-host/vamp-simple-host.o: vamp-sdk/PluginBase.h vamp-sdk/RealTime.h
-host/vamp-simple-host.o: vamp-sdk/hostext/PluginChannelAdapter.h
-host/vamp-simple-host.o: vamp-sdk/hostext/PluginWrapper.h
-host/vamp-simple-host.o: vamp-sdk/hostext/PluginInputDomainAdapter.h
-host/vamp-simple-host.o: vamp-sdk/hostext/PluginLoader.h vamp/vamp.h
-host/vamp-simple-host.o: host/system.h
-vamp-sdk/PluginAdapter.o: vamp-sdk/PluginAdapter.h vamp/vamp.h
-vamp-sdk/PluginAdapter.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
-vamp-sdk/PluginAdapter.o: vamp-sdk/RealTime.h
-vamp-sdk/PluginHostAdapter.o: vamp-sdk/PluginHostAdapter.h vamp/vamp.h
-vamp-sdk/PluginHostAdapter.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
-vamp-sdk/PluginHostAdapter.o: vamp-sdk/RealTime.h
-vamp-sdk/RealTime.o: vamp-sdk/RealTime.h
-vamp-sdk/hostext/PluginBufferingAdapter.o: vamp-sdk/hostext/PluginWrapper.h
-vamp-sdk/hostext/PluginBufferingAdapter.o: vamp-sdk/Plugin.h
-vamp-sdk/hostext/PluginBufferingAdapter.o: vamp-sdk/PluginBase.h
-vamp-sdk/hostext/PluginBufferingAdapter.o: vamp-sdk/RealTime.h
-vamp-sdk/hostext/PluginChannelAdapter.o: vamp-sdk/hostext/PluginWrapper.h
-vamp-sdk/hostext/PluginChannelAdapter.o: vamp-sdk/Plugin.h
-vamp-sdk/hostext/PluginChannelAdapter.o: vamp-sdk/PluginBase.h
-vamp-sdk/hostext/PluginChannelAdapter.o: vamp-sdk/RealTime.h
-vamp-sdk/hostext/PluginInputDomainAdapter.o: vamp-sdk/hostext/PluginWrapper.h
-vamp-sdk/hostext/PluginInputDomainAdapter.o: vamp-sdk/Plugin.h
-vamp-sdk/hostext/PluginInputDomainAdapter.o: vamp-sdk/PluginBase.h
-vamp-sdk/hostext/PluginInputDomainAdapter.o: vamp-sdk/RealTime.h
-vamp-sdk/hostext/PluginLoader.o: vamp-sdk/hostext/PluginWrapper.h
-vamp-sdk/hostext/PluginLoader.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
-vamp-sdk/hostext/PluginLoader.o: vamp-sdk/RealTime.h
-vamp-sdk/hostext/PluginWrapper.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
-vamp-sdk/hostext/PluginWrapper.o: vamp-sdk/RealTime.h
-rdf/generator/template-generator.o: vamp-sdk/PluginHostAdapter.h
-rdf/generator/template-generator.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
-rdf/generator/template-generator.o: vamp-sdk/RealTime.h
-rdf/generator/template-generator.o: vamp-sdk/hostext/PluginChannelAdapter.h
-rdf/generator/template-generator.o: vamp-sdk/hostext/PluginWrapper.h
-rdf/generator/template-generator.o: vamp-sdk/hostext/PluginInputDomainAdapter.h
-rdf/generator/template-generator.o: vamp-sdk/hostext/PluginLoader.h
-rdf/generator/template-generator.o: vamp/vamp.h
-vamp-sdk/hostext/PluginBufferingAdapter.o: vamp-sdk/hostext/PluginBufferingAdapter.h
-vamp-sdk/hostext/PluginBufferingAdapter.o: vamp-sdk/hostext/PluginWrapper.h
-vamp-sdk/hostext/PluginBufferingAdapter.o: vamp-sdk/Plugin.h
-vamp-sdk/hostext/PluginBufferingAdapter.o: vamp-sdk/PluginBase.h
-vamp-sdk/hostext/PluginBufferingAdapter.o: vamp-sdk/RealTime.h
-vamp-sdk/hostext/PluginChannelAdapter.o: vamp-sdk/hostext/PluginChannelAdapter.h
-vamp-sdk/hostext/PluginChannelAdapter.o: vamp-sdk/hostext/PluginWrapper.h
-vamp-sdk/hostext/PluginChannelAdapter.o: vamp-sdk/Plugin.h
-vamp-sdk/hostext/PluginChannelAdapter.o: vamp-sdk/PluginBase.h
-vamp-sdk/hostext/PluginChannelAdapter.o: vamp-sdk/RealTime.h
-vamp-sdk/hostext/PluginInputDomainAdapter.o: vamp-sdk/hostext/PluginInputDomainAdapter.h
-vamp-sdk/hostext/PluginInputDomainAdapter.o: vamp-sdk/hostext/PluginWrapper.h
-vamp-sdk/hostext/PluginInputDomainAdapter.o: vamp-sdk/Plugin.h
-vamp-sdk/hostext/PluginInputDomainAdapter.o: vamp-sdk/PluginBase.h
-vamp-sdk/hostext/PluginInputDomainAdapter.o: vamp-sdk/RealTime.h
-vamp-sdk/hostext/PluginLoader.o: vamp-sdk/PluginHostAdapter.h
-vamp-sdk/hostext/PluginLoader.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
-vamp-sdk/hostext/PluginLoader.o: vamp-sdk/RealTime.h
-vamp-sdk/hostext/PluginLoader.o: vamp-sdk/hostext/PluginLoader.h
-vamp-sdk/hostext/PluginLoader.o: vamp-sdk/hostext/PluginWrapper.h
-vamp-sdk/hostext/PluginLoader.o: vamp-sdk/hostext/PluginInputDomainAdapter.h
-vamp-sdk/hostext/PluginLoader.o: vamp-sdk/hostext/PluginChannelAdapter.h
-vamp-sdk/hostext/PluginLoader.o: vamp-sdk/hostext/PluginBufferingAdapter.h
-vamp-sdk/hostext/PluginWrapper.o: vamp-sdk/hostext/PluginWrapper.h
-vamp-sdk/hostext/PluginWrapper.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
-vamp-sdk/hostext/PluginWrapper.o: vamp-sdk/RealTime.h

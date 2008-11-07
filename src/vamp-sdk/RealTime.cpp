@@ -53,10 +53,14 @@
 using std::cerr;
 using std::endl;
 
-#include "RealTime.h"
-
 #ifndef _WIN32
 #include <sys/time.h>
+#endif
+
+#include <vamp-sdk/RealTime.h>
+
+#ifdef _VAMP_IN_PLUGINSDK
+namespace _VampPlugin {
 #endif
 
 namespace Vamp {
@@ -243,3 +247,9 @@ RealTime::frame2RealTime(long frame, unsigned int sampleRate)
 const RealTime RealTime::zeroTime(0,0);
 
 }
+
+#ifdef _VAMP_IN_PLUGINSDK
+}
+#endif
+
+

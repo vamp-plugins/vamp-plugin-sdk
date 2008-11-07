@@ -37,7 +37,7 @@
 #ifndef _VAMP_PLUGIN_WRAPPER_H_
 #define _VAMP_PLUGIN_WRAPPER_H_
 
-#include "vamp-sdk/Plugin.h"
+#include <vamp-hostsdk/Plugin.h>
 
 namespace Vamp {
 

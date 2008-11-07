@@ -34,7 +34,7 @@
     authorization.
 */
 
-#include "PluginWrapper.h"
+#include <vamp-hostsdk/hostext/PluginWrapper.h>
 
 namespace Vamp {
 

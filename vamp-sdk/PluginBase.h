@@ -34,13 +34,14 @@
     authorization.
 */
 
-#ifndef _VAMP_PLUGIN_BASE_H_
-#define _VAMP_PLUGIN_BASE_H_
+#ifndef _VAMP_SDK_PLUGIN_BASE_H_
+#define _VAMP_SDK_PLUGIN_BASE_H_
 
 #include <string>
 #include <vector>
 
-#define VAMP_SDK_VERSION "1.2"
+#include "plugguard.h"
+_VAMP_SDK_HEADER_BEGIN(PluginBase.h)
 
 namespace Vamp {
 
@@ -251,5 +252,7 @@ public:
 };
 
 }
+
+_VAMP_SDK_HEADER_END(PluginBase.h)
 
 #endif

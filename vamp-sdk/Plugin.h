@@ -34,15 +34,18 @@
     authorization.
 */
 
-#ifndef _VAMP_PLUGIN_H_
-#define _VAMP_PLUGIN_H_
-
-#include "PluginBase.h"
-#include "RealTime.h"
+#ifndef _VAMP_SDK_PLUGIN_H_
+#define _VAMP_SDK_PLUGIN_H_
 
 #include <string>
 #include <vector>
 #include <map>
+
+#include "PluginBase.h"
+#include "RealTime.h"
+
+#include "plugguard.h"
+_VAMP_SDK_HEADER_BEGIN(Plugin.h)
 
 namespace Vamp {
 
@@ -429,6 +432,8 @@ protected:
 };
 
 }
+
+_VAMP_SDK_HEADER_END(Plugin.h)
 
 #endif
 

@@ -34,12 +34,14 @@
     authorization.
 */
 
-#include "PluginAdapter.h"
+#include <vamp-sdk/PluginAdapter.h>
 
 #include <cstring>
 #include <cstdlib>
 
 //#define DEBUG_PLUGIN_ADAPTER 1
+
+namespace _VampPlugin {
 
 namespace Vamp {
 
@@ -868,6 +870,8 @@ PluginAdapterBase::Impl::resizeFV(Plugin *plugin, int n, int j, size_t sz)
   
 PluginAdapterBase::Impl::AdapterMap *
 PluginAdapterBase::Impl::m_adapterMap = 0;
+
+}
 
 }
 

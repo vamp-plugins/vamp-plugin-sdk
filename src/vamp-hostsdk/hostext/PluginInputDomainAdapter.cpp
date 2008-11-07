@@ -37,7 +37,7 @@
     authorization.
 */
 
-#include "PluginInputDomainAdapter.h"
+#include <vamp-hostsdk/hostext/PluginInputDomainAdapter.h>
 
 #include <cmath>
 
