@@ -16,6 +16,8 @@ HOSTEXTSRCDIR	= src/vamp-hostsdk/hostext
 
 EXAMPLEDIR	= examples
 HOSTDIR		= host
+PCDIR		= pkgconfig
+RDFGENDIR	= rdf/generator
 
 ###
 ### Start of user-serviceable parts
@@ -28,6 +30,7 @@ HOSTDIR		= host
 #   sdkstatic -- build only the static versions of the SDK libraries
 #   plugins   -- build the example plugins (and the SDK if required)
 #   host      -- build the simple Vamp plugin host (and the SDK if required)
+#   rdfgen    -- build the RDF template generator (and the SDK if required)
 #   test      -- build the host and example plugins, and run a quick test
 #   clean     -- remove binary targets
 #   distclean -- remove all targets
@@ -56,6 +59,10 @@ PLUGIN_EXT	= .so
 # Libraries required for the host.
 #
 HOST_LIBS	= $(SRCDIR)/libvamp-hostsdk.a -lsndfile -ldl
+
+# Libraries required for the RDF template generator.
+#
+RDFGEN_LIBS	= $(SRCDIR)/libvamp-hostsdk.a -ldl
 
 # Locations for "make install".  This will need quite a bit of 
 # editing for non-Linux platforms.  Of course you don't necessarily
@@ -185,6 +192,12 @@ HOST_OBJECTS	= \
 HOST_TARGET	= \
 		$(HOSTDIR)/vamp-simple-host
 
+RDFGEN_OBJECTS	= \
+		$(RDFGENDIR)/template-generator.o
+
+RDFGEN_TARGET	= \
+		$(RDFGENDIR)/template-generator
+
 sdk:		sdkstatic $(SDK_DYNAMIC) $(HOSTSDK_DYNAMIC)
 
 sdkstatic:	$(SDK_STATIC) $(HOSTSDK_STATIC)
@@ -195,7 +208,9 @@ plugins:	$(PLUGIN_TARGET)
 
 host:		$(HOST_TARGET)
 
-all:		sdk plugins host test
+rdfgen:		$(RDFGEN_TARGET)
+
+all:		sdk plugins host rdfgen test
 
 $(SDK_STATIC):	$(SDK_OBJECTS) $(API_HEADERS) $(SDK_HEADERS)
 		$(AR) r $@ $(SDK_OBJECTS)
@@ -215,14 +230,17 @@ $(PLUGIN_TARGET):	$(PLUGIN_OBJECTS) $(SDK_STATIC) $(PLUGIN_HEADERS)
 $(HOST_TARGET):	$(HOST_OBJECTS) $(HOSTSDK_STATIC) $(HOST_HEADERS)
 		$(CXX) $(LDFLAGS) $(HOST_LDFLAGS) -o $@ $(HOST_OBJECTS) $(HOST_LIBS)
 
+$(RDFGEN_TARGET):	$(RDFGEN_OBJECTS) $(HOSTSDK_STATIC) 
+		$(CXX) $(LDFLAGS) $(RDFGEN_LDFLAGS) -o $@ $(RDFGEN_OBJECTS) $(RDFGEN_LIBS)
+
 test:		plugins host
 		VAMP_PATH=$(EXAMPLEDIR) $(HOST_TARGET) -l
 
 clean:		
-		rm -f $(SDK_OBJECTS) $(HOSTSDK_OBJECTS) $(PLUGIN_OBJECTS) $(HOST_OBJECTS)
+		rm -f $(SDK_OBJECTS) $(HOSTSDK_OBJECTS) $(PLUGIN_OBJECTS) $(HOST_OBJECTS) $(RDFGEN_OBJECTS)
 
 distclean:	clean
-		rm -f $(SDK_STATIC) $(SDK_DYNAMIC) $(HOSTSDK_STATIC) $(HOSTSDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET) *~ */*~
+		rm -f $(SDK_STATIC) $(SDK_DYNAMIC) $(HOSTSDK_STATIC) $(HOSTSDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET) $(RDFGEN_TARGET) *~ */*~
 
 install:	$(SDK_STATIC) $(SDK_DYNAMIC) $(HOSTSDK_STATIC) $(HOSTSDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET)
 		mkdir -p $(DESTDIR)$(INSTALL_API_HEADERS)

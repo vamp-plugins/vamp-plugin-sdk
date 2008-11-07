@@ -515,7 +515,11 @@ WARN_LOGFILE           = docs/doxygen/warning.log
 
 INPUT                  = vamp \
                          vamp-sdk \
-                         vamp-sdk/hostext \
+                         vamp-hostsdk \
+                         vamp-hostsdk/hostext \
+                         src/vamp-sdk \
+                         src/vamp-hostsdk \
+                         src/vamp-hostsdk/hostext \
                          examples \
                          host
 

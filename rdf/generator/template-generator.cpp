@@ -9,9 +9,10 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <sndfile.h>
 
 #include <cmath>
+#include <cstdlib>
+#include <cstring>
 
 using std::cout;
 using std::cin;
