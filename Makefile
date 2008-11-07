@@ -15,6 +15,7 @@ HOSTSDKSRCDIR	= src/vamp-hostsdk
 EXAMPLEDIR	= examples
 HOSTDIR		= host
 PCDIR		= pkgconfig
+LADIR		= build
 RDFGENDIR	= rdf/generator
 
 ###
@@ -115,7 +116,9 @@ SDK_HEADERS	= \
 		$(SDKDIR)/Plugin.h \
 		$(SDKDIR)/PluginAdapter.h \
 		$(SDKDIR)/PluginBase.h \
-		$(SDKDIR)/RealTime.h
+		$(SDKDIR)/RealTime.h \
+		$(SDKDIR)/plugguard.h \
+		$(SDKDIR)/vamp-sdk.h
 
 HOSTSDK_HEADERS	= \
 		$(HOSTSDKDIR)/Plugin.h \
@@ -127,7 +130,9 @@ HOSTSDK_HEADERS	= \
 		$(HOSTSDKDIR)/PluginInputDomainAdapter.h \
 		$(HOSTSDKDIR)/PluginLoader.h \
 		$(HOSTSDKDIR)/PluginSummarisingAdapter.h \
-		$(HOSTSDKDIR)/PluginWrapper.h
+		$(HOSTSDKDIR)/PluginWrapper.h \
+		$(HOSTSDKDIR)/hostguard.h \
+		$(HOSTSDKDIR)/vamp-hostsdk.h
 
 SDK_OBJECTS	= \
 		$(SDKSRCDIR)/PluginAdapter.o \
@@ -156,10 +161,10 @@ HOSTSDK_DYNAMIC	= \
 		$(SRCDIR)/libvamp-hostsdk$(PLUGIN_EXT)
 
 SDK_LA		= \
-		$(SRCDIR)/libvamp-sdk.la
+		$(LADIR)/libvamp-sdk.la
 
 HOSTSDK_LA	= \
-		$(SRCDIR)/libvamp-hostsdk.la
+		$(LADIR)/libvamp-hostsdk.la
 
 PLUGIN_HEADERS	= \
 		$(EXAMPLEDIR)/SpectralCentroid.h \
@@ -241,6 +246,7 @@ distclean:	clean
 install:	$(SDK_STATIC) $(SDK_DYNAMIC) $(HOSTSDK_STATIC) $(HOSTSDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET)
 		mkdir -p $(DESTDIR)$(INSTALL_API_HEADERS)
 		mkdir -p $(DESTDIR)$(INSTALL_SDK_HEADERS)
+		mkdir -p $(DESTDIR)$(INSTALL_HOSTSDK_HEADERS)
 		mkdir -p $(DESTDIR)$(INSTALL_SDK_LIBS)
 		mkdir -p $(DESTDIR)$(INSTALL_PKGCONFIG)
 		cp $(API_HEADERS) $(DESTDIR)$(INSTALL_API_HEADERS)
@@ -258,11 +264,11 @@ install:	$(SDK_STATIC) $(SDK_DYNAMIC) $(HOSTSDK_STATIC) $(HOSTSDK_DYNAMIC) $(PLU
 		ln -s $(INSTALL_SDK_LIBNAME) $(DESTDIR)$(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LINK_DEV)
 		rm -f $(DESTDIR)$(INSTALL_SDK_LIBS)/$(INSTALL_HOSTSDK_LINK_DEV)
 		ln -s $(INSTALL_HOSTSDK_LIBNAME) $(DESTDIR)$(INSTALL_SDK_LIBS)/$(INSTALL_HOSTSDK_LINK_DEV)
-		sed "s,%PREFIX%,$(INSTALL_PREFIX)," $(APIDIR)/vamp.pc.in \
+		sed "s,%PREFIX%,$(INSTALL_PREFIX)," $(PCDIR)/vamp.pc.in \
 		> $(DESTDIR)$(INSTALL_PKGCONFIG)/vamp.pc
-		sed "s,%PREFIX%,$(INSTALL_PREFIX)," $(SDKDIR)/vamp-sdk.pc.in \
+		sed "s,%PREFIX%,$(INSTALL_PREFIX)," $(PCDIR)/vamp-sdk.pc.in \
 		> $(DESTDIR)$(INSTALL_PKGCONFIG)/vamp-sdk.pc
-		sed "s,%PREFIX%,$(INSTALL_PREFIX)," $(SDKDIR)/vamp-hostsdk.pc.in \
+		sed "s,%PREFIX%,$(INSTALL_PREFIX)," $(PCDIR)/vamp-hostsdk.pc.in \
 		> $(DESTDIR)$(INSTALL_PKGCONFIG)/vamp-hostsdk.pc
 		sed -e "s,%LIBNAME%,$(INSTALL_SDK_LIBNAME),g" \
 		    -e "s,%LINK_ABI%,$(INSTALL_SDK_LINK_ABI),g" \

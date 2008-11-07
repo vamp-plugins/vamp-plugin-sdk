@@ -34,12 +34,8 @@
     authorization.
 */
 
-#ifndef _VAMP_SDK_GUARDS_H_
-#define _VAMP_SDK_GUARDS_H_
-
-#define VAMP_SDK_VERSION "2.0"
-#define VAMP_SDK_MAJOR_VERSION 2
-#define VAMP_SDK_MINOR_VERSION 0
+#ifndef _VAMP_SDK_PLUGGUARD_H_
+#define _VAMP_SDK_PLUGGUARD_H_
 
 /**
  * Normal usage should be:
@@ -67,8 +63,8 @@
  * What if the host does include a vamp-sdk header by mistake?  We can
  * catch it if it's included before something from vamp-hostsdk.  If
  * it's included after something from vamp-hostsdk, it will work OK
- * anyway.  The problem case is where nothing from vamp-hostsdk is
- * included in the same file.
+ * anyway.  The remaining problem case is where nothing from
+ * vamp-hostsdk is included in the same file.  We can't catch that.
  */
 
 #ifdef _VAMP_IN_HOSTSDK

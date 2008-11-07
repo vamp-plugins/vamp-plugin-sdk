@@ -34,8 +34,8 @@
     authorization.
 */
 
-#ifndef _VAMP_HOSTSDK_GUARDS_H_
-#define _VAMP_HOSTSDK_GUARDS_H_
+#ifndef _VAMP_HOSTSDK_HOSTGUARD_H_
+#define _VAMP_HOSTSDK_HOSTGUARD_H_
 
 #ifdef _VAMP_IN_PLUGINSDK
 #error You have included headers from both vamp-sdk and vamp-hostsdk in the same source file. Please include only vamp-sdk headers in plugin code, and only vamp-hostsdk headers in host code.

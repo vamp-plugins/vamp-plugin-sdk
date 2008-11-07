@@ -39,6 +39,11 @@
 #include <cstring>
 #include <cstdlib>
 
+#if ( VAMP_SDK_MAJOR_VERSION != 2 || VAMP_SDK_MINOR_VERSION != 0 )
+#error Incorrect Vamp SDK header included (not the expected 2.0 SDK)
+#endif
+
+
 //#define DEBUG_PLUGIN_ADAPTER 1
 
 _VAMP_SDK_PLUGSPACE_BEGIN(PluginAdapter.cpp)

@@ -37,6 +37,10 @@
 #include <vamp-hostsdk/PluginHostAdapter.h>
 #include <cstdlib>
 
+#if ( VAMP_SDK_MAJOR_VERSION != 2 || VAMP_SDK_MINOR_VERSION != 0 )
+#error Incorrect Vamp SDK header included (not the expected 2.0 SDK)
+#endif
+
 namespace Vamp
 {
 
