@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="."
+				AdditionalIncludeDirectories=".."
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -101,7 +101,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="."
+				AdditionalIncludeDirectories=".."
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -147,51 +147,27 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\vamp-sdk\Plugin.h"
+				RelativePath="..\vamp-sdk\plugguard.h"
 				>
 			</File>
 			<File
-				RelativePath=".\vamp-sdk\PluginAdapter.h"
+				RelativePath="..\vamp-sdk\Plugin.h"
 				>
 			</File>
 			<File
-				RelativePath=".\vamp-sdk\PluginBase.h"
+				RelativePath="..\vamp-sdk\PluginAdapter.h"
 				>
 			</File>
 			<File
-				RelativePath=".\vamp-sdk\hostext\PluginBufferingAdapter.h"
+				RelativePath="..\vamp-sdk\PluginBase.h"
 				>
 			</File>
 			<File
-				RelativePath=".\vamp-sdk\hostext\PluginChannelAdapter.h"
+				RelativePath="..\vamp-sdk\RealTime.h"
 				>
 			</File>
 			<File
-				RelativePath=".\vamp-sdk\PluginHostAdapter.h"
-				>
-			</File>
-			<File
-				RelativePath=".\vamp-sdk\hostext\PluginInputDomainAdapter.h"
-				>
-			</File>
-			<File
-				RelativePath=".\vamp-sdk\hostext\PluginLoader.h"
-				>
-			</File>
-			<File
-				RelativePath=".\vamp-sdk\hostext\PluginSummarisingAdapter.h"
-				>
-			</File>
-			<File
-				RelativePath=".\vamp-sdk\hostext\PluginWrapper.h"
-				>
-			</File>
-			<File
-				RelativePath=".\vamp-sdk\RealTime.h"
-				>
-			</File>
-			<File
-				RelativePath=".\vamp\vamp.h"
+				RelativePath="..\vamp-sdk\vamp-sdk.h"
 				>
 			</File>
 		</Filter>
@@ -207,39 +183,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\vamp-sdk\PluginAdapter.cpp"
+				RelativePath="..\src\vamp-sdk\PluginAdapter.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\vamp-sdk\hostext\PluginBufferingAdapter.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\vamp-sdk\hostext\PluginChannelAdapter.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\vamp-sdk\PluginHostAdapter.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\vamp-sdk\hostext\PluginInputDomainAdapter.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\vamp-sdk\hostext\PluginLoader.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\vamp-sdk\hostext\PluginSummarisingAdapter.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\vamp-sdk\hostext\PluginWrapper.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\vamp-sdk\RealTime.cpp"
+				RelativePath="..\src\vamp-sdk\RealTime.cpp"
 				>
 			</File>
 		</Filter>

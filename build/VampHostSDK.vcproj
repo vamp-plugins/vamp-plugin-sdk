@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="VampExamplePlugins"
-	ProjectGUID="{B3D1F5A4-4571-4D20-B184-8ACD03D6C97A}"
-	RootNamespace="VampExamplePlugins"
+	Name="VampHostSDK"
+	ProjectGUID="{3875EF8B-14E8-4825-B2C1-A8B869C336F5}"
+	RootNamespace="VampHostSDK"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="0"
 	>
@@ -20,7 +20,7 @@
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
-			ConfigurationType="2"
+			ConfigurationType="4"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -40,8 +40,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)/..&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;VAMPEXAMPLEPLUGINS_EXPORTS"
+				AdditionalIncludeDirectories=".."
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -49,7 +49,6 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
-				DisableSpecificWarnings="4996"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -61,19 +60,10 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalOptions="/EXPORT:vampGetPluginDescriptor"
-				OutputFile="$(OutDir)\vamp-example-plugins.dll"
-				LinkIncremental="2"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				TargetMachine="1"
+				Name="VCLibrarianTool"
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -85,9 +75,6 @@
 				Name="VCFxCopTool"
 			/>
 			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -95,7 +82,7 @@
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
-			ConfigurationType="2"
+			ConfigurationType="4"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -114,14 +101,13 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)/..&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;VAMPEXAMPLEPLUGINS_EXPORTS;"
+				AdditionalIncludeDirectories=".."
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
+				WarningLevel="2"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4996"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -133,21 +119,10 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalOptions="/EXPORT:vampGetPluginDescriptor"
-				OutputFile="$(OutDir)\vamp-example-plugins.dll"
-				LinkIncremental="2"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				TargetMachine="1"
+				Name="VCLibrarianTool"
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -157,9 +132,6 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -175,43 +147,51 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\examples\AmplitudeFollower.h"
+				RelativePath="..\vamp-hostsdk\hostguard.h"
 				>
 			</File>
 			<File
-				RelativePath="..\examples\FixedTempoEstimator.h"
+				RelativePath="..\vamp-hostsdk\Plugin.h"
 				>
 			</File>
 			<File
-				RelativePath="..\examples\PercussionOnsetDetector.h"
+				RelativePath="..\vamp-hostsdk\PluginBase.h"
 				>
 			</File>
 			<File
-				RelativePath="..\vamp-sdk\plugguard.h"
+				RelativePath="..\vamp-hostsdk\PluginBufferingAdapter.h"
 				>
 			</File>
 			<File
-				RelativePath="..\vamp-sdk\Plugin.h"
+				RelativePath="..\vamp-hostsdk\PluginChannelAdapter.h"
 				>
 			</File>
 			<File
-				RelativePath="..\vamp-sdk\PluginAdapter.h"
+				RelativePath="..\vamp-hostsdk\PluginHostAdapter.h"
 				>
 			</File>
 			<File
-				RelativePath="..\vamp-sdk\PluginBase.h"
+				RelativePath="..\vamp-hostsdk\PluginInputDomainAdapter.h"
 				>
 			</File>
 			<File
-				RelativePath="..\vamp-sdk\RealTime.h"
+				RelativePath="..\vamp-hostsdk\PluginLoader.h"
 				>
 			</File>
 			<File
-				RelativePath="..\examples\SpectralCentroid.h"
+				RelativePath="..\vamp-hostsdk\PluginSummarisingAdapter.h"
 				>
 			</File>
 			<File
-				RelativePath="..\examples\ZeroCrossing.h"
+				RelativePath="..\vamp-hostsdk\PluginWrapper.h"
+				>
+			</File>
+			<File
+				RelativePath="..\vamp-hostsdk\RealTime.h"
+				>
+			</File>
+			<File
+				RelativePath="..\vamp-hostsdk\vamp-hostsdk.h"
 				>
 			</File>
 		</Filter>
@@ -227,35 +207,35 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\examples\AmplitudeFollower.cpp"
+				RelativePath="..\src\vamp-hostsdk\PluginBufferingAdapter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\examples\FixedTempoEstimator.cpp"
+				RelativePath="..\src\vamp-hostsdk\PluginChannelAdapter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\examples\PercussionOnsetDetector.cpp"
+				RelativePath="..\src\vamp-hostsdk\PluginHostAdapter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\vamp-sdk\PluginAdapter.cpp"
+				RelativePath="..\src\vamp-hostsdk\PluginInputDomainAdapter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\examples\plugins.cpp"
+				RelativePath="..\src\vamp-hostsdk\PluginLoader.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\vamp-sdk\RealTime.cpp"
+				RelativePath="..\src\vamp-hostsdk\PluginSummarisingAdapter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\examples\SpectralCentroid.cpp"
+				RelativePath="..\src\vamp-hostsdk\PluginWrapper.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\examples\ZeroCrossing.cpp"
+				RelativePath="..\src\vamp-hostsdk\RealTime.cpp"
 				>
 			</File>
 		</Filter>
