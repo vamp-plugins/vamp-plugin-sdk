@@ -661,7 +661,12 @@ PluginAdapterBase::Impl::getOutputDescriptor(Plugin *plugin,
     desc->hasFixedBinCount = od.hasFixedBinCount;
     desc->binCount = od.binCount;
 
-    if (od.hasFixedBinCount && od.binCount > 0) {
+    if (od.hasFixedBinCount && od.binCount > 0
+        // We would like to do "&& !od.binNames.empty()" here -- but we
+        // can't, because it will crash older versions of the host adapter
+        // which try to copy the names across whenever the bin count is
+        // non-zero, regardless of whether they exist or not
+        ) {
         desc->binNames = (const char **)
             malloc(od.binCount * sizeof(const char *));
         

@@ -327,7 +327,7 @@ PluginHostAdapter::getOutputDescriptors() const
         d.unit = sd->unit;
         d.hasFixedBinCount = sd->hasFixedBinCount;
         d.binCount = sd->binCount;
-        if (d.hasFixedBinCount) {
+        if (d.hasFixedBinCount && sd->binNames) {
             for (unsigned int j = 0; j < sd->binCount; ++j) {
                 d.binNames.push_back(sd->binNames[j] ? sd->binNames[j] : "");
             }
