@@ -367,8 +367,6 @@ FixedTempoEstimator::D::tempo2lag(float tempo)
 void
 FixedTempoEstimator::D::calculate()
 {    
-    cerr << "FixedTempoEstimator::calculate: m_n = " << m_n << endl;
-    
     if (m_r) {
         cerr << "FixedTempoEstimator::calculate: calculation already happened?" << endl;
         return;
@@ -447,11 +445,6 @@ FixedTempoEstimator::D::calculate()
         
         m_t[i] /= div;
         
-//        if (div > 1) {
-//            cerr << "adjusting tempo from " << lag2tempo(i) << " to "
-//                 << m_t[i] << " for fr = " << m_fr[i] << " (div = " << div << ")" << endl;
-//        }
-        
         m_fr[i] += m_fr[i] * (weight / 3);
     }
 }
@@ -499,8 +492,6 @@ FixedTempoEstimator::D::assembleFeatures()
 
     std::map<float, int> candidates;
 
-    std::cerr << "minbpm = " << m_minbpm << ", p0 = " << p0 << ", p1 = " << p1 << std::endl;
-
     for (int i = p0; i <= p1 && i < n/2-1; ++i) {
 
         if (m_fr[i] > m_fr[i-1] &&
@@ -516,8 +507,6 @@ FixedTempoEstimator::D::assembleFeatures()
         else feature.label = buffer;
         fs[FilteredACFOutput].push_back(feature);
     }
-
-//    cerr << "maxpi = " << maxpi << " for tempo " << lag2tempo(maxpi) << " (value = " << maxp << ")" << endl;
 
     if (candidates.empty()) {
         cerr << "No tempo candidates!" << endl;
@@ -552,7 +541,6 @@ FixedTempoEstimator::D::assembleFeatures()
     feature.label = "";
 
     while (feature.values.size() < 8) {
-//        cerr << "adding tempo value from lag " << ci->second << endl;
         if (m_t[ci->second] > 0) {
             feature.values.push_back(m_t[ci->second]);
         } else {

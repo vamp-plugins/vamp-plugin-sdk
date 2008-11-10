@@ -130,11 +130,11 @@ plugin.  They are also intended to be correct and useful, if simple.
  domain representation of each block of audio.
 
  - PowerSpectrum calculates a power spectrum from the input audio.
- Actually, it doesn't do any work except converting from the cartesian
- complex representation.  The work of converting to frequency domain
- is all done for it by the host or host SDK; the plugin just needs to
- declare that it wants frequency domain input.  This is the simplest
- of the example plugins.
+ Actually, it doesn't do any work except calculating power from a
+ cartesian complex FFT output.  The work of calculating this frequency
+ domain output is done for it by the host or host SDK; the plugin just
+ needs to declare that it wants frequency domain input.  This is the
+ simplest of the example plugins.
 
  - AmplitudeFollower is a simple implementation of SuperCollider's
  amplitude-follower algorithm.
