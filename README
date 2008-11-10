@@ -9,57 +9,35 @@ An API for audio analysis and feature extraction plugins.
 Vamp is an API for C and C++ plugins that process sampled audio data
 to produce descriptive output (measurements or semantic observations).
 
-The principal differences between Vamp and a real-time audio
-processing plugin system such as VST are:
-
- * Vamp plugins may output complex multidimensional data with labels.
-   As a consequence, they are likely to work best when the output
-   data has a much lower sampling rate than the input.  (This also
-   means it is usually desirable to implement them in C++ using the
-   high-level base class provided rather than use the raw C API.)
-
- * While Vamp plugins receive data block-by-block, they are not
-   required to return output immediately on receiving the input.
-   A Vamp plugin may be non-causal, preferring to store up data
-   based on its input until the end of a processing run and then
-   return all results at once.
-
- * Vamp plugins have more control over their inputs than a typical
-   real-time processing plugin.  For example, they can indicate to
-   the host their preferred processing block and step sizes, and these
-   may differ.
-
- * Vamp plugins may ask to receive data in the frequency domain
-   instead of the time domain.  The host takes the responsibility
-   for converting the input data using an FFT of windowed frames.
-   This simplifies plugins that do straightforward frequency-domain
-   processing and permits the host to cache frequency-domain data
-   when possible.
-
- * A Vamp plugin is configured once before each processing run, and
-   receives no further parameter changes during use -- unlike real-
-   time plugin APIs in which the input parameters may change at any
-   time.  This also means that fundamental properties such as the
-   number of values per output or the preferred processing block
-   size may depend on the input parameters.
-
- * Vamp plugins do not have to be able to run in real time.
-
-
-About this SDK
-==============
-
 This is version 2.0 of the Vamp plugin Software Development Kit.
-
 Plugins and hosts built with this SDK are binary compatible with those
-built using version 1.0 of the SDK.
+built using version 1.0 of the SDK.  See CHANGELOG for a list of the
+changes in this release.
 
 A documentation guide to writing plugins using the Vamp SDK can be
 found at http://www.vamp-plugins.org/guide.pdf .
 
+
+Compiling and Installing the SDK and Examples
+=============================================
+
+This SDK is intended for use on Windows, OS/X, Linux, and other POSIX
+and GNU platforms.
+
+Please see the platform-specific README file (README.msvc, README.osx,
+README.linux) in the build/ directory for details about how to compile
+and install the SDK, how to build plugin libraries using it, and how
+to install the example plugins so you can use them in a host.
+
+
+What's In This SDK
+==================
+
 This SDK contains the following:
 
- * vamp/vamp.h
+
+vamp/vamp.h
+-----------
 
 The formal C language plugin API for Vamp plugins.
 
@@ -68,81 +46,110 @@ platform) exposing one C-linkage entry point (vampGetPluginDescriptor)
 which returns data defined in the rest of this C header.
 
 Although the C API is the official API for Vamp, we don't recommend
-that you program directly to it.  The C++ abstraction found in the
-vamp-sdk directory (below) is preferable for most purposes and is
-more thoroughly documented.
+that you program directly to it.  The C++ abstractions found in the
+vamp-sdk and vamp-hostsdk directories (below) are preferable for most
+purposes and are more thoroughly documented.
 
- * vamp-sdk
+
+vamp-sdk
+--------
 
 C++ classes for implementing Vamp plugins.
 
 Plugins should subclass Vamp::Plugin and then use Vamp::PluginAdapter
 to expose the correct C API for the plugin.  Plugin authors should
-read vamp-sdk/PluginBase.h and Plugin.h for code documentation, and
-refer to the example plugin code in the examples directory.  Plugins
-should link with -lvamp-sdk.
+read vamp-sdk/PluginBase.h and Plugin.h for code documentation.
 
- * vamp-hostsdk
+See "examples" below for details of the example plugins in the SDK,
+from which you are welcome to take code and inspiration.
+
+Plugins should link with -lvamp-sdk.
+
+
+vamp-hostsdk
+------------
 
 C++ classes for implementing Vamp hosts.
 
-Hosts can use the Vamp::PluginHostAdapter to convert the loaded
-plugin's C API back into a Vamp::Plugin object.
-
-Host authors should refer to the example host code in the host
-directory.  Hosts should link with -lvamp-hostsdk.
+Hosts will normally use a Vamp::PluginHostAdapter to convert each
+plugin's exposed C API back into a useful Vamp::Plugin C++ object.
 
 The Vamp::HostExt namespace contains several additional C++ classes to
-make a host's life easier:
+do this work for them, and make the host's life easier:
 
-Vamp::HostExt::PluginLoader provides a very easy interface for a host
-to discover, load, and find out category information about the
-available plugins.  Most "casual" Vamp hosts will probably want to use
-this class.
+ - Vamp::HostExt::PluginLoader provides a very easy interface for a
+ host to discover, load, and find out category information about the
+ available plugins.  Most Vamp hosts will probably want to use this
+ class.
 
-Vamp::HostExt::PluginInputDomainAdapter provides a means for hosts to
-handle plugins that expect frequency-domain input, without having to
-convert the input themselves.
+ - Vamp::HostExt::PluginInputDomainAdapter provides a simple means for
+ hosts to handle plugins that want frequency-domain input, without
+ having to convert the input themselves.
 
-Vamp::HostExt::PluginChannelAdapter provides a means for hosts to use
-plugins that do not necessarily support the same number of audio
-channels as they have available, without having to worry about
-applying a channel management / mixdown policy themselves.
+ - Vamp::HostExt::PluginChannelAdapter provides a simple means for
+ hosts to use plugins that do not necessarily support the same number
+ of audio channels as they have available, without having to apply a
+ channel management / mixdown policy themselves.
 
-Vamp::HostExt::PluginBufferingAdapter provides a means for hosts to
-avoid having to negotiate the input step and block size, instead
-permitting the host to use any block size they desire (and a step size
-equal to it).  This is particularly useful for "streaming" hosts that
-cannot seek backwards in the input audio stream and so would otherwise
-need to implement an additional buffer to support step sizes smaller
-than the block size.
+ - Vamp::HostExt::PluginBufferingAdapter provides a means for hosts to
+ avoid having to negotiate the input step and block size, instead
+ permitting the host to use any block size they desire (and a step
+ size equal to it).  This is particularly useful for "streaming" hosts
+ that cannot seek backwards in the input audio stream and so would
+ otherwise need to implement an additional buffer to support step
+ sizes smaller than the block size.
 
-The PluginLoader class can also use the input domain and channel
-adapters automatically to make the entire conversion process
-transparent to the host if required.
+ - Vamp::HostExt::PluginSummarisingAdapter provides summarisation
+ methods such as mean and median averages of output features, for use
+ in any context where an available plugin produces individual values
+ but the result that is actually needed is some sort of aggregate.
 
- * examples
+The PluginLoader class can also use the input domain, channel, and
+buffering adapters automatically to make these conversions transparent
+to the host if required.
 
-Example plugins implemented using the C++ classes.  ZeroCrossing
-calculates the positions and density of zero-crossing points in an
-audio waveform.  SpectralCentroid calculates the centre of gravity of
-the frequency domain representation of each block of audio.
-AmplitudeFollower tracks the amplitude of a signal based on a method
-from the SuperCollider real-time audio system.
-PercussionOnsetDetector estimates the locations of percussive onsets
-using a simple method described in "Drum Source Separation using
-Percussive Feature Detection and Spectral Modulation" by Dan Barry,
-Derry Fitzgerald, Eugene Coyle and Bob Lawlor, ISSC 2005.
+Host authors should also refer to the example host code in the host
+directory of the SDK.
 
- * host
+Hosts should link with -lvamp-hostsdk.
+
+
+examples
+--------
+
+Example plugins implemented using the C++ classes.
+
+These plugins are intended to be useful examples you can draw code
+from in order to provide the basic shape and structure of a Vamp
+plugin.  They are also intended to be correct and useful, if simple.
+
+ - ZeroCrossing calculates the positions and density of zero-crossing
+ points in an audio waveform.
+
+ - SpectralCentroid calculates the centre of gravity of the frequency
+ domain representation of each block of audio.
+
+ - AmplitudeFollower is a simple implementation of SuperCollider's
+ amplitude-follower algorithm.
+
+ - PercussionOnsetDetector estimates the locations of percussive
+ onsets using a simple method described in "Drum Source Separation
+ using Percussive Feature Detection and Spectral Modulation" by Dan
+ Barry, Derry Fitzgerald, Eugene Coyle and Bob Lawlor, ISSC 2005.
+
+ - FixedTempoEstimator calculates a single beats-per-minute value
+ which is an estimate of the tempo of a piece of music that is assumed
+ to be of fixed tempo, using autocorrelation of a frequency domain
+ energy rise metric.  It has several outputs that return intermediate
+ results used in the calculation, and may be a useful example of a
+ plugin having several outputs with varying feature structures.
+
+
+host
+----
 
 A simple command-line Vamp host, capable of loading a plugin and using
 it to process a complete audio file, with its default parameters.
-Requires libsndfile (http://www.mega-nerd.com/libsndfile/).
-
-If you don't have libsndfile, you may want to edit the Makefile to
-change the default build target from "all" to "sdk", so as to compile
-only the SDK and not the host.
 
 
 Plugin Lookup and Categorisation
@@ -181,88 +188,6 @@ advanced users may also choose to set up their own preferred category
 trees, which is why this information is not queried as part of the
 Vamp plugin's API itself.  The Vamp::HostExt::PluginLoader class also
 provides support for plugin category lookup using this scheme.
-
-
-Compiling the SDK and Examples
-==============================
-
-This SDK is intended for use on Windows, OS/X, Linux, and other POSIX
-platforms.
-
- * Windows
-
-Two Visual C++ project files are included:
-
-   VampPluginSDK.vcproj -- builds the SDK into a single static
-   library, but does not build the example plugins or host
-
-   VampExamplePlugins.vcproj -- builds the example plugins DLL, but
-   does not build the library or host
-
-Alternatively, when using Visual Studio or another IDE to build a
-plugin or host using the SDK, you may prefer to simply add the .h and
-.cpp files in the vamp-sdk and vamp-sdk/hostext directories to your
-existing project.
-
-As the command-line host has additional library dependencies (namely
-libsndfile), no pre-packaged project is included to build it.
-
-When using Visual C++ to build plugins, you will need to ensure that
-the plugin entry point (vampGetPluginDescriptor) is exported from the
-DLL so that the plugins can be loaded.  One way to achieve this is to
-add the linker option /EXPORT:vampGetPluginDescriptor to your project.
-The included VampExamplePlugins.vcproj does this.
-
-If you are using a Cygwin or MinGW GNU toolchain, use the included
-Makefile (see Linux and other POSIX platforms below).
-
- * OS/X
-
-Run "make -f Makefile.osx" to build the SDK, example plugins, and
-command-line host.
-
-Note that the host requires that you have libsndfile
-(http://www.mega-nerd.com/libsndfile/) installed.  To build only the
-SDK and examples, "make -f Makefile.osx sdk examples".
-
-If you are using an IDE, you may prefer to simply add the .h and .cpp
-files in the vamp-sdk and vamp-sdk/hostext directories to your
-existing project.
-
- * Linux and other Unixesque platforms
-
-To build the SDK, example plugins, and command-line host, edit the
-Makefile to suit your platform according to the comments in it, then
-run "make".
-
-Note that the host requires that you have libsndfile
-(http://www.mega-nerd.com/libsndfile/) installed.  To build only the
-SDK and examples, edit the Makefile then run "make sdk examples".
-
-
-Installing the Example Plugins
-==============================
-
-Installing the example plugins so that they can be found by other Vamp
-hosts depends on your platform:
-
- * Windows: copy the files
-      examples/vamp-example-plugins.dll
-      examples/vamp-example-plugins.cat
-   to
-      C:\Program Files\Vamp Plugins
-
- * Linux: copy the files
-      examples/vamp-example-plugins.so
-      examples/vamp-example-plugins.cat
-   to
-      /usr/local/lib/vamp/
-
- * OS/X: copy the files
-      examples/vamp-example-plugins.dylib
-      examples/vamp-example-plugins.cat
-   to
-      /Library/Audio/Plug-Ins/Vamp
 
 
 Licensing

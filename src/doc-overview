@@ -26,12 +26,9 @@ directory for the sort of code that will need to accompany your plugin
 class or classes, to make it possible for a host to look up your
 plugins properly.
 
-You will also need to ensure that the entry point
-vampGetPluginDescriptor is properly exported (made public) from your
-shared library.  The method to do this depends on your linker; for
-example, when using the Windows Visual Studio linker, use the linker
-flag "/EXPORT:vampGetPluginDescriptor".  Exported symbols are the
-default with most other current platforms' linkers.
+Please read the relevant README file for your platform found in the
+Vamp SDK build/ directory, for details about how to ensure the
+resulting dynamic library exports the correct linker symbols.
 
 The following example plugins are provided.  You may legally reuse any
 amount of the code from these examples in any plugins you write,
@@ -51,29 +48,28 @@ whether proprietary or open-source.
  using Percussive Feature Detection and Spectral Modulation" by Dan
  Barry, Derry Fitzgerald, Eugene Coyle and Bob Lawlor, ISSC 2005.
 
- - FixedTempoEstimator calculates a single bpm value which is an
- estimate of the tempo of a piece of music that is assumed to be of
- fixed tempo, using autocorrelation of a frequency domain energy rise
- metric.  It has several outputs that return intermediate results used
- in the calculation, and may be a useful example of a plugin having
- several outputs with varying feature structures.
+ - FixedTempoEstimator calculates a single beats-per-minute value
+ which is an estimate of the tempo of a piece of music that is assumed
+ to be of fixed tempo, using autocorrelation of a frequency domain
+ energy rise metric.  It has several outputs that return intermediate
+ results used in the calculation, and may be a useful example of a
+ plugin having several outputs with varying feature structures.
 
 \section hosts For Hosts
 
 Hosts will normally use a Vamp::PluginHostAdapter to convert each
 plugin's exposed C API back into a useful Vamp::Plugin C++ object.
 
-Starting with version 1.1 of the Vamp SDK, there are several classes
-in the Vamp::HostExt namespace that aim to make the host's life as
-easy as possible:
+The Vamp::HostExt namespace contains several additional C++ classes to
+do this work for them, and make the host's life easier:
 
- - Vamp::HostExt::PluginLoader provides a very simple interface for a
+ - Vamp::HostExt::PluginLoader provides a very easy interface for a
  host to discover, load, and find out category information about the
- available plugins.  Most "casual" Vamp hosts will probably want to
- use this class.
+ available plugins.  Most Vamp hosts will probably want to use this
+ class.
 
  - Vamp::HostExt::PluginInputDomainAdapter provides a simple means for
- hosts to handle plugins that expect frequency-domain input, without
+ hosts to handle plugins that want frequency-domain input, without
  having to convert the input themselves.
 
  - Vamp::HostExt::PluginChannelAdapter provides a simple means for
@@ -81,23 +77,25 @@ easy as possible:
  of audio channels as they have available, without having to apply a
  channel management / mixdown policy themselves.
 
- - Vamp::HostExt::PluginBufferingAdapter (new in version 1.2) provides
- a means for hosts to avoid having to negotiate the input step and
- block size, instead permitting the host to use any block size they
- desire (and a step size equal to it).  This is particularly useful
- for "streaming" hosts that cannot seek backwards in the input audio
- stream and so would otherwise need to implement an additional buffer
- to support step sizes smaller than the block size.
+ - Vamp::HostExt::PluginBufferingAdapter provides a means for hosts to
+ avoid having to negotiate the input step and block size, instead
+ permitting the host to use any block size they desire (and a step
+ size equal to it).  This is particularly useful for "streaming" hosts
+ that cannot seek backwards in the input audio stream and so would
+ otherwise need to implement an additional buffer to support step
+ sizes smaller than the block size.
 
- - Vamp::HostExt::PluginSummarisingAdapter (new in version 2.0)
- provides summarisation methods such as mean and median averages of
- output features, for use in any context where an available plugin
- produces individual values but the result that is actually needed
- is some sort of aggregate.
+ - Vamp::HostExt::PluginSummarisingAdapter provides summarisation
+ methods such as mean and median averages of output features, for use
+ in any context where an available plugin produces individual values
+ but the result that is actually needed is some sort of aggregate.
 
 The PluginLoader class can also use the input domain, channel, and
 buffering adapters automatically to make these conversions transparent
 to the host if required.
+
+Host authors should also refer to the example host code in the host
+directory of the SDK.
 
 Hosts should link with -lvamp-hostsdk.
 
@@ -108,14 +106,20 @@ know more about the policy they implement.)
 The Vamp API does not officially specify how to load plugin libraries
 or where to find them.  However, the SDK does include a function
 (Vamp::PluginHostAdapter::getPluginPath()) that returns a recommended
-directory search path that hosts may use for plugin libraries.
+directory search path that hosts may use for plugin libraries, and a
+class (Vamp::HostExt::PluginLoader) that implements a sensible
+cross-platform lookup policy using this path.  We recommend using this
+class in your host unless you have a good reason not to want to.  This
+implementation also permits the user to set the environment variable
+VAMP_PATH to override the default path if desired.
 
-Our suggestion for a host is to search each directory in this path for
-.DLL (on Windows), .so (on Linux, Solaris, BSD etc) or .dylib (on
-OS/X) files, then to load each one and perform a dynamic name lookup
-on the vampGetPluginDescriptor function to enumerate the plugins in
-the library.  The example host has some code that may help, but this
-operation will necessarily be system-dependent.
+The policy used by Vamp::HostExt::PluginLoader -- and our
+recommendation for any host -- is to search each directory in this
+path for .DLL (on Windows), .so (on Linux, Solaris, BSD etc) or .dylib
+(on OS/X) files, then to load each one and perform a dynamic name
+lookup on the vampGetPluginDescriptor function to enumerate the
+plugins in the library.  The example host has some code that may help,
+but this operation will necessarily be system-dependent.
 
 Vamp also has an informal convention for sorting plugins into
 functional categories.  In addition to the library file itself, a
@@ -132,10 +136,8 @@ which a host may read and use to assign plugins a location within a
 category tree for display to the user.  The expectation is that
 advanced users may also choose to set up their own preferred category
 trees, which is why this information is not queried as part of the
-Vamp API itself.
-
-There is an example host in the "host" directory from which code may
-be drawn.
+Vamp plugin's API itself.  The Vamp::HostExt::PluginLoader class also
+provides support for plugin category lookup using this scheme.
 
 \section license License
 
