@@ -14,6 +14,9 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <cstdlib>
+#include <cstring>
+
 using std::cout;
 using std::cin;
 using std::cerr;

@@ -41,6 +41,7 @@
 #include <string>
 #include <map>
 
+#include "hostguard.h"
 #include "PluginWrapper.h"
 
 namespace Vamp {

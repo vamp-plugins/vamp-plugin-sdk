@@ -78,26 +78,6 @@ public:
 protected:
     class D;
     D *m_d;
-
-    size_t m_stepSize;
-    size_t m_blockSize;
-
-    float *m_priorMagnitudes;
-
-    size_t m_dfsize;
-    float *m_df;
-    float *m_r;
-    float *m_fr;
-    float *m_t;
-    size_t m_n;
-
-    Vamp::RealTime m_start;
-    Vamp::RealTime m_lasttime;
-
-    void calculate();
-    FeatureSet assembleFeatures();
-    float lag2tempo(int);
-    int tempo2lag(float);
 };
 
 

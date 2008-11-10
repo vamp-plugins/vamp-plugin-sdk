@@ -37,6 +37,7 @@
 #ifndef _VAMP_PLUGIN_CHANNEL_ADAPTER_H_
 #define _VAMP_PLUGIN_CHANNEL_ADAPTER_H_
 
+#include "hostguard.h"
 #include "PluginWrapper.h"
 
 namespace Vamp {

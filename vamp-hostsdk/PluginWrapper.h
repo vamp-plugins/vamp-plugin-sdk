@@ -37,6 +37,7 @@
 #ifndef _VAMP_PLUGIN_WRAPPER_H_
 #define _VAMP_PLUGIN_WRAPPER_H_
 
+#include "hostguard.h"
 #include <vamp-hostsdk/Plugin.h>
 
 namespace Vamp {

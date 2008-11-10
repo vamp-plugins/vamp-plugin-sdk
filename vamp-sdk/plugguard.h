@@ -74,7 +74,7 @@
 
 #else
 
-#define _VAMP_IN_PLUGINSDK
+#define _VAMP_IN_PLUGINSDK 1
 
 #ifdef _VAMP_NO_PLUGIN_NAMESPACE
 #define _VAMP_SDK_PLUGSPACE_BEGIN(h)

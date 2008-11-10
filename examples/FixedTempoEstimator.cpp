@@ -46,10 +46,61 @@ using Vamp::RealTime;
 #include <cmath>
 
 
-FixedTempoEstimator::FixedTempoEstimator(float inputSampleRate) :
-    Plugin(inputSampleRate),
+class FixedTempoEstimator::D
+{
+public:
+    D(float inputSampleRate);
+    ~D();
+
+    size_t getPreferredStepSize() const { return 64; }
+    size_t getPreferredBlockSize() const { return 256; }
+
+    ParameterList getParameterDescriptors() const;
+    float getParameter(string id) const;
+    void setParameter(string id, float value);
+
+    OutputList getOutputDescriptors() const;
+
+    bool initialise(size_t channels, size_t stepSize, size_t blockSize);
+    void reset();
+    FeatureSet process(const float *const *, RealTime);
+    FeatureSet getRemainingFeatures();
+
+private:
+    void calculate();
+    FeatureSet assembleFeatures();
+
+    float lag2tempo(int);
+    int tempo2lag(float);
+
+    float m_inputSampleRate;
+    size_t m_stepSize;
+    size_t m_blockSize;
+
+    float m_minbpm;
+    float m_maxbpm;
+    float m_maxdflen;
+
+    float *m_priorMagnitudes;
+
+    size_t m_dfsize;
+    float *m_df;
+    float *m_r;
+    float *m_fr;
+    float *m_t;
+    size_t m_n;
+
+    Vamp::RealTime m_start;
+    Vamp::RealTime m_lasttime;
+};
+
+FixedTempoEstimator::D::D(float inputSampleRate) :
+    m_inputSampleRate(inputSampleRate),
     m_stepSize(0),
     m_blockSize(0),
+    m_minbpm(50),
+    m_maxbpm(190),
+    m_maxdflen(10),
     m_priorMagnitudes(0),
     m_df(0),
     m_r(0),
@@ -59,7 +110,7 @@ FixedTempoEstimator::FixedTempoEstimator(float inputSampleRate) :
 {
 }
 
-FixedTempoEstimator::~FixedTempoEstimator()
+FixedTempoEstimator::D::~D()
 {
     delete[] m_priorMagnitudes;
     delete[] m_df;
@@ -68,128 +119,63 @@ FixedTempoEstimator::~FixedTempoEstimator()
     delete[] m_t;
 }
 
-string
-FixedTempoEstimator::getIdentifier() const
-{
-    return "fixedtempo";
-}
-
-string
-FixedTempoEstimator::getName() const
-{
-    return "Simple Fixed Tempo Estimator";
-}
-
-string
-FixedTempoEstimator::getDescription() const
-{
-    return "Study a short section of audio and estimate its tempo, assuming the tempo is constant";
-}
-
-string
-FixedTempoEstimator::getMaker() const
-{
-    return "Vamp SDK Example Plugins";
-}
-
-int
-FixedTempoEstimator::getPluginVersion() const
-{
-    return 1;
-}
-
-string
-FixedTempoEstimator::getCopyright() const
-{
-    return "Code copyright 2008 Queen Mary, University of London.  Freely redistributable (BSD license)";
-}
-
-size_t
-FixedTempoEstimator::getPreferredStepSize() const
-{
-    return 64;
-}
-
-size_t
-FixedTempoEstimator::getPreferredBlockSize() const
-{
-    return 256;
-}
-
-bool
-FixedTempoEstimator::initialise(size_t channels, size_t stepSize, size_t blockSize)
-{
-    if (channels < getMinChannelCount() ||
-	channels > getMaxChannelCount()) return false;
-
-    m_stepSize = stepSize;
-    m_blockSize = blockSize;
-
-    float dfLengthSecs = 10.f;
-    m_dfsize = (dfLengthSecs * m_inputSampleRate) / m_stepSize;
-
-    m_priorMagnitudes = new float[m_blockSize/2];
-    m_df = new float[m_dfsize];
-
-    for (size_t i = 0; i < m_blockSize/2; ++i) {
-        m_priorMagnitudes[i] = 0.f;
-    }
-    for (size_t i = 0; i < m_dfsize; ++i) {
-        m_df[i] = 0.f;
-    }
-
-    m_n = 0;
-
-    return true;
-}
-
-void
-FixedTempoEstimator::reset()
-{
-    cerr << "FixedTempoEstimator: reset called" << endl;
-
-    if (!m_priorMagnitudes) return;
-
-    cerr << "FixedTempoEstimator: resetting" << endl;
-
-    for (size_t i = 0; i < m_blockSize/2; ++i) {
-        m_priorMagnitudes[i] = 0.f;
-    }
-    for (size_t i = 0; i < m_dfsize; ++i) {
-        m_df[i] = 0.f;
-    }
-
-    delete[] m_r;
-    m_r = 0;
-
-    delete[] m_fr; 
-    m_fr = 0;
-
-    delete[] m_t; 
-    m_t = 0;
-
-    m_n = 0;
-
-    m_start = RealTime::zeroTime;
-    m_lasttime = RealTime::zeroTime;
-}
-
 FixedTempoEstimator::ParameterList
-FixedTempoEstimator::getParameterDescriptors() const
+FixedTempoEstimator::D::getParameterDescriptors() const
 {
     ParameterList list;
+
+    ParameterDescriptor d;
+    d.identifier = "minbpm";
+    d.name = "Minimum estimated tempo";
+    d.description = "Minimum beat-per-minute value which the tempo estimator is able to return";
+    d.unit = "bpm";
+    d.minValue = 10;
+    d.maxValue = 360;
+    d.defaultValue = 50;
+    d.isQuantized = false;
+    list.push_back(d);
+
+    d.identifier = "maxbpm";
+    d.name = "Maximum estimated tempo";
+    d.description = "Maximum beat-per-minute value which the tempo estimator is able to return";
+    d.defaultValue = 190;
+    list.push_back(d);
+
+    d.identifier = "maxdflen";
+    d.name = "Input duration to study";
+    d.description = "Length of audio input, in seconds, which should be taken into account when estimating tempo.  There is no need to supply the plugin with any further input once this time has elapsed since the start of the audio.  The tempo estimator may use only the first part of this, up to eight times the slowest beat duration: increasing this value further than that is unlikely to improve results.";
+    d.unit = "s";
+    d.minValue = 2;
+    d.maxValue = 40;
+    d.defaultValue = 10;
+    list.push_back(d);
+
     return list;
 }
 
 float
-FixedTempoEstimator::getParameter(std::string id) const
+FixedTempoEstimator::D::getParameter(string id) const
 {
+    if (id == "minbpm") {
+        return m_minbpm;
+    } else if (id == "maxbpm") {
+        return m_maxbpm;
+    } else if (id == "maxdflen") {
+        return m_maxdflen;
+    }
     return 0.f;
 }
 
 void
-FixedTempoEstimator::setParameter(std::string id, float value)
+FixedTempoEstimator::D::setParameter(string id, float value)
 {
+    if (id == "minbpm") {
+        m_minbpm = value;
+    } else if (id == "maxbpm") {
+        m_maxbpm = value;
+    } else if (id == "maxdflen") {
+        m_maxdflen = value;
+    }
 }
 
 static int TempoOutput = 0;
@@ -199,7 +185,7 @@ static int ACFOutput = 3;
 static int FilteredACFOutput = 4;
 
 FixedTempoEstimator::OutputList
-FixedTempoEstimator::getOutputDescriptors() const
+FixedTempoEstimator::D::getOutputDescriptors() const
 {
     OutputList list;
 
@@ -260,8 +246,60 @@ FixedTempoEstimator::getOutputDescriptors() const
     return list;
 }
 
+bool
+FixedTempoEstimator::D::initialise(size_t channels,
+                                   size_t stepSize, size_t blockSize)
+{
+    m_stepSize = stepSize;
+    m_blockSize = blockSize;
+
+    float dfLengthSecs = m_maxdflen;
+    m_dfsize = (dfLengthSecs * m_inputSampleRate) / m_stepSize;
+
+    m_priorMagnitudes = new float[m_blockSize/2];
+    m_df = new float[m_dfsize];
+
+    for (size_t i = 0; i < m_blockSize/2; ++i) {
+        m_priorMagnitudes[i] = 0.f;
+    }
+    for (size_t i = 0; i < m_dfsize; ++i) {
+        m_df[i] = 0.f;
+    }
+
+    m_n = 0;
+
+    return true;
+}
+
+void
+FixedTempoEstimator::D::reset()
+{
+    if (!m_priorMagnitudes) return;
+
+    for (size_t i = 0; i < m_blockSize/2; ++i) {
+        m_priorMagnitudes[i] = 0.f;
+    }
+    for (size_t i = 0; i < m_dfsize; ++i) {
+        m_df[i] = 0.f;
+    }
+
+    delete[] m_r;
+    m_r = 0;
+
+    delete[] m_fr; 
+    m_fr = 0;
+
+    delete[] m_t; 
+    m_t = 0;
+
+    m_n = 0;
+
+    m_start = RealTime::zeroTime;
+    m_lasttime = RealTime::zeroTime;
+}
+
 FixedTempoEstimator::FeatureSet
-FixedTempoEstimator::process(const float *const *inputBuffers, RealTime ts)
+FixedTempoEstimator::D::process(const float *const *inputBuffers, RealTime ts)
 {
     FeatureSet fs;
 
@@ -271,8 +309,6 @@ FixedTempoEstimator::process(const float *const *inputBuffers, RealTime ts)
 	     << endl;
 	return fs;
     }
-
-//    if (m_n < m_dfsize) cerr << "m_n = " << m_n << endl;
 
     if (m_n == 0) m_start = ts;
     m_lasttime = ts;
@@ -303,10 +339,10 @@ FixedTempoEstimator::process(const float *const *inputBuffers, RealTime ts)
 
     ++m_n;
     return fs;
-}
+}    
 
 FixedTempoEstimator::FeatureSet
-FixedTempoEstimator::getRemainingFeatures()
+FixedTempoEstimator::D::getRemainingFeatures()
 {
     FeatureSet fs;
     if (m_n > m_dfsize) return fs;
@@ -317,19 +353,19 @@ FixedTempoEstimator::getRemainingFeatures()
 }
 
 float
-FixedTempoEstimator::lag2tempo(int lag)
+FixedTempoEstimator::D::lag2tempo(int lag)
 {
     return 60.f / ((lag * m_stepSize) / m_inputSampleRate);
 }
 
 int
-FixedTempoEstimator::tempo2lag(float tempo)
+FixedTempoEstimator::D::tempo2lag(float tempo)
 {
     return ((60.f / tempo) * m_inputSampleRate) / m_stepSize;
 }
 
 void
-FixedTempoEstimator::calculate()
+FixedTempoEstimator::D::calculate()
 {    
     cerr << "FixedTempoEstimator::calculate: m_n = " << m_n << endl;
     
@@ -338,9 +374,10 @@ FixedTempoEstimator::calculate()
         return;
     }
 
-    if (m_n < m_dfsize / 9) {
-        cerr << "FixedTempoEstimator::calculate: Not enough data to go on (have " << m_n << ", want at least " << m_dfsize/4 << ")" << endl;
-        return; // not enough data (perhaps we should return the duration of the input as the "estimated" beat length?)
+    if (m_n < m_dfsize / 9 &&
+        m_n < (1.0 * m_inputSampleRate) / m_stepSize) { // 1 second
+        cerr << "FixedTempoEstimator::calculate: Input is too short" << endl;
+        return;
     }
 
     int n = m_n;
@@ -419,9 +456,8 @@ FixedTempoEstimator::calculate()
     }
 }
     
-
 FixedTempoEstimator::FeatureSet
-FixedTempoEstimator::assembleFeatures()
+FixedTempoEstimator::D::assembleFeatures()
 {
     FeatureSet fs;
     if (!m_r) return fs; // No results
@@ -455,17 +491,15 @@ FixedTempoEstimator::assembleFeatures()
         fs[ACFOutput].push_back(feature);
     }
 
-    float t0 = 50.f; // our minimum detected tempo (could be a parameter)
-    float t1 = 190.f; // our maximum detected tempo
-
-    //!!! need some way for the host (or at least, the user) to know
-    //!!! that it should only pass a certain amount of
-    //!!! input... e.g. by making the amount configurable
+    float t0 = m_minbpm; // our minimum detected tempo
+    float t1 = m_maxbpm; // our maximum detected tempo
 
     int p0 = tempo2lag(t1);
     int p1 = tempo2lag(t0);
 
     std::map<float, int> candidates;
+
+    std::cerr << "minbpm = " << m_minbpm << ", p0 = " << p0 << ", p1 = " << p1 << std::endl;
 
     for (int i = p0; i <= p1 && i < n/2-1; ++i) {
 
@@ -531,4 +565,115 @@ FixedTempoEstimator::assembleFeatures()
     fs[CandidatesOutput].push_back(feature);
     
     return fs;
+}
+
+    
+
+FixedTempoEstimator::FixedTempoEstimator(float inputSampleRate) :
+    Plugin(inputSampleRate),
+    m_d(new D(inputSampleRate))
+{
+}
+
+FixedTempoEstimator::~FixedTempoEstimator()
+{
+}
+
+string
+FixedTempoEstimator::getIdentifier() const
+{
+    return "fixedtempo";
+}
+
+string
+FixedTempoEstimator::getName() const
+{
+    return "Simple Fixed Tempo Estimator";
+}
+
+string
+FixedTempoEstimator::getDescription() const
+{
+    return "Study a short section of audio and estimate its tempo, assuming the tempo is constant";
+}
+
+string
+FixedTempoEstimator::getMaker() const
+{
+    return "Vamp SDK Example Plugins";
+}
+
+int
+FixedTempoEstimator::getPluginVersion() const
+{
+    return 1;
+}
+
+string
+FixedTempoEstimator::getCopyright() const
+{
+    return "Code copyright 2008 Queen Mary, University of London.  Freely redistributable (BSD license)";
+}
+
+size_t
+FixedTempoEstimator::getPreferredStepSize() const
+{
+    return m_d->getPreferredStepSize();
+}
+
+size_t
+FixedTempoEstimator::getPreferredBlockSize() const
+{
+    return m_d->getPreferredBlockSize();
+}
+
+bool
+FixedTempoEstimator::initialise(size_t channels, size_t stepSize, size_t blockSize)
+{
+    if (channels < getMinChannelCount() ||
+	channels > getMaxChannelCount()) return false;
+
+    return m_d->initialise(channels, stepSize, blockSize);
+}
+
+void
+FixedTempoEstimator::reset()
+{
+    return m_d->reset();
+}
+
+FixedTempoEstimator::ParameterList
+FixedTempoEstimator::getParameterDescriptors() const
+{
+    return m_d->getParameterDescriptors();
+}
+
+float
+FixedTempoEstimator::getParameter(std::string id) const
+{
+    return m_d->getParameter(id);
+}
+
+void
+FixedTempoEstimator::setParameter(std::string id, float value)
+{
+    m_d->setParameter(id, value);
+}
+
+FixedTempoEstimator::OutputList
+FixedTempoEstimator::getOutputDescriptors() const
+{
+    return m_d->getOutputDescriptors();
+}
+
+FixedTempoEstimator::FeatureSet
+FixedTempoEstimator::process(const float *const *inputBuffers, RealTime ts)
+{
+    return m_d->process(inputBuffers, ts);
+}
+
+FixedTempoEstimator::FeatureSet
+FixedTempoEstimator::getRemainingFeatures()
+{
+    return m_d->getRemainingFeatures();
 }
