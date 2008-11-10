@@ -38,7 +38,7 @@
 /*
  * This "simple" Vamp plugin host is no longer as simple as it was; it
  * now has a lot of options and includes a lot of code to handle the
- * various useful list options it supports.
+ * various useful listing modes it supports.
  *
  * However, the runPlugin function still contains a reasonable
  * implementation of a fairly generic Vamp plugin host capable of

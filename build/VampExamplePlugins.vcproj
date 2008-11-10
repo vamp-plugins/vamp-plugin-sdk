@@ -211,6 +211,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\examples\PowerSpectrum.h"
+				>
+			</File>
+			<File
 				RelativePath="..\examples\ZeroCrossing.h"
 				>
 			</File>
@@ -252,6 +256,10 @@
 			</File>
 			<File
 				RelativePath="..\examples\SpectralCentroid.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\examples\PowerSpectrum.cpp"
 				>
 			</File>
 			<File

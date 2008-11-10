@@ -34,36 +34,47 @@
     authorization.
 */
 
-#include "vamp/vamp.h"
-#include "vamp-sdk/PluginAdapter.h"
+#ifndef _POWER_SPECTRUM_PLUGIN_H_
+#define _POWER_SPECTRUM_PLUGIN_H_
 
-#include "ZeroCrossing.h"
-#include "SpectralCentroid.h"
-#include "PercussionOnsetDetector.h"
-#include "FixedTempoEstimator.h"
-#include "AmplitudeFollower.h"
-#include "PowerSpectrum.h"
+#include "vamp-sdk/Plugin.h"
 
-static Vamp::PluginAdapter<ZeroCrossing> zeroCrossingAdapter;
-static Vamp::PluginAdapter<SpectralCentroid> spectralCentroidAdapter;
-static Vamp::PluginAdapter<PercussionOnsetDetector> percussionOnsetAdapter;
-static Vamp::PluginAdapter<FixedTempoEstimator> fixedTempoAdapter;
-static Vamp::PluginAdapter<AmplitudeFollower> amplitudeAdapter;
-static Vamp::PluginAdapter<PowerSpectrum> powerSpectrum;
+/**
+ * Example plugin that returns a power spectrum calculated (trivially)
+ * from the frequency domain representation of each block of audio.
+ * This is one of the simplest possible Vamp plugins, included as an
+ * example of how to return the appropriate value structure for this
+ * sort of visualisation.
+ */
 
-const VampPluginDescriptor *vampGetPluginDescriptor(unsigned int version,
-                                                    unsigned int index)
+class PowerSpectrum : public Vamp::Plugin
 {
-    if (version < 1) return 0;
+public:
+    PowerSpectrum(float inputSampleRate);
+    virtual ~PowerSpectrum();
 
-    switch (index) {
-    case  0: return zeroCrossingAdapter.getDescriptor();
-    case  1: return spectralCentroidAdapter.getDescriptor();
-    case  2: return percussionOnsetAdapter.getDescriptor();
-    case  3: return amplitudeAdapter.getDescriptor();
-    case  4: return fixedTempoAdapter.getDescriptor();
-    case  5: return powerSpectrum.getDescriptor();
-    default: return 0;
-    }
-}
+    bool initialise(size_t channels, size_t stepSize, size_t blockSize);
+    void reset();
 
+    InputDomain getInputDomain() const { return FrequencyDomain; }
+
+    std::string getIdentifier() const;
+    std::string getName() const;
+    std::string getDescription() const;
+    std::string getMaker() const;
+    int getPluginVersion() const;
+    std::string getCopyright() const;
+
+    OutputList getOutputDescriptors() const;
+
+    FeatureSet process(const float *const *inputBuffers,
+                       Vamp::RealTime timestamp);
+
+    FeatureSet getRemainingFeatures();
+
+protected:
+    size_t m_blockSize;
+};
+
+
+#endif
