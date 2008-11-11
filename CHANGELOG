@@ -1,4 +1,21 @@
 
+Version 2.0
+
+  * Feature structure now has an optional duration (plugin API change)
+  * Libraries reorganised into separate include and src directories for
+    plugin and host SDKs; hosts should no longer include from vamp-sdk/
+    but always from vamp-hostsdk/ instead (host source compatibility change)
+  * OutputDescriptor now declares whether its features will have duration
+  * Vamp RDF ontology now included for providing online (out-of-plugin)
+    descriptions of plugins; program to generate skeleton RDF for a plugin
+    set is included, and RDF for example plugins provided
+  * New PluginSummarisingAdapter providing averages, min/max, count etc
+    of returned features on request
+  * New example plugins: Fixed Tempo Estimator and Power Spectrum
+  * Command-line host now has a complete listing option, to print out
+    all data reported by plugins
+  * More complete Visual Studio project support
+
 Version 1.3, 2008-07-09 (maintenance release):
 
   * PluginBufferingAdapter has several important fixes to bugs that
