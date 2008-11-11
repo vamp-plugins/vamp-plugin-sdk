@@ -399,7 +399,7 @@ FixedTempoEstimator::D::calculate()
         m_r[i] /= n - i - 1;
     }
 
-    float related[] = { 0.5, 2, 3, 4 };
+    float related[] = { 0.5, 2, 4, 8 };
 
     for (int i = 1; i < n/2-1; ++i) {
 
