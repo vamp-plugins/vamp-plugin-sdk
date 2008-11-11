@@ -430,23 +430,18 @@ PluginSummarisingAdapter::Impl::accumulate(int output,
                                            RealTime timestamp,
                                            bool final)
 {
-//!!! to do: use timestamp to determine which segment we're on
-    
-//!!! What should happen if a feature's duration spans a segment
-// boundary?  I think we probably want to chop it, and pretend that it
-// appears in both -- don't we? do we?  A very long feature (e.g. key,
-// if the whole audio is in a single key) might span many or all
-// segments, and we want that to be reflected in the results (e.g. it
-// is the modal key in all of those segments, not just the first).
-// That is actually quite complicated to do!
+    // What should happen if a feature's duration spans a segment
+    // boundary?  I think we probably want to chop it, and pretend
+    // that it appears in both.  A very long feature (e.g. key, if the
+    // whole audio is in a single key) might span many or all
+    // segments, and we want that to be reflected in the results
+    // (e.g. it is the modal key in all of those segments, not just
+    // the first).  This is actually quite complicated to do.
 
-//!!! This affects how we record things.  If features spanning a
-// boundary should be chopped, then we need to have per-segment
-// accumulators (and the feature value goes into both -- perhaps we
-// need a separate phase to split the accumulator up into segments).
-// If features spanning a boundary should be counted only in the first
-// segment, with their full duration, then we should store them in a
-// single accumulator and distribute into segments only on reduce.
+    // If features spanning a boundary should be chopped, then we need
+    // to have per-segment accumulators (and the feature value goes
+    // into both -- with a separate phase to split the accumulator up
+    // into segments).
 
 #ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
     std::cerr << "output " << output << ": timestamp " << timestamp << ", prev timestamp " << m_prevTimestamps[output] << ", final " << final << std::endl;
@@ -627,10 +622,10 @@ PluginSummarisingAdapter::Impl::segment()
                   << source.results.size() << std::endl;
 #endif
 
-        //!!! This is basically nonsense if the results have no values
-        //!!! (i.e. their times and counts are the only things of
-        //!!! interest) but perhaps it's the user's problem if they
-        //!!! ask for segmentation in that case
+        // This is basically nonsense if the results have no values
+        // (i.e. their times and counts are the only things of
+        // interest)... but perhaps it's the user's problem if they
+        // ask for segmentation (or any summary at all) in that case
 
         for (int n = 0; n < source.results.size(); ++n) {
             

@@ -630,28 +630,28 @@ enumeratePlugins(Verbosity verbosity)
             } else if (verbosity == PluginInformationDetailed) {
 
                 cout << header(plugin->getName(), 2);
-                cout << "- Identifier:         "
+                cout << " - Identifier:         "
                      << key << endl;
-                cout << "- Plugin Version:     " 
+                cout << " - Plugin Version:     " 
                      << plugin->getPluginVersion() << endl;
-                cout << "- Vamp API Version:   "
+                cout << " - Vamp API Version:   "
                      << plugin->getVampApiVersion() << endl;
-                cout << "- Maker:              \""
+                cout << " - Maker:              \""
                      << plugin->getMaker() << "\"" << endl;
-                cout << "- Copyright:          \""
+                cout << " - Copyright:          \""
                      << plugin->getCopyright() << "\"" << endl;
-                cout << "- Description:        \""
+                cout << " - Description:        \""
                      << plugin->getDescription() << "\"" << endl;
-                cout << "- Input Domain:       "
+                cout << " - Input Domain:       "
                      << (plugin->getInputDomain() == Vamp::Plugin::TimeDomain ?
                          "Time Domain" : "Frequency Domain") << endl;
-                cout << "- Default Step Size:  " 
+                cout << " - Default Step Size:  " 
                      << plugin->getPreferredStepSize() << endl;
-                cout << "- Default Block Size: " 
+                cout << " - Default Block Size: " 
                      << plugin->getPreferredBlockSize() << endl;
-                cout << "- Minimum Channels:   " 
+                cout << " - Minimum Channels:   " 
                      << plugin->getMinChannelCount() << endl;
-                cout << "- Maximum Channels:   " 
+                cout << " - Maximum Channels:   " 
                      << plugin->getMaxChannelCount() << endl;
 
             } else if (verbosity == PluginIds) {
@@ -667,21 +667,21 @@ enumeratePlugins(Verbosity verbosity)
                 for (size_t j = 0; j < params.size(); ++j) {
                     Plugin::ParameterDescriptor &pd(params[j]);
                     cout << "\nParameter " << j+1 << ": \"" << pd.name << "\"" << endl;
-                    cout << "- Identifier:         " << pd.identifier << endl;
-                    cout << "- Description:        \"" << pd.description << "\"" << endl;
+                    cout << " - Identifier:         " << pd.identifier << endl;
+                    cout << " - Description:        \"" << pd.description << "\"" << endl;
                     if (pd.unit != "") {
-                        cout << "- Unit:               " << pd.unit << endl;
+                        cout << " - Unit:               " << pd.unit << endl;
                     }
-                    cout << "- Range:              ";
+                    cout << " - Range:              ";
                     cout << pd.minValue << " -> " << pd.maxValue << endl;
-                    cout << "- Default:            ";
+                    cout << " - Default:            ";
                     cout << pd.defaultValue << endl;
                     if (pd.isQuantized) {
-                        cout << "- Quantize Step:      "
+                        cout << " - Quantize Step:      "
                              << pd.quantizeStep << endl;
                     }
                     if (!pd.valueNames.empty()) {
-                        cout << "- Value Names:        ";
+                        cout << " - Value Names:        ";
                         for (size_t k = 0; k < pd.valueNames.size(); ++k) {
                             if (k > 0) cout << ", ";
                             cout << "\"" << pd.valueNames[k] << "\"";
@@ -696,31 +696,39 @@ enumeratePlugins(Verbosity verbosity)
                 for (size_t j = 0; j < outputs.size(); ++j) {
                     Plugin::OutputDescriptor &od(outputs[j]);
                     cout << "\nOutput " << j+1 << ": \"" << od.name << "\"" << endl;
-                    cout << "- Identifier:         " << od.identifier << endl;
-                    cout << "- Description:        \"" << od.description << "\"" << endl;
+                    cout << " - Identifier:         " << od.identifier << endl;
+                    cout << " - Description:        \"" << od.description << "\"" << endl;
                     if (od.unit != "") {
-                        cout << "- Unit:               " << od.unit << endl;
+                        cout << " - Unit:               " << od.unit << endl;
                     }
                     if (od.hasFixedBinCount) {
-                        cout << "- Default Bin Count:  " << od.binCount << endl;
+                        cout << " - Default Bin Count:  " << od.binCount << endl;
                     }
                     if (!od.binNames.empty()) {
-                        cout << "- Bin Names:          ";
+                        bool have = false;
                         for (size_t k = 0; k < od.binNames.size(); ++k) {
-                            if (k > 0) cout << ", ";
-                            cout << "\"" << od.binNames[k] << "\"";
+                            if (od.binNames[k] != "") {
+                                have = true; break;
+                            }
                         }
-                        cout << endl;
+                        if (have) {
+                            cout << " - Bin Names:          ";
+                            for (size_t k = 0; k < od.binNames.size(); ++k) {
+                                if (k > 0) cout << ", ";
+                                cout << "\"" << od.binNames[k] << "\"";
+                            }
+                            cout << endl;
+                        }
                     }
                     if (od.hasKnownExtents) {
-                        cout << "- Default Extents:    ";
+                        cout << " - Default Extents:    ";
                         cout << od.minValue << " -> " << od.maxValue << endl;
                     }
                     if (od.isQuantized) {
-                        cout << "- Quantize Step:      "
+                        cout << " - Quantize Step:      "
                              << od.quantizeStep << endl;
                     }
-                    cout << "- Sample Type:        "
+                    cout << " - Sample Type:        "
                          << (od.sampleType ==
                              Plugin::OutputDescriptor::OneSamplePerStep ?
                              "One Sample Per Step" :
@@ -730,10 +738,10 @@ enumeratePlugins(Verbosity verbosity)
                              "Variable Sample Rate") << endl;
                     if (od.sampleType !=
                         Plugin::OutputDescriptor::OneSamplePerStep) {
-                        cout << "- Default Rate:       "
+                        cout << " - Default Rate:       "
                              << od.sampleRate << endl;
                     }
-                    cout << "- Has Duration:       "
+                    cout << " - Has Duration:       "
                          << (od.hasDuration ? "Yes" : "No") << endl;
                 }
             }

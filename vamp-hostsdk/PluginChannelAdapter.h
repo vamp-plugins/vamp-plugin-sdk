@@ -110,7 +110,12 @@ namespace HostExt {
 class PluginChannelAdapter : public PluginWrapper
 {
 public:
-    PluginChannelAdapter(Plugin *plugin); // I take ownership of plugin
+    /**
+     * Construct a PluginChannelAdapter wrapping the given plugin.
+     * The adapter takes ownership of the plugin, which will be
+     * deleted when the adapter is deleted.
+     */
+    PluginChannelAdapter(Plugin *plugin);
     virtual ~PluginChannelAdapter();
 
     bool initialise(size_t channels, size_t stepSize, size_t blockSize);

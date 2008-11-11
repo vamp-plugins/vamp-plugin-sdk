@@ -49,13 +49,47 @@ namespace HostExt {
 /**
  * \class PluginSummarisingAdapter PluginSummarisingAdapter.h <vamp-hostsdk/PluginSummarisingAdapter.h>
  *
+ * PluginSummarisingAdapter is a Vamp plugin adapter that provides
+ * summarisation methods such as mean and median averages of output
+ * features, for use in any context where an available plugin produces
+ * individual values but the result that is actually needed is some
+ * sort of aggregate.
+ *
+ * To make use of PluginSummarisingAdapter, the host should configure,
+ * initialise and run the plugin through the adapter interface just as
+ * normal.  Then, after the process and getRemainingFeatures methods
+ * have been properly called and processing is complete, the host may
+ * call getSummaryForOutput or getSummaryForAllOutputs to obtain
+ * summarised features: averages, maximum values, etc, depending on
+ * the SummaryType passed to the function.
+ *
+ * By default PluginSummarisingAdapter calculates a single summary of
+ * each output's feature across the whole duration of processed audio.
+ * A host needing summaries of sub-segments of the whole audio may
+ * call setSummarySegmentBoundaries before retrieving the summaries,
+ * providing a list of times such that one summary will be provided
+ * for each segment between two consecutive times.
+ *
+ * PluginSummarisingAdapter is straightforward rather than fast.  It
+ * calculates all of the summary types for all outputs always, and
+ * then returns only the ones that are requested.  It is designed on
+ * the basis that, for most features, summarising and storing
+ * summarised results is far cheaper than calculating the results in
+ * the first place.  If this is not true for your particular feature,
+ * PluginSummarisingAdapter may not be the best approach for you.
+ *
  * \note This class was introduced in version 2.0 of the Vamp plugin SDK.
  */
 
 class PluginSummarisingAdapter : public PluginWrapper
 {
 public:
-    PluginSummarisingAdapter(Plugin *plugin); // I take ownership of plugin
+    /**
+     * Construct a PluginSummarisingAdapter wrapping the given plugin.
+     * The adapter takes ownership of the plugin, which will be
+     * deleted when the adapter is deleted.
+     */
+    PluginSummarisingAdapter(Plugin *plugin); 
     virtual ~PluginSummarisingAdapter();
 
     bool initialise(size_t channels, size_t stepSize, size_t blockSize);
@@ -64,6 +98,20 @@ public:
     FeatureSet getRemainingFeatures();
 
     typedef std::set<RealTime> SegmentBoundaries;
+
+    /**
+     * Specify a series of segment boundaries, such that one summary
+     * will be returned for each of the contiguous intra-boundary
+     * segments.  This function must be called before
+     * getSummaryForOutput or getSummaryForAllOutputs.
+     * 
+     * Note that you cannot retrieve results with multiple different
+     * segmentations by repeatedly calling this function followed by
+     * one of the getSummary functions.  The summaries are all
+     * calculated at the first call to any getSummary function, and
+     * once the summaries have been calculated, they remain
+     * calculated.
+     */
     void setSummarySegmentBoundaries(const SegmentBoundaries &);
 
     enum SummaryType {
@@ -107,10 +155,27 @@ public:
         ContinuousTimeAverage = 1,
     };
 
+    /**
+     * Return summaries of the features that were returned on the
+     * given output, using the given SummaryType and AveragingMethod.
+     *
+     * The plugin must have been fully run (process() and
+     * getRemainingFeatures() calls all made as appropriate) before
+     * this function is called.
+     */
     FeatureList getSummaryForOutput(int output,
                                     SummaryType type,
                                     AveragingMethod method = SampleAverage);
 
+    /**
+     * Return summaries of the features that were returned on all of
+     * the plugin's outputs, using the given SummaryType and
+     * AveragingMethod.
+     *
+     * The plugin must have been fully run (process() and
+     * getRemainingFeatures() calls all made as appropriate) before
+     * this function is called.
+     */
     FeatureSet getSummaryForAllOutputs(SummaryType type,
                                        AveragingMethod method = SampleAverage);
 

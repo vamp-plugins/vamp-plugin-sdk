@@ -80,7 +80,12 @@ namespace HostExt {
 class PluginInputDomainAdapter : public PluginWrapper
 {
 public:
-    PluginInputDomainAdapter(Plugin *plugin); // I take ownership of plugin
+    /**
+     * Construct a PluginInputDomainAdapter wrapping the given plugin.
+     * The adapter takes ownership of the plugin, which will be
+     * deleted when the adapter is deleted.
+     */
+    PluginInputDomainAdapter(Plugin *plugin);
     virtual ~PluginInputDomainAdapter();
     
     bool initialise(size_t channels, size_t stepSize, size_t blockSize);

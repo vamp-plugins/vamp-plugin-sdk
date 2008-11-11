@@ -73,7 +73,12 @@ namespace HostExt {
 class PluginBufferingAdapter : public PluginWrapper
 {
 public:
-    PluginBufferingAdapter(Plugin *plugin); // I take ownership of plugin
+    /**
+     * Construct a PluginBufferingAdapter wrapping the given plugin.
+     * The adapter takes ownership of the plugin, which will be
+     * deleted when the adapter is deleted.
+     */
+    PluginBufferingAdapter(Plugin *plugin);
     virtual ~PluginBufferingAdapter();
 
     /**
