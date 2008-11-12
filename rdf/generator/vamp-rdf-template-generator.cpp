@@ -36,15 +36,15 @@ string programURI = "http://www.vamp-plugins.org/doap.rdf#template-generator";
 void usage()
 {
     cerr << endl;
-    cerr << "template-generator: Create a skeleton RDF description file describing a Vamp" << endl;
-    cerr << "plugin library using the Vamp ontology." << endl;
+    cerr << "vamp-rdf-template-generator: Create a skeleton RDF description file describing" << endl;
+    cerr << "a Vamp plugin library using the Vamp ontology." << endl;
     cerr << endl;
     cerr << "Usage:" << endl;
-    cerr << "   template-generator -i vamp:soname[:plugin] [vamp:soname[:plugin] ...]" << endl;
-    cerr << "   template-generator PLUGIN_BASE_URI [ -m YOUR_URI ] [vamp:]soname[:plugin] [[vamp:]soname[:plugin] ...]" << endl;
+    cerr << "   vamp-rdf-template-generator -i vamp:soname[:plugin] [vamp:soname[:plugin] ...]" << endl;
+    cerr << "   vamp-rdf-template-generator PLUGIN_BASE_URI [ -m YOUR_URI ] [vamp:]soname[:plugin] [[vamp:]soname[:plugin] ...]" << endl;
     cerr << endl;
     cerr << "Example:" << endl;
-    cerr << "   template-generator http://vamp-plugins.org/rdf/plugins/ vamp-example-plugins" << endl;
+    cerr << "   vamp-rdf-template-generator http://vamp-plugins.org/rdf/plugins/ vamp-example-plugins" << endl;
     cerr << endl;
     exit(2);
 }
