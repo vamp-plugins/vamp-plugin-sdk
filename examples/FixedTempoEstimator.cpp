@@ -47,6 +47,7 @@ using Vamp::RealTime;
 
 
 class FixedTempoEstimator::D
+// this class just avoids us having to declare any data members in the header
 {
 public:
     D(float inputSampleRate);
@@ -314,15 +315,21 @@ FixedTempoEstimator::D::process(const float *const *inputBuffers, RealTime ts)
     m_lasttime = ts;
 
     if (m_n == m_dfsize) {
+        // If we have seen enough input, do the estimation and return
         calculate();
         fs = assembleFeatures();
         ++m_n;
         return fs;
     }
 
+    // If we have seen more than enough, just discard and return!
     if (m_n > m_dfsize) return FeatureSet();
 
     float value = 0.f;
+
+    // m_df will contain an onset detection function based on the rise
+    // in overall power from one spectral frame to the next --
+    // simplistic but reasonably effective for our purposes.
 
     for (size_t i = 1; i < m_blockSize/2; ++i) {
 
@@ -378,17 +385,24 @@ FixedTempoEstimator::D::calculate()
         return;
     }
 
-    int n = m_n;
+    // This function takes m_df (the detection function array filled
+    // out in process()) and calculates m_r (the raw autocorrelation)
+    // and m_fr (the filtered autocorrelation from whose peaks tempo
+    // estimates will be taken).
 
-    m_r = new float[n/2];
-    m_fr = new float[n/2];
-    m_t = new float[n/2];
+    int n = m_n; // length of actual df array (m_dfsize is the theoretical max)
+
+    m_r  = new float[n/2]; // raw autocorrelation
+    m_fr = new float[n/2]; // filtered autocorrelation
+    m_t  = new float[n/2]; // averaged tempo estimate for each lag value
 
     for (int i = 0; i < n/2; ++i) {
-        m_r[i] = 0.f;
+        m_r[i]  = 0.f;
         m_fr[i] = 0.f;
-        m_t[i] = lag2tempo(i);
+        m_t[i]  = lag2tempo(i);
     }
+
+    // Calculate the raw autocorrelation of the detection function
 
     for (int i = 0; i < n/2; ++i) {
 
@@ -399,19 +413,19 @@ FixedTempoEstimator::D::calculate()
         m_r[i] /= n - i - 1;
     }
 
+    // Filter the autocorrelation and average out the tempo estimates
+    
     float related[] = { 0.5, 2, 4, 8 };
 
     for (int i = 1; i < n/2-1; ++i) {
-
-        float weight = 1.f - fabsf(128.f - lag2tempo(i)) * 0.005;
-        if (weight < 0.f) weight = 0.f;
-        weight = weight * weight * weight;
 
         m_fr[i] = m_r[i];
 
         int div = 1;
 
         for (int j = 0; j < int(sizeof(related)/sizeof(related[0])); ++j) {
+
+            // Check for an obvious peak at each metrically related lag
 
             int k0 = int(i * related[j] + 0.5);
 
@@ -431,11 +445,18 @@ FixedTempoEstimator::D::calculate()
                     have = true;
                 }
                 
+                // Boost the original lag according to the strongest
+                // value found close to this related lag
+
                 m_fr[i] += m_r[kmax] / 5;
 
                 if ((kmax == 0 || m_r[kmax] > m_r[kmax-1]) &&
                     (kmax == n/2-1 || m_r[kmax] > m_r[kmax+1]) &&
                     kvmax > kvmin * 1.05) {
+
+                    // The strongest value close to the related lag is
+                    // also a pretty good looking peak, so use it to
+                    // improve our tempo estimate for the original lag
                     
                     m_t[i] = m_t[i] + lag2tempo(kmax) * related[j];
                     ++div;
@@ -445,6 +466,13 @@ FixedTempoEstimator::D::calculate()
         
         m_t[i] /= div;
         
+        // Finally apply a primitive perceptual weighting (to prefer
+        // tempi of around 120-130)
+
+        float weight = 1.f - fabsf(128.f - lag2tempo(i)) * 0.005;
+        if (weight < 0.f) weight = 0.f;
+        weight = weight * weight * weight;
+
         m_fr[i] += m_fr[i] * (weight / 3);
     }
 }
@@ -453,7 +481,7 @@ FixedTempoEstimator::FeatureSet
 FixedTempoEstimator::D::assembleFeatures()
 {
     FeatureSet fs;
-    if (!m_r) return fs; // No results
+    if (!m_r) return fs; // No autocorrelation: no results
 
     Feature feature;
     feature.hasTimestamp = true;
@@ -467,6 +495,9 @@ FixedTempoEstimator::D::assembleFeatures()
     int n = m_n;
 
     for (int i = 0; i < n; ++i) {
+
+        // Return the detection function in the DF output
+
         feature.timestamp = m_start +
             RealTime::frame2RealTime(i * m_stepSize, m_inputSampleRate);
         feature.values[0] = m_df[i];
@@ -475,6 +506,10 @@ FixedTempoEstimator::D::assembleFeatures()
     }
 
     for (int i = 1; i < n/2; ++i) {
+
+        // Return the raw autocorrelation in the ACF output, each
+        // value labelled according to its corresponding tempo
+
         feature.timestamp = m_start +
             RealTime::frame2RealTime(i * m_stepSize, m_inputSampleRate);
         feature.values[0] = m_r[i];
@@ -496,8 +531,15 @@ FixedTempoEstimator::D::assembleFeatures()
 
         if (m_fr[i] > m_fr[i-1] &&
             m_fr[i] > m_fr[i+1]) {
+
+            // This is a peak in the filtered autocorrelation: stick
+            // it into the map from filtered autocorrelation to lag
+            // index -- this sorts our peaks by filtered acf value
+
             candidates[m_fr[i]] = i;
         }
+
+        // Also return the filtered autocorrelation in its own output
 
         feature.timestamp = m_start +
             RealTime::frame2RealTime(i * m_stepSize, m_inputSampleRate);
@@ -519,15 +561,25 @@ FixedTempoEstimator::D::assembleFeatures()
     feature.hasDuration = true;
     feature.duration = m_lasttime - m_start;
 
+    // The map contains only peaks and is sorted by filtered acf
+    // value, so the final element in it is our "best" tempo guess
+
     std::map<float, int>::const_iterator ci = candidates.end();
     --ci;
     int maxpi = ci->second;
 
     if (m_t[maxpi] > 0) {
-        cerr << "*** Using adjusted tempo " << m_t[maxpi] << " instead of lag tempo " << lag2tempo(maxpi) << endl;
+
+        // This lag has an adjusted tempo from the averaging process:
+        // use it
+
         feature.values[0] = m_t[maxpi];
+
     } else {
-        // shouldn't happen -- it would imply that this high value was not a peak!
+
+        // shouldn't happen -- it would imply that this high value was
+        // not a peak!
+
         feature.values[0] = lag2tempo(maxpi);
         cerr << "WARNING: No stored tempo for index " << maxpi << endl;
     }
@@ -535,12 +587,17 @@ FixedTempoEstimator::D::assembleFeatures()
     sprintf(buffer, "%.1f bpm", feature.values[0]);
     feature.label = buffer;
 
+    // Return the best tempo in the main output
+
     fs[TempoOutput].push_back(feature);
+
+    // And return the other estimates (up to the arbitrarily chosen
+    // number of 10 of them) in the candidates output
 
     feature.values.clear();
     feature.label = "";
 
-    while (feature.values.size() < 8) {
+    while (feature.values.size() < 10) {
         if (m_t[ci->second] > 0) {
             feature.values.push_back(m_t[ci->second]);
         } else {

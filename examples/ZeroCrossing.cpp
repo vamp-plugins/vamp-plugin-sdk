@@ -138,8 +138,6 @@ ZeroCrossing::getOutputDescriptors() const
     return list;
 }
 
-//static int scount = 0;
-
 ZeroCrossing::FeatureSet
 ZeroCrossing::process(const float *const *inputBuffers,
                       Vamp::RealTime timestamp)
@@ -151,14 +149,10 @@ ZeroCrossing::process(const float *const *inputBuffers,
 	return FeatureSet();
     }
 
-//    std::cerr << "ZeroCrossing::process: count = " << scount++ << ", timestamp = " << timestamp << ", rms = ";
-
     float prev = m_previousSample;
     size_t count = 0;
 
     FeatureSet returnFeatures;
-
-//    double acc = 0.0;
 
     for (size_t i = 0; i < m_stepSize; ++i) {
 
@@ -180,13 +174,8 @@ ZeroCrossing::process(const float *const *inputBuffers,
 	    returnFeatures[1].push_back(feature);
 	}
 
-//        acc += sample * sample;
-
 	prev = sample;
     }
-
-//    acc /= m_stepSize;
-//    std::cerr << sqrt(acc) << std::endl;
 
     m_previousSample = prev;
 

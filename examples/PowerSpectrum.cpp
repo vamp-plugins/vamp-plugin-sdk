@@ -115,7 +115,15 @@ PowerSpectrum::getOutputDescriptors() const
     d.description = "Power values of the frequency spectrum bins calculated from the input signal";
     d.unit = "";
     d.hasFixedBinCount = true;
-    d.binCount = m_blockSize / 2 + 1;
+    if (m_blockSize == 0) {
+        // Just so as not to return "1".  This is the bin count that
+        // would result from a block size of 1024, which is a likely
+        // default -- but the host should always set the block size
+        // before querying the bin count for certain.
+        d.binCount = 513;
+    } else {
+        d.binCount = m_blockSize / 2 + 1;
+    }
     d.hasKnownExtents = false;
     d.isQuantized = false;
     d.sampleType = OutputDescriptor::OneSamplePerStep;

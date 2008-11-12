@@ -1,0 +1,283 @@
+
+Vamp Example Plugins
+====================
+
+The vamp-example-plugins library contains a number of Vamp audio
+analysis plugins provided as part of the Vamp plugin SDK.
+
+These are simple, but sometimes useful, plugins whose source code you
+are free to study and reuse in any proprietary or non-proprietary
+plugins of your own without any licensing obligation.
+
+User documentation for the individual plugins in this library follows.
+
+
+Amplitude Follower
+==================
+
+System identifier: vamp-example-plugins:amplitudefollower
+RDF URI: http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#amplitudefollower
+
+Amplitude Follower tracks and returns the amplitude of the audio
+signal, block by block.  It uses a method from the SuperCollider audio
+processing language, implemented as a Vamp plugin by Dan Stowell.
+
+Parameters
+----------
+
+Attack time (seconds)
+Release time (seconds)
+
+Outputs
+-------
+
+Amplitude
+~~~~~~~~~
+
+The estimated peak amplitude (in volts) for the current processing block.
+
+
+Simple Fixed Tempo Estimator
+============================
+
+System identifier: vamp-example-plugins:fixedtempo
+RDF URI: http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#fixedtempo
+
+Simple Fixed Tempo Estimator analyses a fragment of audio and
+estimates its tempo.  It assumes that its input is of fixed tempo, and
+it analyses only the first (small but configurable number of) seconds
+before returning a result, discarding all subsequent input.
+
+The plugin calculates an overall energy rise function across a series
+of short frequency-domain input frames, takes the autocorrelation of
+this function, filters it to stress possible metrical patterns,
+locates peaks, and converts from autocorrelation lag to the
+corresponding tempo.
+
+The filtering process involves searching for peaks at simple
+metrically related intervals (at a given autocorrelation lag as well
+as at 0.5, 2, and 4 times that lag), boosting each peak that shows
+strong related peaks.  A simplistic perceptual curve is also applied
+in order to increase the probability of detecting a "likely" tempo.
+For improved tempo precision, each tempo with strong related peaks is
+averaged with the tempi calculated from those peaks.
+
+The method is mainly tuned for 4/4 pop and dance rhythms.
+
+This plugin returns many of its intermediate calculations as
+additional outputs, as well as the most favoured tempo.  Although as a
+tempo estimator it's still fairly primitive, it is intended to provide
+a useful example of a slightly more complex feature extraction plugin
+than the other examples, as well as one that returns several different
+types of output at a time.
+
+Parameters
+----------
+
+Minimum estimated tempo, Maximum estimated tempo (bpm) - These
+parameters control the range of values within which the tempo
+estimator will return its estimate.
+
+Input duration to study (seconds) - The tempo estimator uses only the
+first part of its input, discarding any that follows.  This parameter
+controls how much input it will use.  There is no value in increasing
+this beyond 8x the duration of the slowest returned beat.  The default
+of 10 seconds is likely to be appropriate for most purposes.
+
+Outputs
+-------
+
+Tempo
+~~~~~
+
+The tempo estimator's best guess at the tempo of its input, in beats
+per minute.
+
+This is returned as a feature whose timestamp and duration cover the
+range of the input which was used in estimating the tempo, with a
+single value containing the tempo.
+
+Tempo candidates
+~~~~~~~~~~~~~~~~
+
+Several guesses at the possible tempo.  This output is returned as a
+single feature whose timestamp and duration cover the range of the
+input which was used in estimating the tempo, with up to 10 bins
+containing one tempo value in each bin, with the "best guess" tempo in
+bin 0.
+
+Detection function
+~~~~~~~~~~~~~~~~~~
+
+The basic onset detection function used in tempo estimation.
+
+Autocorrelation function
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The autocorrelation of the onset detection function.
+
+Filtered Autocorrelation
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The autocorrelation after filtering to boost values with possible
+metrically related peaks and to apply perceptual weighting.  The peak
+value of this function is the one that will be used as the "best
+guess".
+
+
+Simple Percussion Onset Detector
+================================
+
+System identifier: vamp-example-plugins:percussiononsets
+RDF URI: http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#percussiononsets
+
+Simple Percussion Onset Detector estimates the locations of percussive
+onsets in the audio signal.  It uses a method described in "Drum
+Source Separation using Percussive Feature Detection and Spectral
+Modulation" by Dan Barry, Derry Fitzgerald, Eugene Coyle and Bob
+Lawlor, ISSC 2005.
+
+The principle is to exploit the broadband nature of noisy percussive
+onsets by identifying only those frames in which the energy rise shows
+a broadband profile.
+
+The plugin takes a series of frequency domain frames, and examines
+each frame to count the number of bins whose energy content has
+increased by more than a certain threshold since the prior frame.
+Frames in which this number is at a peak relative to prior and
+following frames and also exceeds another threshold value are
+classified as percussive onsets.
+
+Parameters
+----------
+
+Energy rise threshold (dB) - The rise in energy within a bin from one
+frame to the next that is required for a bin to be counted toward the
+detection function's bin count.  This roughly corresponds to how
+"loud" a percussive sound must be in order to be detected.
+
+Sensitivity (%) - The proportion of bins that must exceed the energy
+rise threshold in order for an onset to be detected (at frames in
+which the detection function peaks).  This roughly corresponds to how
+"noisy" a percussive sound must be in order to be detected.
+
+Outputs
+-------
+
+Onsets
+~~~~~~
+
+The estimated onset locations.
+
+Detection Function
+~~~~~~~~~~~~~~~~~~
+
+The energy rise detection function whose peaks were used to estimate
+onset locations.
+
+
+Simple Power Spectrum
+=====================
+
+System identifier: vamp-example-plugins:powerspectrum
+RDF URI: http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#powerspectrum
+
+Simple Power Spectrum returns a power spectrum calculated from
+windowed short-time Fourier transforms of the input audio.  (The power
+spectrum for a frame consists of a sequence of the squares of the
+magnitudes of the complex values for each frequency bin in the result
+of the Fourier transform.)
+
+This very simple plugin is an illustration of the fact that if a
+plugin requests frequency-domain input, its input will already be in
+the form needed for a spectrum such as this.  The plugin has no work
+left to do except to calculate the squared magnitude from the
+cartesian complex representation.
+
+This plugin also illustrates how to return "grid-type" visualisation
+data from a Vamp plugin.
+
+Parameters
+----------
+
+None.
+
+Outputs
+-------
+
+Power Spectrum
+~~~~~~~~~~~~~~
+
+The power spectrum calculated from the input frame.  This output
+returns a single feature per processing block, containing
+blocksize/2+1 power values corresponding to the FFT bins from DC to
+Nyquist inclusive.  The DC bin is always returned.
+
+
+Spectral Centroid
+=================
+
+System identifier: vamp-example-plugins:spectralcentroid
+RDF URI: http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#spectralcentroid
+
+Spectral Centroid calculates the "centre of gravity" of the frequency
+spectrum for each input frame.
+
+Parameters
+----------
+
+None.
+
+Outputs
+-------
+
+Log Frequency Centroid
+~~~~~~~~~~~~~~~~~~~~~~
+
+The centroid of the log-weighted frequency spectrum.  That is, the sum
+across Fourier transform output bins of the logarithm of the bin
+frequency multiplied by the bin magnitude, divided by the sum of the
+bin magnitudes, and the inverse logarithm taken so as to give the
+result as a frequency in Hz.
+
+Linear Frequency Centroid
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The centroid of the linear-weighted frequency spectrum.  That is, the
+sum across Fourier transform output bins of the bin frequency
+multiplied by the bin magnitude, divided by the sum of the bin
+magnitudes.  The result is a frequency in Hz.
+
+
+Zero Crossings
+==============
+
+System identifier: vamp-example-plugins:zerocrossing
+RDF URI: http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#zerocrossing
+
+Zero Crossings calculates the positions and density of "zero-crossing"
+points in an audio waveform.  For the purposes of this plugin, that
+means those positions at which the sampled value switches from
+zero-or-less to greater-than-zero, or vice versa.
+
+Parameters
+----------
+
+None.
+
+Outputs
+-------
+
+Zero Crossing Counts
+~~~~~~~~~~~~~~~~~~~~
+
+The number of zero-crossing points found in the current block of
+samples, as a single-valued feature returned per processing block.
+
+Zero Crossings
+~~~~~~~~~~~~~~
+
+The locations of zero-crossing points, returning one feature
+timestamped to the zero-crossing location, without values, for each
+crossing point.
+
