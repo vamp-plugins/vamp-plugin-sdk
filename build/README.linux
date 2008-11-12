@@ -5,14 +5,13 @@ The Vamp Plugin SDK -- Platform Notes for Linux and other GNU platforms
 Building at the command line
 ----------------------------
 
-To build the SDK, example plugins, and command-line host, first edit
-the Makefile to suit your platform according to the comments in it,
-then run "make".
+To build the SDK, example plugins, and command-line host:
 
-Note that you must have libsndfile
-(http://www.mega-nerd.com/libsndfile/) installed in order to build the
-command-line host successfully.  To build only the SDK and examples,
-run "make sdk examples" instead of just "make".
+$ ./configure
+$ make
+
+To install after a successful make, run "make install" as root (or via
+sudo).
 
 
 Installing the Example Plugins
