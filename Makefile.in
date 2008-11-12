@@ -38,7 +38,7 @@ default:	all
 
 # Compile flags
 #
-CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -I. -fPIC
+CXXFLAGS	:= -I. @CXXFLAGS@ @SNDFILE_CFLAGS@
 
 # ar, ranlib
 #
@@ -57,17 +57,17 @@ PLUGIN_EXT	= .so
 
 # Libraries required for the host.
 #
-HOST_LIBS	= $(SRCDIR)/libvamp-hostsdk.a -lsndfile -ldl
+HOST_LIBS	= $(SRCDIR)/libvamp-hostsdk.a @SNDFILE_LIBS@ @LIBS@
 
 # Libraries required for the RDF template generator.
 #
-RDFGEN_LIBS	= $(SRCDIR)/libvamp-hostsdk.a -ldl
+RDFGEN_LIBS	= $(SRCDIR)/libvamp-hostsdk.a @LIBS@
 
 # Locations for "make install".  This will need quite a bit of 
 # editing for non-Linux platforms.  Of course you don't necessarily
 # have to use "make install".
 #
-INSTALL_PREFIX	 	  := /usr/local
+INSTALL_PREFIX	 	  := @prefix@
 INSTALL_API_HEADERS	  := $(INSTALL_PREFIX)/include/vamp
 INSTALL_SDK_HEADERS	  := $(INSTALL_PREFIX)/include/vamp-sdk
 INSTALL_HOSTSDK_HEADERS	  := $(INSTALL_PREFIX)/include/vamp-hostsdk
