@@ -9,15 +9,18 @@ To build the SDK, example plugins, and command-line host:
 
  $ make -f Makefile.osx
 
-Note that you must have libsndfile
-(http://www.mega-nerd.com/libsndfile/) installed in order to build the
-command-line host successfully.  To build only the SDK and examples:
+You must have libsndfile (http://www.mega-nerd.com/libsndfile/)
+installed in order to build the command-line host successfully.  To
+build only the SDK and examples:
 
  $ make -f Makefile.osx sdk examples
 
-If you are using an IDE, you may prefer to simply add the .h and .cpp
-files in the vamp-sdk and/or vamp-hostsdk directories to your existing
-project.
+See the comments at the top of Makefile.osx for more information about
+the libraries and other targets that are built in this way.
+
+If you are using an IDE, you may prefer to simply add the vamp-sdk and
+src/vamp-sdk (for plugins) or vamp-hostsdk and src/vamp-hostsdk (for
+hosts) directories to your existing project.
 
 
 Installing the Example Plugins
