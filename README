@@ -158,6 +158,11 @@ host
 A simple command-line Vamp host, capable of loading a plugin and using
 it to process a complete audio file, with its default parameters.
 
+This host also contains a number of options for listing the installed
+plugins and their properties in various formats.  For that reason, it
+isn't really as simple as one might hope.  The core of the code is
+still reasonably straightforward, however.
+
 
 Plugin Lookup and Categorisation
 ================================

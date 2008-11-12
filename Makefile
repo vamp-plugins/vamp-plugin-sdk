@@ -72,6 +72,8 @@ INSTALL_API_HEADERS	  := $(INSTALL_PREFIX)/include/vamp
 INSTALL_SDK_HEADERS	  := $(INSTALL_PREFIX)/include/vamp-sdk
 INSTALL_HOSTSDK_HEADERS	  := $(INSTALL_PREFIX)/include/vamp-hostsdk
 INSTALL_SDK_LIBS	  := $(INSTALL_PREFIX)/lib
+INSTALL_PLUGINS		  := $(INSTALL_PREFIX)/lib/vamp
+INSTALL_BINARIES	  := $(INSTALL_PREFIX)/bin 
 
 INSTALL_SDK_LIBNAME	  := libvamp-sdk.so.2.0.0
 INSTALL_SDK_LINK_ABI	  := libvamp-sdk.so.2
@@ -186,6 +188,9 @@ PLUGIN_OBJECTS	= \
 PLUGIN_TARGET	= \
 		$(EXAMPLEDIR)/vamp-example-plugins$(PLUGIN_EXT)
 
+PLUGIN_CAT	= \
+		$(EXAMPLEDIR)/vamp-example-plugins.cat
+
 HOST_HEADERS	= \
 		$(HOSTDIR)/system.h
 
@@ -196,10 +201,10 @@ HOST_TARGET	= \
 		$(HOSTDIR)/vamp-simple-host
 
 RDFGEN_OBJECTS	= \
-		$(RDFGENDIR)/template-generator.o
+		$(RDFGENDIR)/vamp-rdf-template-generator.o
 
 RDFGEN_TARGET	= \
-		$(RDFGENDIR)/template-generator
+		$(RDFGENDIR)/vamp-rdf-template-generator
 
 sdk:		sdkstatic $(SDK_DYNAMIC) $(HOSTSDK_DYNAMIC)
 
@@ -245,12 +250,18 @@ clean:
 distclean:	clean
 		rm -f $(SDK_STATIC) $(SDK_DYNAMIC) $(HOSTSDK_STATIC) $(HOSTSDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET) $(RDFGEN_TARGET) *~ */*~
 
-install:	$(SDK_STATIC) $(SDK_DYNAMIC) $(HOSTSDK_STATIC) $(HOSTSDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET)
+install:	$(SDK_STATIC) $(SDK_DYNAMIC) $(HOSTSDK_STATIC) $(HOSTSDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET) $(RDFGEN_TARGET)
 		mkdir -p $(DESTDIR)$(INSTALL_API_HEADERS)
 		mkdir -p $(DESTDIR)$(INSTALL_SDK_HEADERS)
 		mkdir -p $(DESTDIR)$(INSTALL_HOSTSDK_HEADERS)
 		mkdir -p $(DESTDIR)$(INSTALL_SDK_LIBS)
 		mkdir -p $(DESTDIR)$(INSTALL_PKGCONFIG)
+		mkdir -p $(DESTDIR)$(INSTALL_BINARIES)
+		mkdir -p $(DESTDIR)$(INSTALL_PLUGINS)
+		cp $(HOST_TARGET) $(DESTDIR)$(INSTALL_BINARIES)
+		cp $(RDFGEN_TARGET) $(DESTDIR)$(INSTALL_BINARIES)
+		cp $(PLUGIN_TARGET) $(DESTDIR)$(INSTALL_PLUGINS)
+		cp $(PLUGIN_CAT) $(DESTDIR)$(INSTALL_PLUGINS)
 		cp $(API_HEADERS) $(DESTDIR)$(INSTALL_API_HEADERS)
 		cp $(SDK_HEADERS) $(DESTDIR)$(INSTALL_SDK_HEADERS)
 		cp $(HOSTSDK_HEADERS) $(DESTDIR)$(INSTALL_HOSTSDK_HEADERS)
@@ -323,17 +334,17 @@ host/vamp-simple-host.o: ./vamp-hostsdk/PluginWrapper.h
 host/vamp-simple-host.o: ./vamp-hostsdk/Plugin.h ./vamp-hostsdk/hostguard.h
 host/vamp-simple-host.o: vamp-sdk/Plugin.h
 host/vamp-simple-host.o: ./vamp-hostsdk/PluginLoader.h host/system.h
-rdf/generator/template-generator.o: ./vamp-hostsdk/PluginHostAdapter.h
-rdf/generator/template-generator.o: vamp/vamp.h vamp-sdk/Plugin.h
-rdf/generator/template-generator.o: vamp-sdk/PluginBase.h
-rdf/generator/template-generator.o: vamp-sdk/plugguard.h vamp-sdk/RealTime.h
-rdf/generator/template-generator.o: ./vamp-hostsdk/PluginChannelAdapter.h
-rdf/generator/template-generator.o: ./vamp-hostsdk/PluginWrapper.h
-rdf/generator/template-generator.o: ./vamp-hostsdk/Plugin.h
-rdf/generator/template-generator.o: ./vamp-hostsdk/hostguard.h
-rdf/generator/template-generator.o: vamp-sdk/Plugin.h
-rdf/generator/template-generator.o: ./vamp-hostsdk/PluginInputDomainAdapter.h
-rdf/generator/template-generator.o: ./vamp-hostsdk/PluginLoader.h
+rdf/generator/vamp-rdf-template-generator.o: ./vamp-hostsdk/PluginHostAdapter.h
+rdf/generator/vamp-rdf-template-generator.o: vamp/vamp.h vamp-sdk/Plugin.h
+rdf/generator/vamp-rdf-template-generator.o: vamp-sdk/PluginBase.h
+rdf/generator/vamp-rdf-template-generator.o: vamp-sdk/plugguard.h vamp-sdk/RealTime.h
+rdf/generator/vamp-rdf-template-generator.o: ./vamp-hostsdk/PluginChannelAdapter.h
+rdf/generator/vamp-rdf-template-generator.o: ./vamp-hostsdk/PluginWrapper.h
+rdf/generator/vamp-rdf-template-generator.o: ./vamp-hostsdk/Plugin.h
+rdf/generator/vamp-rdf-template-generator.o: ./vamp-hostsdk/hostguard.h
+rdf/generator/vamp-rdf-template-generator.o: vamp-sdk/Plugin.h
+rdf/generator/vamp-rdf-template-generator.o: ./vamp-hostsdk/PluginInputDomainAdapter.h
+rdf/generator/vamp-rdf-template-generator.o: ./vamp-hostsdk/PluginLoader.h
 src/vamp-hostsdk/PluginHostAdapter.o: ./vamp-hostsdk/PluginHostAdapter.h
 src/vamp-hostsdk/PluginHostAdapter.o: vamp/vamp.h vamp-sdk/Plugin.h
 src/vamp-hostsdk/PluginHostAdapter.o: vamp-sdk/PluginBase.h

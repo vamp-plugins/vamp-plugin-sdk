@@ -19,7 +19,7 @@
 #
 #   host/vamp-simple-host                 [requires libsndfile to build]
 #
-#   rdf/generator/template-generator
+#   rdf/generator/vamp-rdf-template-generator
 
 # Makefile for the Vamp plugin SDK.  This builds the SDK objects,
 # libraries, example plugins, and the test host.  Please adjust to
@@ -186,10 +186,10 @@ HOST_TARGET	= \
 		$(HOSTDIR)/vamp-simple-host
 
 RDFGEN_OBJECTS	= \
-		$(RDFGENDIR)/template-generator.o
+		$(RDFGENDIR)/vamp-rdf-template-generator.o
 
 RDFGEN_TARGET	= \
-		$(RDFGENDIR)/template-generator
+		$(RDFGENDIR)/vamp-rdf-template-generator
 
 sdk:		sdkstatic $(SDK_DYNAMIC) $(HOSTSDK_DYNAMIC)
 
@@ -270,17 +270,17 @@ host/vamp-simple-host.o: ./vamp-hostsdk/PluginWrapper.h
 host/vamp-simple-host.o: ./vamp-hostsdk/Plugin.h ./vamp-hostsdk/hostguard.h
 host/vamp-simple-host.o: vamp-sdk/Plugin.h
 host/vamp-simple-host.o: ./vamp-hostsdk/PluginLoader.h host/system.h
-rdf/generator/template-generator.o: ./vamp-hostsdk/PluginHostAdapter.h
-rdf/generator/template-generator.o: vamp/vamp.h vamp-sdk/Plugin.h
-rdf/generator/template-generator.o: vamp-sdk/PluginBase.h
-rdf/generator/template-generator.o: vamp-sdk/plugguard.h vamp-sdk/RealTime.h
-rdf/generator/template-generator.o: ./vamp-hostsdk/PluginChannelAdapter.h
-rdf/generator/template-generator.o: ./vamp-hostsdk/PluginWrapper.h
-rdf/generator/template-generator.o: ./vamp-hostsdk/Plugin.h
-rdf/generator/template-generator.o: ./vamp-hostsdk/hostguard.h
-rdf/generator/template-generator.o: vamp-sdk/Plugin.h
-rdf/generator/template-generator.o: ./vamp-hostsdk/PluginInputDomainAdapter.h
-rdf/generator/template-generator.o: ./vamp-hostsdk/PluginLoader.h
+rdf/generator/vamp-rdf-template-generator.o: ./vamp-hostsdk/PluginHostAdapter.h
+rdf/generator/vamp-rdf-template-generator.o: vamp/vamp.h vamp-sdk/Plugin.h
+rdf/generator/vamp-rdf-template-generator.o: vamp-sdk/PluginBase.h
+rdf/generator/vamp-rdf-template-generator.o: vamp-sdk/plugguard.h vamp-sdk/RealTime.h
+rdf/generator/vamp-rdf-template-generator.o: ./vamp-hostsdk/PluginChannelAdapter.h
+rdf/generator/vamp-rdf-template-generator.o: ./vamp-hostsdk/PluginWrapper.h
+rdf/generator/vamp-rdf-template-generator.o: ./vamp-hostsdk/Plugin.h
+rdf/generator/vamp-rdf-template-generator.o: ./vamp-hostsdk/hostguard.h
+rdf/generator/vamp-rdf-template-generator.o: vamp-sdk/Plugin.h
+rdf/generator/vamp-rdf-template-generator.o: ./vamp-hostsdk/PluginInputDomainAdapter.h
+rdf/generator/vamp-rdf-template-generator.o: ./vamp-hostsdk/PluginLoader.h
 src/vamp-hostsdk/PluginHostAdapter.o: ./vamp-hostsdk/PluginHostAdapter.h
 src/vamp-hostsdk/PluginHostAdapter.o: vamp/vamp.h vamp-sdk/Plugin.h
 src/vamp-hostsdk/PluginHostAdapter.o: vamp-sdk/PluginBase.h
