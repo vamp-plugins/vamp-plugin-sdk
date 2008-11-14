@@ -2,7 +2,7 @@
 Vamp Example Plugins
 ====================
 
-The vamp-example-plugins library contains a number of Vamp audio
+The [vamp-example-plugins] library contains a number of Vamp audio
 analysis plugins provided as part of the Vamp plugin SDK.
 
 These are simple, but sometimes useful, plugins whose source code you
@@ -11,37 +11,50 @@ plugins of your own without any licensing obligation.
 
 User documentation for the individual plugins in this library follows.
 
-
 Amplitude Follower
 ==================
 
-System identifier: vamp-example-plugins:amplitudefollower
-RDF URI: http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#amplitudefollower
+*System identifier* -- [vamp-example-plugins:amplitudefollower] //
+*RDF URI* -- http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#amplitudefollower
 
 Amplitude Follower tracks and returns the amplitude of the audio
-signal, block by block.  It uses a method from the SuperCollider audio
-processing language, implemented as a Vamp plugin by Dan Stowell.
+signal sample by sample, returning peak values block by block.
 
 Parameters
 ----------
 
-Attack time (seconds)
-Release time (seconds)
+*Attack time* (seconds) -- The 60dB convergence time for an increase in amplitude. //
+*Release time* (seconds) -- The 60dB convergence time for a decrease in amplitude.
+
+For example, if you feed the plugin with a simple step function that
+jumps from level A to level B, then the output will start off as A,
+then at the moment of stepping it will start to converge exponentially
+to B, reaching with 60dB of the actual value within the time specified
+by the Attack time parameter.
+
+Similarly, if the plugin's input then steps down from B to A, the
+output will start converging at the moment of stepping, reaching
+within 60dB of the new value within the time specified by the Release
+time parameter.
 
 Outputs
 -------
-
 Amplitude
 ~~~~~~~~~
+The peak tracked amplitude (in volts) for the current processing block.
 
-The estimated peak amplitude (in volts) for the current processing block.
+References and Credits
+----------------------
+Amplitude Follower uses a method from the SuperCollider audio
+processing language.  It was implemented as a Vamp plugin by Dan
+Stowell.
 
 
 Simple Fixed Tempo Estimator
 ============================
 
-System identifier: vamp-example-plugins:fixedtempo
-RDF URI: http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#fixedtempo
+*System identifier* -- vamp-example-plugins:fixedtempo //
+*RDF URI* -- http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#fixedtempo
 
 Simple Fixed Tempo Estimator analyses a fragment of audio and
 estimates its tempo.  It assumes that its input is of fixed tempo, and
@@ -62,7 +75,7 @@ in order to increase the probability of detecting a "likely" tempo.
 For improved tempo precision, each tempo with strong related peaks is
 averaged with the tempi calculated from those peaks.
 
-The method is mainly tuned for 4/4 pop and dance rhythms.
+The method is best suited for 4/4 pop and dance rhythms.
 
 This plugin returns many of its intermediate calculations as
 additional outputs, as well as the most favoured tempo.  Although as a
@@ -74,11 +87,11 @@ types of output at a time.
 Parameters
 ----------
 
-Minimum estimated tempo, Maximum estimated tempo (bpm) - These
+*Minimum estimated tempo*, *Maximum estimated tempo* (bpm) -- These
 parameters control the range of values within which the tempo
 estimator will return its estimate.
 
-Input duration to study (seconds) - The tempo estimator uses only the
+*Input duration to study* (seconds) -- The tempo estimator uses only the
 first part of its input, discarding any that follows.  This parameter
 controls how much input it will use.  There is no value in increasing
 this beyond 8x the duration of the slowest returned beat.  The default
@@ -124,18 +137,29 @@ metrically related peaks and to apply perceptual weighting.  The peak
 value of this function is the one that will be used as the "best
 guess".
 
+References and Credits
+----------------------
+Simple Fixed Tempo Estimator uses a method derived from work by
+Matthew Davies: see for example M. E. P. Davies and M. D. Plumbley,
+_Beat Tracking With A Two State Model_, in Proceedings of the IEEE
+International Conference on Acoustics, Speech and Signal Processing
+2005.  This plugin, made by Chris Cannam, is only an unsubtle
+simplification of a very small part of the published method.
+
+The Queen Mary plugin set
+(http://www.elec.qmul.ac.uk/digitalmusic/downloads/index.html#qm-vamp-plugins)
+contains a Tempo and Beat Tracker plugin by Matthew Davies providing a
+more realistic implementation.
+
 
 Simple Percussion Onset Detector
 ================================
 
-System identifier: vamp-example-plugins:percussiononsets
-RDF URI: http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#percussiononsets
+*System identifier* -- vamp-example-plugins:percussiononsets //
+*RDF URI* -- http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#percussiononsets
 
 Simple Percussion Onset Detector estimates the locations of percussive
-onsets in the audio signal.  It uses a method described in "Drum
-Source Separation using Percussive Feature Detection and Spectral
-Modulation" by Dan Barry, Derry Fitzgerald, Eugene Coyle and Bob
-Lawlor, ISSC 2005.
+onsets in the audio signal.
 
 The principle is to exploit the broadband nature of noisy percussive
 onsets by identifying only those frames in which the energy rise shows
@@ -151,12 +175,12 @@ classified as percussive onsets.
 Parameters
 ----------
 
-Energy rise threshold (dB) - The rise in energy within a bin from one
+*Energy rise threshold* (dB) -- The rise in energy within a bin from one
 frame to the next that is required for a bin to be counted toward the
 detection function's bin count.  This roughly corresponds to how
 "loud" a percussive sound must be in order to be detected.
 
-Sensitivity (%) - The proportion of bins that must exceed the energy
+*Sensitivity* (%) -- The proportion of bins that must exceed the energy
 rise threshold in order for an onset to be detected (at frames in
 which the detection function peaks).  This roughly corresponds to how
 "noisy" a percussive sound must be in order to be detected.
@@ -175,12 +199,19 @@ Detection Function
 The energy rise detection function whose peaks were used to estimate
 onset locations.
 
+References and Credits
+----------------------
+The method used in Simple Percussion Onset Detector was described in
+"Drum Source Separation using Percussive Feature Detection and
+Spectral Modulation" by Dan Barry, Derry Fitzgerald, Eugene Coyle and
+Bob Lawlor, ISSC 2005.  The plugin was made by Chris Cannam.
+
 
 Simple Power Spectrum
 =====================
 
-System identifier: vamp-example-plugins:powerspectrum
-RDF URI: http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#powerspectrum
+*System identifier* -- vamp-example-plugins:powerspectrum //
+*RDF URI* -- http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#powerspectrum
 
 Simple Power Spectrum returns a power spectrum calculated from
 windowed short-time Fourier transforms of the input audio.  (The power
@@ -217,8 +248,8 @@ Nyquist inclusive.  The DC bin is always returned.
 Spectral Centroid
 =================
 
-System identifier: vamp-example-plugins:spectralcentroid
-RDF URI: http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#spectralcentroid
+*System identifier* -- vamp-example-plugins:spectralcentroid //
+*RDF URI* -- http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#spectralcentroid
 
 Spectral Centroid calculates the "centre of gravity" of the frequency
 spectrum for each input frame.
@@ -252,8 +283,8 @@ magnitudes.  The result is a frequency in Hz.
 Zero Crossings
 ==============
 
-System identifier: vamp-example-plugins:zerocrossing
-RDF URI: http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#zerocrossing
+*System identifier* -- vamp-example-plugins:zerocrossing //
+*RDF URI* -- http://vamp-plugins.org/rdf/plugins/vamp-example-plugins#zerocrossing
 
 Zero Crossings calculates the positions and density of "zero-crossing"
 points in an audio waveform.  For the purposes of this plugin, that
