@@ -10,9 +10,12 @@ Vamp is an API for C and C++ plugins that process sampled audio data
 to produce descriptive output (measurements or semantic observations).
 
 This is version 2.0 of the Vamp plugin Software Development Kit.
+
 Plugins and hosts built with this SDK are binary compatible with those
-built using version 1.0 of the SDK.  See CHANGELOG for a list of the
-changes in this release.
+built using version 1.0 of the SDK, with certain restrictions.  See
+the file README.compat for more details.
+
+See the file CHANGELOG for a list of the changes in this release.
 
 A documentation guide to writing plugins using the Vamp SDK can be
 found at http://www.vamp-plugins.org/guide.pdf .
