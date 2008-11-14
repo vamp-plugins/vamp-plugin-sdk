@@ -6,7 +6,7 @@
     An API for audio analysis and feature extraction plugins.
 
     Centre for Digital Music, Queen Mary, University of London.
-    Copyright 2006 Chris Cannam.
+    Copyright 2006 Chris Cannam, copyright 2007-2008 QMUL.
   
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
@@ -95,7 +95,7 @@ void usage(const char *name)
     cerr << "\n"
          << name << ": A command-line host for Vamp audio analysis plugins.\n\n"
         "Centre for Digital Music, Queen Mary, University of London.\n"
-        "Copyright 2006-2007 Chris Cannam and QMUL.\n"
+        "Copyright 2006-2008 Chris Cannam and QMUL.\n"
         "Freely redistributable; published under a BSD-style license.\n\n"
         "Usage:\n\n"
         "  " << name << " [-s] pluginlibrary[." << PLUGIN_SUFFIX << "]:plugin[:output] file.wav [-o out.txt]\n"

@@ -96,7 +96,7 @@ PluginHostAdapter::getPluginPath()
         }
 #ifdef _WIN32
         char *cpfiles = getenv("ProgramFiles");
-        if (!cpfiles) cpfiles = "C:\\Program Files";
+        if (!cpfiles) cpfiles = (char *)"C:\\Program Files";
         std::string pfiles(cpfiles);
         std::string::size_type f;
         while ((f = envPath.find("%ProgramFiles%")) != std::string::npos &&
