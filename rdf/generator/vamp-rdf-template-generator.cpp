@@ -248,14 +248,25 @@ string describe_output(Plugin *plugin, Plugin::OutputDescriptor o)
         if (o.hasFixedBinCount)
         {
             res+="    vamp:bin_count        "+to_string(o.binCount)+" ;\n";
-            res+="    vamp:bin_names        (";
 
-            unsigned int i;
-            for (i=0; i+1 < o.binNames.size(); i++)
-                res+=" \""+o.binNames[i]+"\"";
-            if (i < o.binNames.size())
-                res+=" \""+o.binNames[i]+"\"";
-            res+=");\n";
+            bool haveBinNames = false;
+            for (int i=0; i < o.binNames.size(); i++) {
+                if (o.binNames[i] != "") {
+                    haveBinNames = true;
+                    break;
+                }
+            }
+            
+            if (haveBinNames) {
+                res+="    vamp:bin_names        (";
+
+                unsigned int i;
+                for (i=0; i+1 < o.binNames.size(); i++)
+                    res+=" \""+o.binNames[i]+"\"";
+                if (i < o.binNames.size())
+                    res+=" \""+o.binNames[i]+"\"";
+                res+=");\n";
+            }
         }
        
         res+="    vamp:sample_type      vamp:VariableSampleRate ;\n";
@@ -296,14 +307,25 @@ string describe_output(Plugin *plugin, Plugin::OutputDescriptor o)
         if (o.hasFixedBinCount)
         {
             res+="    vamp:bin_count        "+to_string(o.binCount)+" ;\n";
-            res+="    vamp:bin_names        (";
 
-            unsigned int i;
-            for (i=0; i+1 < o.binNames.size(); i++)
-                res+=" \""+o.binNames[i]+"\"";
-            if (i < o.binNames.size())
-                res+=" \""+o.binNames[i]+"\"";
-            res+=");\n";
+            bool haveBinNames = false;
+            for (int i=0; i < o.binNames.size(); i++) {
+                if (o.binNames[i] != "") {
+                    haveBinNames = true;
+                    break;
+                }
+            }
+
+            if (haveBinNames) {
+                res+="    vamp:bin_names        (";
+
+                unsigned int i;
+                for (i=0; i+1 < o.binNames.size(); i++)
+                    res+=" \""+o.binNames[i]+"\"";
+                if (i < o.binNames.size())
+                    res+=" \""+o.binNames[i]+"\"";
+                res+=");\n";
+            }
         }
 
         else if (o.sampleType == Plugin::OutputDescriptor::FixedSampleRate)
