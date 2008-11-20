@@ -80,9 +80,12 @@ One of the changes in this version of the SDK is that separate
 top-level C++ namespaces are used for classes compiled into plugins
 (the _VampPlugin namespace) and hosts (the _VampHost namespace), to
 avoid any confusion between host and plugin namespaces in unusual
-linkage situations.  This is handled transparently in most
-circumstances, and neither plugin nor host authors will normally need
-to care about it.
+linkage situations (as the host and plugin SDKs contain many of the
+same classes, there is a risk that the wrong class may be picked up by
+a stupid dynamic linker in cases where the host and plugin SDK
+versions do not match).  This additional namespace is added and opened
+silently in a manner that is transparent in most circumstances, and
+neither plugin nor host authors will normally need to know about it.
 
 However, hosts that directly incorporate code from plugins, for
 example to provide functionality that is the same as those plugins
