@@ -522,7 +522,7 @@ PluginSummarisingAdapter::Impl::accumulate(int output,
     result.time = timestamp;
     result.duration = INVALID_DURATION;
 
-    if (f.values.size() > m_accumulators[output].bins) {
+    if (int(f.values.size()) > m_accumulators[output].bins) {
         m_accumulators[output].bins = f.values.size();
     }
 
@@ -629,7 +629,7 @@ PluginSummarisingAdapter::Impl::segment()
         // interest)... but perhaps it's the user's problem if they
         // ask for segmentation (or any summary at all) in that case
 
-        for (int n = 0; n < source.results.size(); ++n) {
+        for (int n = 0; n < int(source.results.size()); ++n) {
             
             // This result spans source.results[n].time to
             // source.results[n].time + source.results[n].duration.
@@ -760,7 +760,7 @@ PluginSummarisingAdapter::Impl::reduce()
                 std::vector<ValueDurationFloatPair> valvec;
 
                 for (int k = 0; k < sz; ++k) {
-                    while (accumulator.results[k].values.size() <
+                    while (int(accumulator.results[k].values.size()) <
                            accumulator.bins) {
                         accumulator.results[k].values.push_back(0.f);
                     }

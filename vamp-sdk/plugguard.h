@@ -75,12 +75,21 @@
 #define _VAMP_SDK_PLUGSPACE_BEGIN(h)
 #define _VAMP_SDK_PLUGSPACE_END(h)
 #else
+#ifdef _VAMP_PLUGIN_IN_HOST_NAMESPACE
+#define _VAMP_SDK_PLUGSPACE_BEGIN(h) \
+	namespace _VampHost {
+
+#define _VAMP_SDK_PLUGSPACE_END(h) \
+	} \
+	using namespace _VampHost;
+#else
 #define _VAMP_SDK_PLUGSPACE_BEGIN(h) \
 	namespace _VampPlugin {
 
 #define _VAMP_SDK_PLUGSPACE_END(h) \
 	} \
 	using namespace _VampPlugin;
+#endif
 #endif
 
 #endif

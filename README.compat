@@ -86,13 +86,12 @@ to care about it.
 
 However, hosts that directly incorporate code from plugins, for
 example to provide functionality that is the same as those plugins
-without having to explicitly load them, may find that they can no
-longer resolve plugin functions at link time because of this namespace
-mismatch.  To avoid this, the host build process should define the
-preprocessor flag _VAMP_NO_PLUGIN_NAMESPACE when compiling the plugin
-code to ensure that both host and plugin code exist at the same level
-of namespace.  Note that the corresponding _VAMP_NO_HOST_NAMESPACE is
-also available.
+without having to explicitly load them, will find that they cannot
+resolve plugin symbols at link time because of this namespace
+mismatch.  To avoid this, you may define the preprocessor symbol
+_VAMP_PLUGIN_IN_HOST_NAMESPACE when compiling the plugin code in the
+context of the host, to ensure that both host and plugin code exist
+within the same namespace.
 
 (If your host does this, why not make it load the plugins dynamically
 instead using the normal Vamp plugin loader method?  There are many
