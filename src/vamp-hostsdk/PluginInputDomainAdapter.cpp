@@ -70,6 +70,8 @@
 #endif
 
 
+_VAMP_SDK_HOSTSPACE_BEGIN(PluginInputDomainAdapter.cpp)
+
 namespace Vamp {
 
 namespace HostExt {
@@ -575,4 +577,6 @@ PluginInputDomainAdapter::Impl::fft(unsigned int n, bool inverse,
 }
         
 }
+
+_VAMP_SDK_HOSTSPACE_END(PluginInputDomainAdapter.cpp)
 

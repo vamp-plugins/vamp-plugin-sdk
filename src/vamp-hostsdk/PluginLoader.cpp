@@ -66,6 +66,8 @@
 
 using namespace std;
 
+_VAMP_SDK_HOSTSPACE_BEGIN(PluginLoader.cpp)
+
 namespace Vamp {
 	
 namespace HostExt {
@@ -634,3 +636,6 @@ PluginLoader::Impl::PluginDeletionNotifyAdapter::~PluginDeletionNotifyAdapter()
 }
 
 }
+
+_VAMP_SDK_HOSTSPACE_END(PluginLoader.cpp)
+

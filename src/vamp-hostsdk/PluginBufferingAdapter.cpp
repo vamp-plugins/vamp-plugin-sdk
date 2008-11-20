@@ -43,6 +43,8 @@
 using std::vector;
 using std::map;
 
+_VAMP_SDK_HOSTSPACE_BEGIN(PluginBufferingAdapter.cpp)
+
 namespace Vamp {
 	
 namespace HostExt {
@@ -654,4 +656,4 @@ PluginBufferingAdapter::Impl::processBlock(FeatureSet& allFeatureSets)
 	
 }
 
-
+_VAMP_SDK_HOSTSPACE_END(PluginBufferingAdapter.cpp)

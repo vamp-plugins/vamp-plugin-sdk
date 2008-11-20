@@ -44,6 +44,8 @@
 
 #include <vector>
 
+_VAMP_SDK_HOSTSPACE_BEGIN(PluginHostAdapter.h)
+
 namespace Vamp {
 
 /**
@@ -113,6 +115,8 @@ protected:
 };
 
 }
+
+_VAMP_SDK_HOSTSPACE_END(PluginHostAdapter.h)
 
 #endif
 

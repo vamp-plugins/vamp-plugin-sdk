@@ -41,6 +41,7 @@
 // use this header instead.
 
 #include "hostguard.h"
+
 #include <vamp-sdk/Plugin.h>
 
 #endif

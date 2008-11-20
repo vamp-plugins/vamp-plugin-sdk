@@ -44,6 +44,8 @@
 #define DEBUG_PLUGIN_SUMMARISING_ADAPTER 1
 //#define DEBUG_PLUGIN_SUMMARISING_ADAPTER_SEGMENT 1
 
+_VAMP_SDK_HOSTSPACE_BEGIN(PluginSummarisingAdapter.cpp)
+
 namespace Vamp {
 
 namespace HostExt {
@@ -905,4 +907,6 @@ PluginSummarisingAdapter::Impl::reduce()
 }
 
 }
+
+_VAMP_SDK_HOSTSPACE_END(PluginSummarisingAdapter.cpp)
 

@@ -34,5 +34,6 @@
     authorization.
 */
 
-#define _VAMP_IN_HOSTSDK
+#include <vamp-hostsdk/RealTime.h>
 #include "../vamp-sdk/RealTime.cpp"
+

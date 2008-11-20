@@ -42,6 +42,8 @@
 
 #include <set>
 
+_VAMP_SDK_HOSTSPACE_BEGIN(PluginSummarisingAdapter.h)
+
 namespace Vamp {
 
 namespace HostExt {
@@ -187,5 +189,7 @@ protected:
 }
 
 }
+
+_VAMP_SDK_HOSTSPACE_END(PluginSummarisingAdapter.h)
 
 #endif

@@ -36,6 +36,8 @@
 
 #include <vamp-hostsdk/PluginChannelAdapter.h>
 
+_VAMP_SDK_HOSTSPACE_BEGIN(PluginChannelAdapter.cpp)
+
 namespace Vamp {
 
 namespace HostExt {
@@ -262,5 +264,7 @@ PluginChannelAdapter::Impl::process(const float *const *inputBuffers,
 }
 
 }
+
+_VAMP_SDK_HOSTSPACE_END(PluginChannelAdapter.cpp)
 
 

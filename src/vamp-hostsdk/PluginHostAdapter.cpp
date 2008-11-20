@@ -41,6 +41,8 @@
 #error Incorrect Vamp SDK header included (not the expected 2.0 SDK)
 #endif
 
+_VAMP_SDK_HOSTSPACE_BEGIN(PluginHostAdapter.cpp)
+
 namespace Vamp
 {
 
@@ -449,3 +451,6 @@ PluginHostAdapter::convertFeatures(VampFeatureList *features,
 }
 
 }
+
+_VAMP_SDK_HOSTSPACE_END(PluginHostAdapter.cpp)
+

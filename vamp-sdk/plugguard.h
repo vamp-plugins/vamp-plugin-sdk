@@ -67,12 +67,7 @@
  * vamp-hostsdk is included in the same file.  We can't catch that.
  */
 
-#ifdef _VAMP_IN_HOSTSDK
-
-#define _VAMP_SDK_PLUGSPACE_BEGIN(h)
-#define _VAMP_SDK_PLUGSPACE_END(h)
-
-#else
+#ifndef _VAMP_IN_HOSTSDK
 
 #define _VAMP_IN_PLUGINSDK 1
 

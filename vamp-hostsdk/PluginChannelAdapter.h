@@ -40,6 +40,8 @@
 #include "hostguard.h"
 #include "PluginWrapper.h"
 
+_VAMP_SDK_HOSTSPACE_BEGIN(PluginChannelAdapter.h)
+
 namespace Vamp {
 
 namespace HostExt {
@@ -141,5 +143,7 @@ protected:
 }
 
 }
+
+_VAMP_SDK_HOSTSPACE_END(PluginChannelAdapter.h)
 
 #endif

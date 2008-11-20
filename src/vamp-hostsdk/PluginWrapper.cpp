@@ -36,6 +36,8 @@
 
 #include <vamp-hostsdk/PluginWrapper.h>
 
+_VAMP_SDK_HOSTSPACE_BEGIN(PluginWrapper.cpp)
+
 namespace Vamp {
 
 namespace HostExt {
@@ -199,3 +201,4 @@ PluginWrapper::getRemainingFeatures()
 
 }
 
+_VAMP_SDK_HOSTSPACE_END(PluginWrapper.cpp)

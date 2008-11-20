@@ -44,6 +44,8 @@
 #include "hostguard.h"
 #include "PluginWrapper.h"
 
+_VAMP_SDK_HOSTSPACE_BEGIN(PluginLoader.h)
+
 namespace Vamp {
 
 class Plugin;
@@ -234,6 +236,8 @@ protected:
 }
 
 }
+
+_VAMP_SDK_HOSTSPACE_END(PluginLoader.h)
 
 #endif
 
