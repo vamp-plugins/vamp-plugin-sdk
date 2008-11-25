@@ -440,7 +440,7 @@ vamp:sample_type
 	vs:term_status "unstable";
 	.
 
-# The next 3 properties are included to link in the Audio Features Ontology (not estrictly from the Vamp API).
+# The next 3 properties are included to link in the Audio Features Ontology (not strictly from the Vamp API).
 
 vamp:computes_event_type
 	a rdf:Property;
@@ -725,5 +725,22 @@ vamp:value
 
 #parameter declared above
 
+
+# The next property is here to link the Audio Features ontology to the
+# Transform ontology terms -- an audio feature may use this to
+# indicate which transform produced it
+
+vamp:computed_by
+	a rdf:Property;
+	a owl:ObjectProperty;
+	rdfs:label "computed by";
+	rdfs:comment """
+			Associates an audio feature with the transform that was used to compute it.
+	""";
+	rdfs:domain event:Event;
+	rdfs:domain af:Signal;
+	rdfs:range vamp:Transform;
+	vs:term_status "unstable";
+	.
 
 
