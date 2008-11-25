@@ -475,6 +475,8 @@ PluginBufferingAdapter::Impl::initialise(size_t channels, size_t stepSize, size_
     
     bool success = m_plugin->initialise(m_channels, m_stepSize, m_blockSize);
 
+    std::cerr << "PluginBufferingAdapter::initialise: success = " << success << std::endl;
+
     if (success) {
         // Re-query outputs; properties such as bin count may have
         // changed on initialise
@@ -489,6 +491,8 @@ PluginBufferingAdapter::OutputList
 PluginBufferingAdapter::Impl::getOutputDescriptors() const
 {
     if (m_outputs.empty()) {
+    std::cerr << "PluginBufferingAdapter::getOutputDescriptors: querying anew" << std::endl;
+
         m_outputs = m_plugin->getOutputDescriptors();
     }
 

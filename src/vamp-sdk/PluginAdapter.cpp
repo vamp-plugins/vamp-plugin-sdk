@@ -98,8 +98,10 @@ protected:
 
     static void vampReleaseFeatureSet(VampFeatureList *fs);
 
-    void cleanup(Plugin *plugin);
     void checkOutputMap(Plugin *plugin);
+    void markOutputsChanged(Plugin *plugin);
+
+    void cleanup(Plugin *plugin);
     unsigned int getOutputCount(Plugin *plugin);
     VampOutputDescriptor *getOutputDescriptor(Plugin *plugin,
                                              unsigned int i);
@@ -325,7 +327,7 @@ PluginAdapterBase::Impl::lookupAdapter(VampPluginHandle handle)
 
 VampPluginHandle
 PluginAdapterBase::Impl::vampInstantiate(const VampPluginDescriptor *desc,
-                                   float inputSampleRate)
+                                         float inputSampleRate)
 {
 #ifdef DEBUG_PLUGIN_ADAPTER
     std::cerr << "PluginAdapterBase::Impl::vampInstantiate(" << desc << ")" << std::endl;
@@ -372,16 +374,18 @@ PluginAdapterBase::Impl::vampCleanup(VampPluginHandle handle)
 
 int
 PluginAdapterBase::Impl::vampInitialise(VampPluginHandle handle,
-                                  unsigned int channels,
-                                  unsigned int stepSize,
-                                  unsigned int blockSize)
+                                        unsigned int channels,
+                                        unsigned int stepSize,
+                                        unsigned int blockSize)
 {
 #ifdef DEBUG_PLUGIN_ADAPTER
     std::cerr << "PluginAdapterBase::Impl::vampInitialise(" << handle << ", " << channels << ", " << stepSize << ", " << blockSize << ")" << std::endl;
 #endif
 
-    bool result = ((Plugin *)handle)->initialise
-        (channels, stepSize, blockSize);
+    Impl *adapter = lookupAdapter(handle);
+    if (!adapter) return 0;
+    bool result = ((Plugin *)handle)->initialise(channels, stepSize, blockSize);
+    adapter->markOutputsChanged((Plugin *)handle);
     return result ? 1 : 0;
 }
 
@@ -421,6 +425,7 @@ PluginAdapterBase::Impl::vampSetParameter(VampPluginHandle handle,
     if (!adapter) return;
     Plugin::ParameterList &list = adapter->m_parameters;
     ((Plugin *)handle)->setParameter(list[param].identifier, value);
+    adapter->markOutputsChanged((Plugin *)handle);
 }
 
 unsigned int
@@ -442,7 +447,7 @@ PluginAdapterBase::Impl::vampGetCurrentProgram(VampPluginHandle handle)
 
 void
 PluginAdapterBase::Impl::vampSelectProgram(VampPluginHandle handle,
-                                     unsigned int program)
+                                           unsigned int program)
 {
 #ifdef DEBUG_PLUGIN_ADAPTER
     std::cerr << "PluginAdapterBase::Impl::vampSelectProgram(" << handle << ", " << program << ")" << std::endl;
@@ -450,8 +455,11 @@ PluginAdapterBase::Impl::vampSelectProgram(VampPluginHandle handle,
 
     Impl *adapter = lookupAdapter(handle);
     if (!adapter) return;
+
     Plugin::ProgramList &list = adapter->m_programs;
     ((Plugin *)handle)->selectProgram(list[program]);
+
+    adapter->markOutputsChanged((Plugin *)handle);
 }
 
 unsigned int
@@ -511,7 +519,7 @@ PluginAdapterBase::Impl::vampGetOutputCount(VampPluginHandle handle)
 
 VampOutputDescriptor *
 PluginAdapterBase::Impl::vampGetOutputDescriptor(VampPluginHandle handle,
-                                           unsigned int i)
+                                                 unsigned int i)
 {
 #ifdef DEBUG_PLUGIN_ADAPTER
     std::cerr << "PluginAdapterBase::Impl::vampGetOutputDescriptor(" << handle << ", " << i << ")" << std::endl;
@@ -559,8 +567,7 @@ PluginAdapterBase::Impl::vampProcess(VampPluginHandle handle,
 
     Impl *adapter = lookupAdapter(handle);
     if (!adapter) return 0;
-    return adapter->process((Plugin *)handle,
-                            inputBuffers, sec, nsec);
+    return adapter->process((Plugin *)handle, inputBuffers, sec, nsec);
 }
 
 VampFeatureList *
@@ -628,11 +635,29 @@ PluginAdapterBase::Impl::cleanup(Plugin *plugin)
 void 
 PluginAdapterBase::Impl::checkOutputMap(Plugin *plugin)
 {
-    if (m_pluginOutputs.find(plugin) == m_pluginOutputs.end() ||
-        !m_pluginOutputs[plugin]) {
+    OutputMap::iterator i = m_pluginOutputs.find(plugin);
+
+    if (i == m_pluginOutputs.end() || !i->second) {
+
         m_pluginOutputs[plugin] = new Plugin::OutputList
             (plugin->getOutputDescriptors());
+
 //        std::cerr << "PluginAdapterBase::Impl::checkOutputMap: Have " << m_pluginOutputs[plugin]->size() << " outputs for plugin " << plugin->getIdentifier() << std::endl;
+    }
+}
+
+void
+PluginAdapterBase::Impl::markOutputsChanged(Plugin *plugin)
+{
+    OutputMap::iterator i = m_pluginOutputs.find(plugin);
+
+//    std::cerr << "PluginAdapterBase::Impl::markOutputsChanged" << std::endl;
+
+    if (i != m_pluginOutputs.end()) {
+
+        Plugin::OutputList *list = i->second;
+        m_pluginOutputs.erase(i);
+        delete list;
     }
 }
 
@@ -640,14 +665,16 @@ unsigned int
 PluginAdapterBase::Impl::getOutputCount(Plugin *plugin)
 {
     checkOutputMap(plugin);
+
     return m_pluginOutputs[plugin]->size();
 }
 
 VampOutputDescriptor *
 PluginAdapterBase::Impl::getOutputDescriptor(Plugin *plugin,
-                                       unsigned int i)
+                                             unsigned int i)
 {
     checkOutputMap(plugin);
+
     Plugin::OutputDescriptor &od =
         (*m_pluginOutputs[plugin])[i];
 
