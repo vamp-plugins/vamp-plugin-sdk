@@ -69,7 +69,7 @@ string describe_namespaces(string pluginBundleBaseURI, string libname)
 @prefix af:       <http://purl.org/ontology/af/> .\n\
 @prefix foaf:     <http://xmlns.com/foaf/0.1/> .\n\
 @prefix cc:       <http://web.resource.org/cc/> .\n\
-@prefix :         <> .\n\n";
+@prefix :         <#> .\n\n";
 	
     return res;
 }

@@ -169,6 +169,9 @@ public:
      */
     void getActualStepAndBlockSizes(size_t &stepSize, size_t &blockSize);
 
+    void setParameter(std::string, float);
+    void selectProgram(std::string);
+
     OutputList getOutputDescriptors() const;
 
     void reset();

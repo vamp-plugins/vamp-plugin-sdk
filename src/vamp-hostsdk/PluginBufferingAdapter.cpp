@@ -64,6 +64,9 @@ public:
 
     OutputList getOutputDescriptors() const;
 
+    void setParameter(std::string, float);
+    void selectProgram(std::string);
+
     void reset();
 
     FeatureSet process(const float *const *inputBuffers, RealTime timestamp);
@@ -311,6 +314,18 @@ PluginBufferingAdapter::getOutputDescriptors() const
 }
 
 void
+PluginBufferingAdapter::setParameter(std::string name, float value)
+{
+    m_impl->setParameter(name, value);
+}
+
+void
+PluginBufferingAdapter::selectProgram(std::string name)
+{
+    m_impl->selectProgram(name);
+}
+
+void
 PluginBufferingAdapter::reset()
 {
     m_impl->reset();
@@ -458,7 +473,16 @@ PluginBufferingAdapter::Impl::initialise(size_t channels, size_t stepSize, size_
         m_buffers[i] = new float[m_blockSize];
     }
     
-    return m_plugin->initialise(m_channels, m_stepSize, m_blockSize);
+    bool success = m_plugin->initialise(m_channels, m_stepSize, m_blockSize);
+
+    if (success) {
+        // Re-query outputs; properties such as bin count may have
+        // changed on initialise
+        m_outputs.clear();
+        (void)getOutputDescriptors();
+    }
+
+    return success;
 }
 		
 PluginBufferingAdapter::OutputList
@@ -498,6 +522,26 @@ PluginBufferingAdapter::Impl::getOutputDescriptors() const
     }
 
     return outs;
+}
+
+void
+PluginBufferingAdapter::Impl::setParameter(std::string name, float value)
+{
+    m_plugin->setParameter(name, value);
+
+    // Re-query outputs; properties such as bin count may have changed
+    m_outputs.clear();
+    (void)getOutputDescriptors();
+}
+
+void
+PluginBufferingAdapter::Impl::selectProgram(std::string name)
+{
+    m_plugin->selectProgram(name);
+
+    // Re-query outputs; properties such as bin count may have changed
+    m_outputs.clear();
+    (void)getOutputDescriptors();
 }
 
 void

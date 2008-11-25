@@ -7,7 +7,7 @@
 @prefix af:       <http://purl.org/ontology/af/> .
 @prefix foaf:     <http://xmlns.com/foaf/0.1/> .
 @prefix cc:       <http://web.resource.org/cc/> .
-@prefix :         <> .
+@prefix :         <#> .
 
 <>  a   vamp:PluginDescription ;
     foaf:maker          <http://www.vamp-plugins.org/doap.rdf#template-generator> ;
