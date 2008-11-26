@@ -245,7 +245,7 @@ PercussionOnsetDetector::process(const float *const *inputBuffers,
         if (m_priorMagnitudes[i] > 0.f) {
             float diff = 10.f * log10f(sqrmag / m_priorMagnitudes[i]);
 
-//        std::cout << "i=" << i << ", mag=" << mag << ", prior=" << m_priorMagnitudes[i] << ", diff=" << diff << ", threshold=" << m_threshold << std::endl;
+//        std::cout << "i=" << i << ", sqrmag=" << sqrmag << ", prior=" << m_priorMagnitudes[i] << ", diff=" << diff << ", threshold=" << m_threshold << " " << (diff >= m_threshold ? "[*]" : "") << std::endl;
 
             if (diff >= m_threshold) ++count;
         }
@@ -263,6 +263,8 @@ PercussionOnsetDetector::process(const float *const *inputBuffers,
     if (m_dfMinus2 < m_dfMinus1 &&
         m_dfMinus1 >= count &&
         m_dfMinus1 > ((100 - m_sensitivity) * m_blockSize) / 200) {
+
+//std::cout << "result at " << ts << "! (count == " << count << ", prev == " << m_dfMinus1 << ")" << std::endl;
 
         Feature onset;
         onset.hasTimestamp = true;
