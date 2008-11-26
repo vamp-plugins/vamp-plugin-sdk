@@ -248,8 +248,7 @@ FixedTempoEstimator::D::getOutputDescriptors() const
 }
 
 bool
-FixedTempoEstimator::D::initialise(size_t channels,
-                                   size_t stepSize, size_t blockSize)
+FixedTempoEstimator::D::initialise(size_t, size_t stepSize, size_t blockSize)
 {
     m_stepSize = stepSize;
     m_blockSize = blockSize;
@@ -406,7 +405,7 @@ FixedTempoEstimator::D::calculate()
 
     for (int i = 0; i < n/2; ++i) {
 
-        for (int j = i; j < n-1; ++j) {
+        for (int j = i; j < n; ++j) {
             m_r[i] += m_df[j] * m_df[j - i];
         }
 
@@ -527,7 +526,7 @@ FixedTempoEstimator::D::assembleFeatures()
 
     std::map<float, int> candidates;
 
-    for (int i = p0; i <= p1 && i < n/2-1; ++i) {
+    for (int i = p0; i <= p1 && i+1 < n/2; ++i) {
 
         if (m_fr[i] > m_fr[i-1] &&
             m_fr[i] > m_fr[i+1]) {
@@ -622,6 +621,7 @@ FixedTempoEstimator::FixedTempoEstimator(float inputSampleRate) :
 
 FixedTempoEstimator::~FixedTempoEstimator()
 {
+    delete m_d;
 }
 
 string
