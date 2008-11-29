@@ -230,7 +230,7 @@ PluginSummarisingAdapter::Impl::process(const float *const *inputBuffers,
     FeatureSet fs = m_plugin->process(inputBuffers, timestamp);
     accumulate(fs, timestamp, false);
     m_endTime = timestamp + 
-        RealTime::frame2RealTime(m_stepSize, m_inputSampleRate);
+        RealTime::frame2RealTime(m_stepSize, int(m_inputSampleRate + 0.5));
     return fs;
 }
 
