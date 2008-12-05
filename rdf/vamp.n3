@@ -708,6 +708,18 @@ vamp:duration
 	""";
 	rdfs:domain vamp:Transform;
 	.
+
+vamp:summary_type
+	a rdf:Property;
+	a owl:DatatypeProperty;
+	a owl:FunctionalProperty;
+	rdfs:label "summary type";
+	vs:term_status "unstable";
+	rdfs:comment """
+		     Specifies a summary type to be used (for averaging etc) on transform results.
+        """;
+	rdfs:domain vamp:Transform;
+	.
 	
 ##### Parameter properties
 

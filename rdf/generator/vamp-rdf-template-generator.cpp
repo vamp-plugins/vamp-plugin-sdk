@@ -224,7 +224,7 @@ string describe_output(Plugin *plugin, Plugin::OutputDescriptor o)
             "plugbase:"+plugin->getIdentifier()+"_output_"+o.identifier+" a  vamp:SparseOutput ;\n\
     vamp:identifier       \""+o.identifier+"\" ;\n\
     dc:title              \""+o.name+"\" ;\n\
-    dc:description        \""+o.description+"\"  ;\n\
+    dc:description        \"\"\""+o.description+"\"\"\"  ;\n\
     vamp:fixed_bin_count  \""+(o.hasFixedBinCount == 1 ? "true" : "false")+"\" ;\n\
     vamp:unit             \""+(o.unit)+"\" ;\n";
                           
@@ -283,7 +283,7 @@ string describe_output(Plugin *plugin, Plugin::OutputDescriptor o)
             "plugbase:"+plugin->getIdentifier()+"_output_"+o.identifier+" a  vamp:DenseOutput ;\n\
     vamp:identifier       \""+o.identifier+"\" ;\n\
     dc:title              \""+o.name+"\" ;\n\
-    dc:description        \""+o.description+"\"  ;\n\
+    dc:description        \"\"\""+o.description+"\"\"\"  ;\n\
     vamp:fixed_bin_count  \""+(o.hasFixedBinCount == 1 ? "true" : "false")+"\" ;\n\
     vamp:unit             \""+(o.unit)+"\" ;\n";
 

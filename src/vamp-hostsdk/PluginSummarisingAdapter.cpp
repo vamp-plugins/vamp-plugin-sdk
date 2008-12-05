@@ -41,7 +41,7 @@
 #include <cmath>
 #include <climits>
 
-#define DEBUG_PLUGIN_SUMMARISING_ADAPTER 1
+//#define DEBUG_PLUGIN_SUMMARISING_ADAPTER 1
 //#define DEBUG_PLUGIN_SUMMARISING_ADAPTER_SEGMENT 1
 
 _VAMP_SDK_HOSTSPACE_BEGIN(PluginSummarisingAdapter.cpp)
