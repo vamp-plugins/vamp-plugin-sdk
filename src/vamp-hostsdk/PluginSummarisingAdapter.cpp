@@ -613,6 +613,10 @@ PluginSummarisingAdapter::Impl::segment()
     SegmentBoundaries::iterator boundaryitr = m_boundaries.begin();
     RealTime segmentStart = RealTime::zeroTime;
     
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER_SEGMENT
+    std::cerr << "segment: starting" << std::endl;
+#endif
+
     for (OutputAccumulatorMap::iterator i = m_accumulators.begin();
          i != m_accumulators.end(); ++i) {
 
@@ -645,9 +649,24 @@ PluginSummarisingAdapter::Impl::segment()
             RealTime segmentStart = RealTime::zeroTime;
             RealTime segmentEnd = resultEnd - RealTime(1, 0);
             
+            RealTime prevSegmentStart = segmentStart - RealTime(1, 0);
+
             while (segmentEnd < resultEnd) {
 
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER_SEGMENT
+                std::cerr << "segment end " << segmentEnd << " < result end "
+                          << resultEnd << " (with result start " << resultStart << ")" <<  std::endl;
+#endif
+
                 findSegmentBounds(resultStart, segmentStart, segmentEnd);
+
+                if (segmentStart == prevSegmentStart) {
+                    // This can happen when we reach the end of the
+                    // input, if a feature's end time overruns the
+                    // input audio end time
+                    break;
+                }
+                prevSegmentStart = segmentStart;
                 
                 RealTime chunkStart = resultStart;
                 if (chunkStart < segmentStart) chunkStart = segmentStart;
