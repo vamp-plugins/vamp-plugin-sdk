@@ -58,6 +58,8 @@ public:
 
     bool initialise(size_t channels, size_t stepSize, size_t blockSize);
 
+    void reset();
+
     FeatureSet process(const float *const *inputBuffers, RealTime timestamp);
     FeatureSet getRemainingFeatures();
 
@@ -167,6 +169,12 @@ PluginSummarisingAdapter::initialise(size_t channels,
         m_impl->initialise(channels, stepSize, blockSize);
 }
 
+void
+PluginSummarisingAdapter::reset()
+{
+    m_impl->reset();
+}
+
 Plugin::FeatureSet
 PluginSummarisingAdapter::process(const float *const *inputBuffers, RealTime timestamp)
 {
@@ -218,6 +226,19 @@ PluginSummarisingAdapter::Impl::initialise(size_t channels,
     m_stepSize = stepSize;
     m_blockSize = blockSize;
     return true;
+}
+
+void
+PluginSummarisingAdapter::Impl::reset()
+{
+    m_accumulators.clear();
+    m_segmentedAccumulators.clear();
+    m_prevTimestamps.clear();
+    m_prevDurations.clear();
+    m_summaries.clear();
+    m_reduced = false;
+    m_endTime = RealTime();
+    m_plugin->reset();
 }
 
 Plugin::FeatureSet

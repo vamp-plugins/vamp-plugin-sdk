@@ -96,6 +96,8 @@ public:
 
     bool initialise(size_t channels, size_t stepSize, size_t blockSize);
 
+    void reset();
+
     FeatureSet process(const float *const *inputBuffers, RealTime timestamp);
     FeatureSet getRemainingFeatures();
 
