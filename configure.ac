@@ -22,8 +22,7 @@ AC_ARG_ENABLE(programs,	[AS_HELP_STRING([--enable-programs],
 
 dnl if the user wants progs, then we need to check for libsndfile
 if test "x$PROGS_ARGUMENT" = "xyes" ; then 
-	PKG_CHECK_MODULES([SNDFILE],[sndfile], 
-					  have_sndfile="yes", have_sndfile="no")
+	PKG_CHECK_MODULES([SNDFILE],[sndfile],have_sndfile="yes",have_sndfile="no")
 	if test "x$have_sndfile" = "xyes" ; then
 		dnl all good, build everything
 		TARGETS="sdk plugins host rdfgen test"
@@ -38,6 +37,7 @@ fi
 
 AC_SUBST(SNDFILE_CFLAGS)
 AC_SUBST(SNDFILE_LIBS)
+AC_SUBST(TARGETS)
 
 changequote(,)dnl
 if test "x$GCC" = "xyes"; then
@@ -48,5 +48,6 @@ if test "x$GCC" = "xyes"; then
 fi
 changequote([,])dnl
 
+AC_SUBST(CXXFLAGS)
 AC_OUTPUT([Makefile])
 

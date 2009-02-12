@@ -34,7 +34,7 @@ RDFGENDIR	= rdf/generator
 #   clean     -- remove binary targets
 #   distclean -- remove all targets
 #
-default: @TARGETS@
+default:	@TARGETS@
 
 # Compile flags
 #

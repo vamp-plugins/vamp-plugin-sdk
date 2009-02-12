@@ -668,6 +668,7 @@ EGREP
 PKG_CONFIG
 SNDFILE_CFLAGS
 SNDFILE_LIBS
+TARGETS
 LIBOBJS
 LTLIBOBJS'
 ac_subst_files=''
@@ -1252,6 +1253,12 @@ if test -n "$ac_init_help"; then
      short | recursive ) echo "Configuration of vamp-plugin-sdk 2.0:";;
    esac
   cat <<\_ACEOF
+
+Optional Features:
+  --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
+  --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-programs       enable building of example host and RDF generator
+                          [default=yes]
 
 Some influential environment variables:
   CXX         C++ compiler command
@@ -3950,6 +3957,15 @@ if test "$ac_res" != no; then
 fi
 
 
+# Check whether --enable-programs was given.
+if test "${enable_programs+set}" = set; then
+  enableval=$enable_programs; PROGS_ARGUMENT=$enableval
+else
+  PROGS_ARGUMENT="yes"
+fi
+
+
+if test "x$PROGS_ARGUMENT" = "xyes" ; then
 
 
 if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
@@ -4129,58 +4145,30 @@ fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$SNDFILE_PKG_ERRORS" >&5
 
-	{ { echo "$as_me:$LINENO: error: Package requirements (sndfile) were not met:
-
-$SNDFILE_PKG_ERRORS
-
-Consider adjusting the PKG_CONFIG_PATH environment variable if you
-installed software in a non-standard prefix.
-
-Alternatively, you may set the environment variables SNDFILE_CFLAGS
-and SNDFILE_LIBS to avoid the need to call pkg-config.
-See the pkg-config man page for more details.
-" >&5
-echo "$as_me: error: Package requirements (sndfile) were not met:
-
-$SNDFILE_PKG_ERRORS
-
-Consider adjusting the PKG_CONFIG_PATH environment variable if you
-installed software in a non-standard prefix.
-
-Alternatively, you may set the environment variables SNDFILE_CFLAGS
-and SNDFILE_LIBS to avoid the need to call pkg-config.
-See the pkg-config man page for more details.
-" >&2;}
-   { (exit 1); exit 1; }; }
+	{ echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+                have_sndfile="no"
 elif test $pkg_failed = untried; then
-	{ { echo "$as_me:$LINENO: error: The pkg-config script could not be found or is too old.  Make sure it
-is in your PATH or set the PKG_CONFIG environment variable to the full
-path to pkg-config.
-
-Alternatively, you may set the environment variables SNDFILE_CFLAGS
-and SNDFILE_LIBS to avoid the need to call pkg-config.
-See the pkg-config man page for more details.
-
-To get pkg-config, see <http://pkg-config.freedesktop.org/>.
-See \`config.log' for more details." >&5
-echo "$as_me: error: The pkg-config script could not be found or is too old.  Make sure it
-is in your PATH or set the PKG_CONFIG environment variable to the full
-path to pkg-config.
-
-Alternatively, you may set the environment variables SNDFILE_CFLAGS
-and SNDFILE_LIBS to avoid the need to call pkg-config.
-See the pkg-config man page for more details.
-
-To get pkg-config, see <http://pkg-config.freedesktop.org/>.
-See \`config.log' for more details." >&2;}
-   { (exit 1); exit 1; }; }
+	have_sndfile="no"
 else
 	SNDFILE_CFLAGS=$pkg_cv_SNDFILE_CFLAGS
 	SNDFILE_LIBS=$pkg_cv_SNDFILE_LIBS
         { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
-	:
+	have_sndfile="yes"
 fi
+	if test "x$have_sndfile" = "xyes" ; then
+				TARGETS="sdk plugins host rdfgen test"
+	else
+				{ { echo "$as_me:$LINENO: error: libsndfile not found - cannot build example Vamp host!" >&5
+echo "$as_me: error: libsndfile not found - cannot build example Vamp host!" >&2;}
+   { (exit 1); exit 1; }; }
+	fi
+else
+		TARGETS="sdk plugins"
+fi
+
+
 
 
 
@@ -4190,6 +4178,7 @@ if test "x$GCC" = "xyes"; then
     *) CXXFLAGS="$CXXFLAGS -fPIC -Wall" ;;
   esac
 fi
+
 
 ac_config_files="$ac_config_files Makefile"
 
@@ -4874,11 +4863,12 @@ EGREP!$EGREP$ac_delim
 PKG_CONFIG!$PKG_CONFIG$ac_delim
 SNDFILE_CFLAGS!$SNDFILE_CFLAGS$ac_delim
 SNDFILE_LIBS!$SNDFILE_LIBS$ac_delim
+TARGETS!$TARGETS$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 55; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 56; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
