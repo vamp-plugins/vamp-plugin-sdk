@@ -14,7 +14,28 @@ fi
 
 AC_SEARCH_LIBS([dlopen],[dl])
 
-PKG_CHECK_MODULES([SNDFILE],[sndfile])
+dnl See if the user wants to build programs, or just the SDK
+AC_ARG_ENABLE(programs,	[AS_HELP_STRING([--enable-programs],
+	[enable building of example host and RDF generator [default=yes]])],
+	PROGS_ARGUMENT=$enableval,
+	PROGS_ARGUMENT="yes")
+
+dnl if the user wants progs, then we need to check for libsndfile
+if test "x$PROGS_ARGUMENT" = "xyes" ; then 
+	PKG_CHECK_MODULES([SNDFILE],[sndfile], 
+					  have_sndfile="yes", have_sndfile="no")
+	if test "x$have_sndfile" = "xyes" ; then
+		dnl all good, build everything
+		TARGETS="sdk plugins host rdfgen test"
+	else
+		dnl no libsndfile - can't build host!
+		AC_MSG_ERROR([libsndfile not found - cannot build example Vamp host!])
+	fi
+else
+	dnl user didn't want programs - so we won't build them
+	TARGETS="sdk plugins"
+fi
+
 AC_SUBST(SNDFILE_CFLAGS)
 AC_SUBST(SNDFILE_LIBS)
 
