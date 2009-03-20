@@ -468,8 +468,8 @@ PluginBufferingAdapter::Impl::initialise(size_t channels, size_t stepSize, size_
         m_blockSize = newBlockSize;
     }
     
-    std::cerr << "PluginBufferingAdapter::initialise: NOTE: stepSize " << m_inputStepSize << " -> " << m_stepSize 
-              << ", blockSize " << m_inputBlockSize << " -> " << m_blockSize << std::endl;			
+//    std::cerr << "PluginBufferingAdapter::initialise: NOTE: stepSize " << m_inputStepSize << " -> " << m_stepSize 
+//              << ", blockSize " << m_inputBlockSize << " -> " << m_blockSize << std::endl;			
 
     m_buffers = new float *[m_channels];
 
