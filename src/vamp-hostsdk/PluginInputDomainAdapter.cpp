@@ -222,12 +222,12 @@ PluginInputDomainAdapter::Impl::initialise(size_t channels, size_t stepSize, siz
     }
 
     if (blockSize < 2) {
-        std::cerr << "ERROR: Vamp::HostExt::PluginInputDomainAdapter::Impl::initialise: blocksize < 2 not supported" << std::endl;
+        std::cerr << "ERROR: PluginInputDomainAdapter::initialise: blocksize < 2 not supported" << std::endl;
         return false;
     }                
         
     if (blockSize & (blockSize-1)) {
-        std::cerr << "ERROR: Vamp::HostExt::PluginInputDomainAdapter::Impl::initialise: non-power-of-two\nblocksize " << blockSize << " not supported" << std::endl;
+        std::cerr << "ERROR: PluginInputDomainAdapter::initialise: non-power-of-two\nblocksize " << blockSize << " not supported" << std::endl;
         return false;
     }
 
@@ -311,7 +311,7 @@ PluginInputDomainAdapter::Impl::makeBlockSizeAcceptable(size_t blockSize) const
 {
     if (blockSize < 2) {
 
-        std::cerr << "WARNING: Vamp::HostExt::PluginInputDomainAdapter::Impl::initialise: blocksize < 2 not" << std::endl
+        std::cerr << "WARNING: PluginInputDomainAdapter::initialise: blocksize < 2 not" << std::endl
                   << "supported, increasing from " << blockSize << " to 2" << std::endl;
         blockSize = 2;
         
@@ -340,7 +340,7 @@ PluginInputDomainAdapter::Impl::makeBlockSizeAcceptable(size_t blockSize) const
             nearest = nearest*2;
         }
         
-        std::cerr << "WARNING: Vamp::HostExt::PluginInputDomainAdapter::Impl::initialise: non-power-of-two\nblocksize " << blockSize << " not supported, using blocksize " << nearest << " instead" << std::endl;
+        std::cerr << "WARNING: PluginInputDomainAdapter::initialise: non-power-of-two\nblocksize " << blockSize << " not supported, using blocksize " << nearest << " instead" << std::endl;
         blockSize = nearest;
 
 #endif
