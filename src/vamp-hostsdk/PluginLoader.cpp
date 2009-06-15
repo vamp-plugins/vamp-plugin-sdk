@@ -513,7 +513,21 @@ PluginLoader::Impl::loadLibrary(string path)
 {
     void *handle = 0;
 #ifdef _WIN32
+#ifdef UNICODE
+    int len = path.length(); // cannot be more wchars than length in bytes of utf8 string
+    wchar_t *buffer = new wchar_t[len];
+    int rv = MultiByteToWideChar(CP_UTF8, 0, path.c_str(), len, buffer, len);
+    if (rv <= 0) {
+        cerr << "Vamp::HostExt::PluginLoader: Unable to convert library path \""
+             << path << "\" to wide characters " << endl;
+        delete[] buffer;
+        return handle;
+    }
+    handle = LoadLibrary(buffer);
+    delete[] buffer;
+#else
     handle = LoadLibrary(path.c_str());
+#endif
     if (!handle) {
         cerr << "Vamp::HostExt::PluginLoader: Unable to load library \""
              << path << "\"" << endl;
@@ -564,8 +578,41 @@ PluginLoader::Impl::listFiles(string dir, string extension)
     vector<string> files;
 
 #ifdef _WIN32
-
     string expression = dir + "\\*." + extension;
+#ifdef UNICODE
+    int len = expression.length(); // cannot be more wchars than length in bytes of utf8 string
+    wchar_t *buffer = new wchar_t[len];
+    int rv = MultiByteToWideChar(CP_UTF8, 0, expression.c_str(), len, buffer, len);
+    if (rv <= 0) {
+        cerr << "Vamp::HostExt::PluginLoader: Unable to convert wildcard path \""
+             << expression << "\" to wide characters" << endl;
+        delete[] buffer;
+        return files;
+    }
+    WIN32_FIND_DATA data;
+    HANDLE fh = FindFirstFile(buffer, &data);
+    if (fh == INVALID_HANDLE_VALUE) {
+        delete[] buffer;
+        return files;
+    }
+
+    bool ok = true;
+    while (ok) {
+        wchar_t *fn = data.cFileName;
+        int wlen = wcslen(fn);
+        int maxlen = wlen * 6;
+        char *conv = new char[maxlen];
+        int rv = WideCharToMultiByte(CP_UTF8, 0, fn, wlen, conv, maxlen, 0, 0);
+        if (rv > 0) {
+            files.push_back(conv);
+        }
+        delete[] conv;
+        ok = FindNextFile(fh, &data);
+    }
+
+    FindClose(fh);
+    delete[] buffer;
+#else
     WIN32_FIND_DATA data;
     HANDLE fh = FindFirstFile(expression.c_str(), &data);
     if (fh == INVALID_HANDLE_VALUE) return files;
@@ -577,7 +624,7 @@ PluginLoader::Impl::listFiles(string dir, string extension)
     }
 
     FindClose(fh);
-
+#endif
 #else
 
     size_t extlen = extension.length();
