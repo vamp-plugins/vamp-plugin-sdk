@@ -168,6 +168,11 @@ PluginAdapterBase::Impl::getDescriptor()
     if (m_populated) return &m_descriptor;
 
     Plugin *plugin = m_base->createPlugin(48000);
+  
+    if (!plugin) {
+        std::cerr << "PluginAdapterBase::Impl::getDescriptor: Failed to create plugin" << std::endl;
+        return 0;
+    }
 
     if (plugin->getVampApiVersion() != VAMP_API_VERSION) {
         std::cerr << "Vamp::PluginAdapterBase::Impl::getDescriptor: ERROR: "
