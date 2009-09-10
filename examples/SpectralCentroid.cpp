@@ -43,6 +43,10 @@ using std::endl;
 
 #include <math.h>
 
+#ifdef __SUNPRO_CC
+#include <sunmath.h>
+#endif
+
 #ifdef WIN32
 #define isnan(x) false
 #define isinf(x) false
