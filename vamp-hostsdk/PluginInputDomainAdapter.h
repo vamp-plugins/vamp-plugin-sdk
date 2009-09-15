@@ -91,6 +91,7 @@ public:
     virtual ~PluginInputDomainAdapter();
     
     bool initialise(size_t channels, size_t stepSize, size_t blockSize);
+    void reset();
 
     InputDomain getInputDomain() const;
 
@@ -98,6 +99,48 @@ public:
     size_t getPreferredBlockSize() const;
 
     FeatureSet process(const float *const *inputBuffers, RealTime timestamp);
+
+    /**
+     * ProcessTimestampMethod determines how the
+     * PluginInputDomainAdapter handles timestamps for the data passed
+     * to the process() function of the plugin it wraps, in the case
+     * where the plugin is expecting frequency-domain data.
+     *
+     *
+     * The Vamp API mandates that the timestamp passed to the plugin
+     * for time-domain input should be the time of the first sample in
+     * the block, but the timestamp passed for frequency-domain input
+     * should be the timestamp of the centre of the block.
+     *
+     * Since we claim to permit the code that uses this plugin wrapper
+     * not to care whether the plugin itself has time or frequency
+     * domain input, that means that we need to ensure this timestamp
+     * is correctly adjusted ourselves, and the way we handle this is
+     * controlled by the ProcessTimestampMethod.
+     *
+     * If ProcessTimestampMethod is ShiftTimestamp (the default), then
+     * the data passed to the wrapped plugin will be calculated from
+     * the same input data block as passed to the wrapper, but the
+     * timestamp passed to the plugin will be advanced by half of the
+     * window size.
+     * 
+     * If ProcessTimestampMethod is ShiftData, then the timestamp
+     * passed to the wrapped plugin will be the same as that passed to
+     * the process call of the wrapper, but the data block used to
+     * calculate the input will be shifted back (earlier) by half of
+     * the window size, with half a block of padding at the start of
+     * the first process call.
+     *
+     * This function must be called before the first call to
+     * process().
+     */
+    enum ProcessTimestampMethod {
+        ShiftTimestamp,
+        ShiftData
+    };
+
+    void setProcessTimestampMethod(ProcessTimestampMethod);
+    ProcessTimestampMethod getProcessTimestampMethod() const;
 
     /**
      * Return the amount by which the timestamps supplied to process()
@@ -116,9 +159,13 @@ public:
      * timestamps) the host may need to be aware that this adjustment
      * is taking place.
      *
-     * If the plugin requires time-domain input, this function will
-     * return zero.  The result of calling this function before
-     * initialise() has been called is undefined.
+     * If the plugin requires time-domain input or the
+     * PluginInputDomainAdapter is configured with its
+     * ProcessTimestampMethod set to ShiftData instead of
+     * ShiftTimestamp, then this function will return zero.
+     *
+     * The result of calling this function before initialise() has
+     * been called is undefined.
      */
     RealTime getTimestampAdjustment() const;
 

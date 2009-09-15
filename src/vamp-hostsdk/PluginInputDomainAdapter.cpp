@@ -83,11 +83,15 @@ public:
     ~Impl();
     
     bool initialise(size_t channels, size_t stepSize, size_t blockSize);
+    void reset();
 
     size_t getPreferredStepSize() const;
     size_t getPreferredBlockSize() const;
 
     FeatureSet process(const float *const *inputBuffers, RealTime timestamp);
+
+    void setProcessTimestampMethod(ProcessTimestampMethod m);
+    ProcessTimestampMethod getProcessTimestampMethod() const;
     
     RealTime getTimestampAdjustment() const;
 
@@ -95,11 +99,17 @@ protected:
     Plugin *m_plugin;
     float m_inputSampleRate;
     int m_channels;
+    int m_stepSize;
     int m_blockSize;
     float **m_freqbuf;
 
     double *m_ri;
     double *m_window;
+
+    ProcessTimestampMethod m_method;
+    int m_processCount;
+    FeatureSet prepadProcess(const float *const *inputBuffers,
+                             RealTime timestamp);
 
 #ifdef HAVE_FFTW3
     fftw_plan m_plan;
@@ -131,6 +141,12 @@ PluginInputDomainAdapter::initialise(size_t channels, size_t stepSize, size_t bl
     return m_impl->initialise(channels, stepSize, blockSize);
 }
 
+void
+PluginInputDomainAdapter::reset()
+{
+    m_impl->reset();
+}
+
 Plugin::InputDomain
 PluginInputDomainAdapter::getInputDomain() const
 {
@@ -155,6 +171,18 @@ PluginInputDomainAdapter::process(const float *const *inputBuffers, RealTime tim
     return m_impl->process(inputBuffers, timestamp);
 }
 
+void
+PluginInputDomainAdapter::setProcessTimestampMethod(ProcessTimestampMethod m)
+{
+    m_impl->setProcessTimestampMethod(m);
+}
+
+PluginInputDomainAdapter::ProcessTimestampMethod
+PluginInputDomainAdapter::getProcessTimestampMethod() const
+{
+    return m_impl->getProcessTimestampMethod();
+}
+
 RealTime
 PluginInputDomainAdapter::getTimestampAdjustment() const
 {
@@ -166,10 +194,13 @@ PluginInputDomainAdapter::Impl::Impl(Plugin *plugin, float inputSampleRate) :
     m_plugin(plugin),
     m_inputSampleRate(inputSampleRate),
     m_channels(0),
+    m_stepSize(0),
     m_blockSize(0),
     m_freqbuf(0),
     m_ri(0),
     m_window(0),
+    m_method(ShiftTimestamp),
+    m_processCount(0),
 #ifdef HAVE_FFTW3
     m_plan(0),
     m_cbuf(0)
@@ -215,6 +246,7 @@ PluginInputDomainAdapter::Impl::initialise(size_t channels, size_t stepSize, siz
 {
     if (m_plugin->getInputDomain() == TimeDomain) {
 
+        m_stepSize = int(stepSize);
         m_blockSize = int(blockSize);
         m_channels = int(channels);
 
@@ -251,6 +283,7 @@ PluginInputDomainAdapter::Impl::initialise(size_t channels, size_t stepSize, siz
         delete[] m_window;
     }
 
+    m_stepSize = int(stepSize);
     m_blockSize = int(blockSize);
     m_channels = int(channels);
 
@@ -275,7 +308,16 @@ PluginInputDomainAdapter::Impl::initialise(size_t channels, size_t stepSize, siz
     m_io = new double[m_blockSize];
 #endif
 
+    m_processCount = 0;
+
     return m_plugin->initialise(channels, stepSize, blockSize);
+}
+
+void
+PluginInputDomainAdapter::Impl::reset()
+{
+    m_processCount = 0;
+    m_plugin->reset();
 }
 
 size_t
@@ -360,6 +402,18 @@ PluginInputDomainAdapter::Impl::getTimestampAdjustment() const
     }
 }
 
+void
+PluginInputDomainAdapter::Impl::setProcessTimestampMethod(ProcessTimestampMethod m)
+{
+    m_method = m;
+}
+
+PluginInputDomainAdapter::ProcessTimestampMethod
+PluginInputDomainAdapter::Impl::getProcessTimestampMethod() const
+{
+    return m_method;
+}
+
 Plugin::FeatureSet
 PluginInputDomainAdapter::Impl::process(const float *const *inputBuffers,
                                         RealTime timestamp)
@@ -412,7 +466,15 @@ PluginInputDomainAdapter::Impl::process(const float *const *inputBuffers,
 
 //    std::cerr << "PluginInputDomainAdapter: sampleRate " << m_inputSampleRate << ", blocksize " << m_blockSize << ", adjusting time from " << timestamp;
 
-    timestamp = timestamp + getTimestampAdjustment();
+    //!!! update the above comment for ProcessTimestampMethod
+
+    FeatureSet fs;
+    if (m_method == ShiftTimestamp) {
+        timestamp = timestamp + getTimestampAdjustment();
+    } else if (m_processCount == 0) {
+        fs = prepadProcess(inputBuffers, timestamp);
+    }
+    ++m_processCount;
 
 //    std::cerr << " to " << timestamp << std::endl;
 
@@ -450,7 +512,28 @@ PluginInputDomainAdapter::Impl::process(const float *const *inputBuffers,
 #endif
     }
 
-    return m_plugin->process(m_freqbuf, timestamp);
+    FeatureSet pfs(m_plugin->process(m_freqbuf, timestamp));
+
+    if (!fs.empty()) { // add any prepad results back in
+        for (FeatureSet::const_iterator i = pfs.begin(); i != pfs.end(); ++i) {
+            for (FeatureList::const_iterator j = i->second.begin();
+                 j != i->second.end(); ++j) {
+                fs[i->first].push_back(*j);
+            }
+        }
+        pfs = fs;
+    }
+
+    return pfs;
+}
+
+Plugin::FeatureSet
+PluginInputDomainAdapter::Impl::prepadProcess(const float *const *inputBuffers,
+                                              RealTime timestamp)
+{
+    FeatureSet fs;
+    //!!!
+    return fs;
 }
 
 #ifndef HAVE_FFTW3
