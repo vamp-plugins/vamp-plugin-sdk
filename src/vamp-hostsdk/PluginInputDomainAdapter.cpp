@@ -108,8 +108,9 @@ protected:
 
     ProcessTimestampMethod m_method;
     int m_processCount;
-    FeatureSet prepadProcess(const float *const *inputBuffers,
-                             RealTime timestamp);
+    float **m_shiftBuffers;
+//    FeatureSet prepadProcess(const float *const *inputBuffers,
+//                             RealTime timestamp);
 
 #ifdef HAVE_FFTW3
     fftw_plan m_plan;
@@ -120,6 +121,9 @@ protected:
     void fft(unsigned int n, bool inverse,
              double *ri, double *ii, double *ro, double *io);
 #endif
+
+    FeatureSet processShiftingTimestamp(const float *const *inputBuffers, RealTime timestamp);
+    FeatureSet processShiftingData(const float *const *inputBuffers, RealTime timestamp);
 
     size_t makeBlockSizeAcceptable(size_t) const;
 };
@@ -201,6 +205,7 @@ PluginInputDomainAdapter::Impl::Impl(Plugin *plugin, float inputSampleRate) :
     m_window(0),
     m_method(ShiftTimestamp),
     m_processCount(0),
+    m_shiftBuffers(0),
 #ifdef HAVE_FFTW3
     m_plan(0),
     m_cbuf(0)
@@ -214,6 +219,13 @@ PluginInputDomainAdapter::Impl::Impl(Plugin *plugin, float inputSampleRate) :
 PluginInputDomainAdapter::Impl::~Impl()
 {
     // the adapter will delete the plugin
+
+    if (m_shiftBuffers) {
+        for (int c = 0; c < m_channels; ++c) {
+            delete[] m_shiftBuffers[c];
+        }
+        delete[] m_shiftBuffers;
+    }
 
     if (m_channels > 0) {
         for (int c = 0; c < m_channels; ++c) {
@@ -396,6 +408,8 @@ PluginInputDomainAdapter::Impl::getTimestampAdjustment() const
 {
     if (m_plugin->getInputDomain() == TimeDomain) {
         return RealTime::zeroTime;
+    } else if (m_method == ShiftData) {
+        return RealTime::zeroTime;
     } else {
         return RealTime::frame2RealTime
             (m_blockSize/2, int(m_inputSampleRate + 0.5));
@@ -422,61 +436,18 @@ PluginInputDomainAdapter::Impl::process(const float *const *inputBuffers,
         return m_plugin->process(inputBuffers, timestamp);
     }
 
-    // The timestamp supplied should be (according to the Vamp::Plugin
-    // spec) the time of the start of the time-domain input block.
-    // However, we want to pass to the plugin an FFT output calculated
-    // from the block of samples _centred_ on that timestamp.
-    // 
-    // We have two options:
-    // 
-    // 1. Buffer the input, calculating the fft of the values at the
-    // passed-in block minus blockSize/2 rather than starting at the
-    // passed-in block.  So each time we call process on the plugin,
-    // we are passing in the same timestamp as was passed to our own
-    // process plugin, but not (the frequency domain representation
-    // of) the same set of samples.  Advantages: avoids confusion in
-    // the host by ensuring the returned values have timestamps
-    // comparable with that passed in to this function (in fact this
-    // is pretty much essential for one-value-per-block outputs);
-    // consistent with hosts such as SV that deal with the
-    // frequency-domain transform themselves.  Disadvantages: means
-    // making the not necessarily correct assumption that the samples
-    // preceding the first official block are all zero (or some other
-    // known value).
-    //
-    // 2. Increase the passed-in timestamps by half the blocksize.  So
-    // when we call process, we are passing in the frequency domain
-    // representation of the same set of samples as passed to us, but
-    // with a different timestamp.  Advantages: simplicity; avoids
-    // iffy assumption mentioned above.  Disadvantages: inconsistency
-    // with SV in cases where stepSize != blockSize/2; potential
-    // confusion arising from returned timestamps being calculated
-    // from the adjusted input timestamps rather than the original
-    // ones (and inaccuracy where the returned timestamp is implied,
-    // as in one-value-per-block).
-    //
-    // Neither way is ideal, but I don't think either is strictly
-    // incorrect either.  I think this is just a case where the same
-    // plugin can legitimately produce differing results from the same
-    // input data, depending on how that data is packaged.
-    // 
-    // We'll go for option 2, adjusting the timestamps.  Note in
-    // particular that this means some results can differ from those
-    // produced by SV.
-
-//    std::cerr << "PluginInputDomainAdapter: sampleRate " << m_inputSampleRate << ", blocksize " << m_blockSize << ", adjusting time from " << timestamp;
-
-    //!!! update the above comment for ProcessTimestampMethod
-
-    FeatureSet fs;
     if (m_method == ShiftTimestamp) {
-        timestamp = timestamp + getTimestampAdjustment();
-    } else if (m_processCount == 0) {
-        fs = prepadProcess(inputBuffers, timestamp);
+        return processShiftingTimestamp(inputBuffers, timestamp);
+    } else {
+        return processShiftingData(inputBuffers, timestamp);
     }
-    ++m_processCount;
+}
 
-//    std::cerr << " to " << timestamp << std::endl;
+Plugin::FeatureSet
+PluginInputDomainAdapter::Impl::processShiftingTimestamp(const float *const *inputBuffers,
+                                                         RealTime timestamp)
+{
+    timestamp = timestamp + getTimestampAdjustment();
 
     for (int c = 0; c < m_channels; ++c) {
 
@@ -492,48 +463,85 @@ PluginInputDomainAdapter::Impl::process(const float *const *inputBuffers,
         }
 
 #ifdef HAVE_FFTW3
-
         fftw_execute(m_plan);
 
         for (int i = 0; i <= m_blockSize/2; ++i) {
             m_freqbuf[c][i * 2] = float(m_cbuf[i][0]);
             m_freqbuf[c][i * 2 + 1] = float(m_cbuf[i][1]);
         }
-
 #else
-
         fft(m_blockSize, false, m_ri, 0, m_ro, m_io);
 
         for (int i = 0; i <= m_blockSize/2; ++i) {
             m_freqbuf[c][i * 2] = float(m_ro[i]);
             m_freqbuf[c][i * 2 + 1] = float(m_io[i]);
         }
-
 #endif
     }
 
-    FeatureSet pfs(m_plugin->process(m_freqbuf, timestamp));
-
-    if (!fs.empty()) { // add any prepad results back in
-        for (FeatureSet::const_iterator i = pfs.begin(); i != pfs.end(); ++i) {
-            for (FeatureList::const_iterator j = i->second.begin();
-                 j != i->second.end(); ++j) {
-                fs[i->first].push_back(*j);
-            }
-        }
-        pfs = fs;
-    }
-
-    return pfs;
+    return m_plugin->process(m_freqbuf, timestamp);
 }
 
 Plugin::FeatureSet
-PluginInputDomainAdapter::Impl::prepadProcess(const float *const *inputBuffers,
-                                              RealTime timestamp)
+PluginInputDomainAdapter::Impl::processShiftingData(const float *const *inputBuffers,
+                                                    RealTime timestamp)
 {
-    FeatureSet fs;
-    //!!!
-    return fs;
+    if (m_processCount == 0) {
+        if (!m_shiftBuffers) {
+            m_shiftBuffers = new float *[m_channels];
+            for (int c = 0; c < m_channels; ++c) {
+                m_shiftBuffers[c] = new float[m_blockSize + m_blockSize/2];
+            }
+        }
+        for (int c = 0; c < m_channels; ++c) {
+            for (int i = 0; i < m_blockSize + m_blockSize/2; ++i) {
+                m_shiftBuffers[c][i] = 0.f;
+            }
+        }
+    }
+
+    for (int c = 0; c < m_channels; ++c) {
+        for (int i = m_stepSize; i < m_blockSize + m_blockSize/2; ++i) {
+            m_shiftBuffers[c][i - m_stepSize] = m_shiftBuffers[c][i];
+        }
+        for (int i = 0; i < m_blockSize; ++i) {
+            m_shiftBuffers[c][i + m_blockSize/2] = inputBuffers[c][i];
+        }
+    }
+
+    for (int c = 0; c < m_channels; ++c) {
+
+        for (int i = 0; i < m_blockSize; ++i) {
+            m_ri[i] = double(m_shiftBuffers[c][i]) * m_window[i];
+        }
+
+        for (int i = 0; i < m_blockSize/2; ++i) {
+            // FFT shift
+            double value = m_ri[i];
+            m_ri[i] = m_ri[i + m_blockSize/2];
+            m_ri[i + m_blockSize/2] = value;
+        }
+
+#ifdef HAVE_FFTW3
+        fftw_execute(m_plan);
+
+        for (int i = 0; i <= m_blockSize/2; ++i) {
+            m_freqbuf[c][i * 2] = float(m_cbuf[i][0]);
+            m_freqbuf[c][i * 2 + 1] = float(m_cbuf[i][1]);
+        }
+#else
+        fft(m_blockSize, false, m_ri, 0, m_ro, m_io);
+
+        for (int i = 0; i <= m_blockSize/2; ++i) {
+            m_freqbuf[c][i * 2] = float(m_ro[i]);
+            m_freqbuf[c][i * 2 + 1] = float(m_io[i]);
+        }
+#endif
+    }
+
+    ++m_processCount;
+
+    return m_plugin->process(m_freqbuf, timestamp);
 }
 
 #ifndef HAVE_FFTW3
