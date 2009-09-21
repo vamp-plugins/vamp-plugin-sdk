@@ -95,7 +95,7 @@ void usage(const char *name)
     cerr << "\n"
          << name << ": A command-line host for Vamp audio analysis plugins.\n\n"
         "Centre for Digital Music, Queen Mary, University of London.\n"
-        "Copyright 2006-2008 Chris Cannam and QMUL.\n"
+        "Copyright 2006-2009 Chris Cannam and QMUL.\n"
         "Freely redistributable; published under a BSD-style license.\n\n"
         "Usage:\n\n"
         "  " << name << " [-s] pluginlibrary[." << PLUGIN_SUFFIX << "]:plugin[:output] file.wav [-o out.txt]\n"

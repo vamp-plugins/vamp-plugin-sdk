@@ -38,6 +38,7 @@ default:	sdk plugins host rdfgen test
 
 # Compile flags
 #
+CXX		:= CC
 CXXFLAGS	:= -I. -KPIC  
 
 # ar, ranlib

@@ -6,7 +6,7 @@
     An API for audio analysis and feature extraction plugins.
 
     Centre for Digital Music, Queen Mary, University of London.
-    Copyright 2006-2007 Chris Cannam and QMUL.
+    Copyright 2006-2009 Chris Cannam and QMUL.
   
     This file is based in part on Don Cross's public domain FFT
     implementation.
@@ -109,8 +109,6 @@ protected:
     ProcessTimestampMethod m_method;
     int m_processCount;
     float **m_shiftBuffers;
-//    FeatureSet prepadProcess(const float *const *inputBuffers,
-//                             RealTime timestamp);
 
 #ifdef HAVE_FFTW3
     fftw_plan m_plan;

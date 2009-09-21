@@ -44,7 +44,8 @@ using std::endl;
 #include <math.h>
 
 #ifdef __SUNPRO_CC
-#include <sunmath.h>
+#include <ieeefp.h>
+#define isinf(x) (!finite(x))
 #endif
 
 #ifdef WIN32

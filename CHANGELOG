@@ -1,5 +1,17 @@
 
-Version 2.0
+Version 2.1, 2009-09-22 (maintenance and minor feature release):
+
+  * Add ProcessTimestampMethod to PluginInputDomainAdapter, offering
+    the ability to decide how data buffering and timestamping works for
+    frequency-domain plugins (whose process timestamps have to be at
+    the centre of each processing block rather than the start)
+  * Make PluginBufferingAdapter take into account any timestamp shift
+    introduced by a PluginInputDomainAdapter that it wraps
+  * Fix crash in PluginAdapter when plugin library getDescriptor fails
+    on plugin construction
+  * Add plugin skeleton files as starting point for new developers
+
+Version 2.0, 2008-12-08 (major release):
 
   * Feature structure now has an optional duration (plugin API change)
   * Libraries reorganised into separate include and src directories for
