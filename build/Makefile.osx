@@ -66,7 +66,7 @@ default:	all
 
 # Compile flags
 #
-CXXFLAGS	= $(ARCHFLAGS) $(CXXFLAGS) -O2 -Wall -I. -fPIC
+CXXFLAGS	= $(ARCHFLAGS) -O2 -Wall -I. -fPIC
 
 # ar, ranlib
 #
