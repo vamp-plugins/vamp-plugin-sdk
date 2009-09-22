@@ -156,7 +156,7 @@ public:
      */
     enum AveragingMethod {
         SampleAverage         = 0,
-        ContinuousTimeAverage = 1,
+        ContinuousTimeAverage = 1
     };
 
     /**

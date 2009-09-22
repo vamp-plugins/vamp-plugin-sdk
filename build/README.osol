@@ -1,17 +1,29 @@
 
-The Vamp Plugin SDK -- Platform Notes for Linux and other GNU platforms
-=======================================================================
+The Vamp Plugin SDK -- Platform Notes for OpenSolaris with SunStudio Compilers
+==============================================================================
 
 Building at the command line
 ----------------------------
 
-To build the SDK, example plugins, and command-line host:
+To build the SDK, example plugins, and command-line host using the
+SunStudio C++ compiler (CC) with the Cstd standard library:
 
-$ ./configure
-$ make
+ $ make -f build/Makefile.osol
 
-To install after a successful make, run "make install" as root (or via
-sudo).
+You must have libsndfile (http://www.mega-nerd.com/libsndfile/)
+installed in order to build the command-line host successfully.  To
+build only the SDK and examples:
+
+ $ make -f build/Makefile.osol sdk examples
+
+See the comments at the top of Makefile.osol for more information about
+the libraries and other targets that are built in this way.
+
+To install the libraries: 
+
+ $ make -f build/Makefile.osol install
+
+with the appropriate privileges (via pfexec or sudo).
 
 
 Installing the Example Plugins
@@ -37,7 +49,7 @@ Vamp plugins are distributed as dynamic libraries (.so files).  A
 properly packaged Vamp plugin library should export exactly one public
 symbol, namely the Vamp API entry point vampGetPluginDescriptor.
 
-The default for the GNU linker is to export all of the symbols in the
+The default for the Sun linker is to export all of the symbols in the
 library.  This will work (the host will be able to load the plugin),
 but it unnecessarily pollutes the host's symbol namespace, it may
 cause symbol collisions in some esoteric circumstances, and it
@@ -52,15 +64,13 @@ text
 	local: *;
 };
 
-into a text file, and then use the --version-script option to the
+into a text file, and then use the -M mapfile option to the
 linker to tell it to refer to this file.  All other symbols will then
 be properly hidden.
 
 The Makefile included in this SDK uses this method to manage symbol
 visibility for the included example plugins, using the file
-build/vamp-plugin.map.  There are other methods that will work too,
-but this one is simple and has the advantage of requiring no changes
-to the code.
+build/vamp-plugin.map.
 
 
 Test Your Plugins

@@ -47,7 +47,7 @@ RANLIB		:= ranlib
 
 # Libraries required for the plugins.
 #
-PLUGIN_LIBS	= $(SRCDIR)/libvamp-sdk.a
+PLUGIN_LIBS	= ./libvamp-sdk.a
 
 # File extension for a dynamically loadable object
 #
@@ -57,11 +57,11 @@ PLUGIN_EXT	= .so
 
 # Libraries required for the host.
 #
-HOST_LIBS	= $(SRCDIR)/libvamp-hostsdk.a @SNDFILE_LIBS@ @LIBS@
+HOST_LIBS	= ./libvamp-hostsdk.a @SNDFILE_LIBS@ @LIBS@
 
 # Libraries required for the RDF template generator.
 #
-RDFGEN_LIBS	= $(SRCDIR)/libvamp-hostsdk.a @LIBS@
+RDFGEN_LIBS	= ./libvamp-hostsdk.a @LIBS@
 
 # Locations for "make install".  This will need quite a bit of 
 # editing for non-Linux platforms.  Of course you don't necessarily
@@ -75,13 +75,13 @@ INSTALL_SDK_LIBS	  := $(INSTALL_PREFIX)/lib
 INSTALL_PLUGINS		  := $(INSTALL_PREFIX)/lib/vamp
 INSTALL_BINARIES	  := $(INSTALL_PREFIX)/bin 
 
-INSTALL_SDK_LIBNAME	  := libvamp-sdk.so.2.0.0
+INSTALL_SDK_LIBNAME	  := libvamp-sdk.so.2.1.0
 INSTALL_SDK_LINK_ABI	  := libvamp-sdk.so.2
 INSTALL_SDK_LINK_DEV	  := libvamp-sdk.so
 INSTALL_SDK_STATIC        := libvamp-sdk.a
 INSTALL_SDK_LA            := libvamp-sdk.la
 
-INSTALL_HOSTSDK_LIBNAME   := libvamp-hostsdk.so.3.0.0
+INSTALL_HOSTSDK_LIBNAME   := libvamp-hostsdk.so.3.1.0
 INSTALL_HOSTSDK_LINK_ABI  := libvamp-hostsdk.so.3
 INSTALL_HOSTSDK_LINK_DEV  := libvamp-hostsdk.so
 INSTALL_HOSTSDK_STATIC    := libvamp-hostsdk.a
@@ -151,16 +151,16 @@ HOSTSDK_OBJECTS	= \
 		$(HOSTSDKSRCDIR)/PluginWrapper.o
 
 SDK_STATIC	= \
-		$(SRCDIR)/libvamp-sdk.a
+		./libvamp-sdk.a
 
 HOSTSDK_STATIC	= \
-		$(SRCDIR)/libvamp-hostsdk.a
+		./libvamp-hostsdk.a
 
 SDK_DYNAMIC	= \
-		$(SRCDIR)/libvamp-sdk$(PLUGIN_EXT)
+		./libvamp-sdk$(PLUGIN_EXT)
 
 HOSTSDK_DYNAMIC	= \
-		$(SRCDIR)/libvamp-hostsdk$(PLUGIN_EXT)
+		./libvamp-hostsdk$(PLUGIN_EXT)
 
 SDK_LA		= \
 		$(LADIR)/libvamp-sdk.la
