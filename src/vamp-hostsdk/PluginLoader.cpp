@@ -280,18 +280,26 @@ PluginLoader::Impl::enumeratePlugins(PluginKey forPlugin)
             
             int index = 0;
             const VampPluginDescriptor *descriptor = 0;
+            bool found = false;
             
             while ((descriptor = fn(VAMP_API_VERSION, index))) {
                 ++index;
                 if (identifier != "") {
                     if (descriptor->identifier != identifier) continue;
                 }
+                found = true;
                 PluginKey key = composePluginKey(*fi, descriptor->identifier);
 //                std::cerr << "enumerate: " << key << " (path: " << fullPath << ")" << std::endl;
                 if (m_pluginLibraryNameMap.find(key) ==
                     m_pluginLibraryNameMap.end()) {
                     m_pluginLibraryNameMap[key] = fullPath;
                 }
+            }
+
+            if (!found && forPlugin != "") {
+                cerr << "Vamp::HostExt::PluginLoader: Plugin \""
+                     << identifier << "\" not found in library \""
+                     << fullPath << "\"" << endl;
             }
             
             unloadLibrary(handle);
@@ -370,9 +378,7 @@ PluginLoader::Impl::loadPlugin(PluginKey key,
         
     string fullPath = getLibraryPathForPlugin(key);
     if (fullPath == "") {
-        std::cerr << "Vamp::HostExt::PluginLoader: No valid \""
-                  << libname << "." << PLUGIN_SUFFIX
-                  << "\" found in Vamp path" << std::endl;
+        std::cerr << "Vamp::HostExt::PluginLoader: No library found in Vamp path for plugin \"" << key << "\"" << std::endl;
         return 0;
     }
     
