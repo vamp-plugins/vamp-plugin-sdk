@@ -8,11 +8,11 @@
 # library and related files that may be of interest resulting from
 # the build:
 # 
-#   src/libvamp-sdk.dylib                 [SDK dynamic library for plugins]
-#   src/libvamp-hostsdk.dylib             [SDK dynamic library for hosts]
+#   libvamp-sdk.dylib                 [SDK dynamic library for plugins]
+#   libvamp-hostsdk.dylib             [SDK dynamic library for hosts]
 #
-#   src/libvamp-sdk.a                     [SDK static library for plugins]
-#   src/libvamp-hostsdk.a                 [SDK static library for hosts]
+#   libvamp-sdk.a                     [SDK static library for plugins]
+#   libvamp-hostsdk.a                 [SDK static library for hosts]
 #
 #   examples/vamp-example-plugins.cat     [copy this to your Vamp plugin dir]
 #   examples/vamp-example-plugins.dylib   [copy this to your Vamp plugin dir]
