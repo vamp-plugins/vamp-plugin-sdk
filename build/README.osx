@@ -42,8 +42,14 @@ or
 Plugin Linkage
 --------------
 
-Vamp plugins are distributed as dynamic libraries (.dylib).  A
-well-packaged Vamp plugin library should export exactly one public
+Vamp plugins are distributed as dynamic libraries (.dylib).  An OS/X
+dynamic library has a formal installed name, which is recorded in the
+library's header: you will need to ensure that this matches the
+plugin's filename (e.g. vamp-example-plugins.dylib) by using the
+-install_name <name> option at link time.  The Makefile.osx provided
+with the SDK contains an example of this.
+
+A well-packaged Vamp plugin library should export exactly one public
 symbol, namely the Vamp API entry point vampGetPluginDescriptor.
 
 The default for the OS/X linker is to export all of the symbols in the
