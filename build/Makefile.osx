@@ -58,14 +58,20 @@ RDFGENDIR	= rdf/generator
 #
 default:	all
 
+# Architecture and developer SDK selection flags.  Define this only
+# if you want to select a different OS/X compatibility level from the
+# default, for example in order to build universal binaries.
+#
+#ARCHFLAGS	= -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc
+
 # Compile flags
 #
-CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -I. -fPIC
+CXXFLAGS	= $(ARCHFLAGS) $(CXXFLAGS) -O2 -Wall -I. -fPIC
 
 # ar, ranlib
 #
-AR		:= ar
-RANLIB		:= ranlib
+AR		= ar
+RANLIB		= ranlib
 
 # Libraries required for the plugins.
 #
@@ -85,15 +91,18 @@ RDFGEN_LIBS	= ./libvamp-hostsdk.a -ldl
 
 # Flags required to tell the compiler to create a dynamically loadable object
 #
-DYNAMIC_LDFLAGS		= -dynamiclib 
-PLUGIN_LDFLAGS		= $(DYNAMIC_LDFLAGS) -install_name vamp-example-plugins.dylib
+DYNAMIC_LDFLAGS		= $(ARCHFLAGS) -dynamiclib 
+
+# Flags for building specific plugin and library targets.  We need to
+# tell the linker the formal name for the library, and for plugins we
+# also want to tell the linker to make all symbols in the library
+# hidden except for the public entry point (making for a tidier library).
+#
+PLUGIN_LDFLAGS		= $(DYNAMIC_LDFLAGS) \
+			  -install_name vamp-example-plugins.dylib \
+			  -exported_symbols_list build/vamp-plugin.list
 SDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS) -install_name libvamp-sdk.dylib
 HOSTSDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS) -install_name libvamp-hostsdk.dylib
-
-# Additional flags for making a plugin.  This tells the linker to make
-# all symbols in the library hidden except for the public entry point.
-# It's not essential, but makes a tidier library.
-PLUGIN_LDFLAGS		= $(DYNAMIC_LDFLAGS) -install_name vamp-example-plugins.dylib -exported_symbols_list build/vamp-plugin.list
 
 
 ### End of user-serviceable parts

@@ -10,5 +10,7 @@ Compiling and Installing the SDK and Examples
 
  * Linux: Please read build/README.linux
 
+ * Windows cross-compiling from Linux: Try build/Makefile.mingw32
+
 See the README file in this directory for more information about this SDK.
 
