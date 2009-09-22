@@ -270,6 +270,10 @@ PluginLoader::Impl::enumeratePlugins(PluginKey forPlugin)
                 (handle, "vampGetPluginDescriptor");
             
             if (!fn) {
+                if (forPlugin != "") {
+                    cerr << "Vamp::HostExt::PluginLoader: No vampGetPluginDescriptor function found in library \""
+                         << fullPath << "\"" << endl;
+                }
                 unloadLibrary(handle);
                 continue;
             }
@@ -365,7 +369,12 @@ PluginLoader::Impl::loadPlugin(PluginKey key,
     }
         
     string fullPath = getLibraryPathForPlugin(key);
-    if (fullPath == "") return 0;
+    if (fullPath == "") {
+        std::cerr << "Vamp::HostExt::PluginLoader: No valid \""
+                  << libname << "." << PLUGIN_SUFFIX
+                  << "\" found in Vamp path" << std::endl;
+        return 0;
+    }
     
     void *handle = loadLibrary(fullPath);
     if (!handle) return 0;
@@ -375,6 +384,8 @@ PluginLoader::Impl::loadPlugin(PluginKey key,
         (handle, "vampGetPluginDescriptor");
 
     if (!fn) {
+        cerr << "Vamp::HostExt::PluginLoader: No vampGetPluginDescriptor function found in library \""
+             << fullPath << "\"" << endl;
         unloadLibrary(handle);
         return 0;
     }
