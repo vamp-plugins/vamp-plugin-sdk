@@ -406,7 +406,7 @@ PluginInputDomainAdapter::Impl::getTimestampAdjustment() const
 {
     if (m_plugin->getInputDomain() == TimeDomain) {
         return RealTime::zeroTime;
-    } else if (m_method == ShiftData) {
+    } else if (m_method == ShiftData || m_method == NoShift) {
         return RealTime::zeroTime;
     } else {
         return RealTime::frame2RealTime
@@ -434,7 +434,7 @@ PluginInputDomainAdapter::Impl::process(const float *const *inputBuffers,
         return m_plugin->process(inputBuffers, timestamp);
     }
 
-    if (m_method == ShiftTimestamp) {
+    if (m_method == ShiftTimestamp || m_method == NoShift) {
         return processShiftingTimestamp(inputBuffers, timestamp);
     } else {
         return processShiftingData(inputBuffers, timestamp);
@@ -445,7 +445,9 @@ Plugin::FeatureSet
 PluginInputDomainAdapter::Impl::processShiftingTimestamp(const float *const *inputBuffers,
                                                          RealTime timestamp)
 {
-    timestamp = timestamp + getTimestampAdjustment();
+    if (m_method == ShiftTimestamp) {
+        timestamp = timestamp + getTimestampAdjustment();
+    }
 
     for (int c = 0; c < m_channels; ++c) {
 

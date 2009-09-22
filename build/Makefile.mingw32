@@ -68,7 +68,7 @@ RANLIB		= i586-mingw32msvc-ranlib
 
 # Compile flags
 #
-CXXFLAGS	= $(CXXFLAGS) -O2 -Wall -I. -I../include -fpic
+CXXFLAGS	= -O2 -Wall -I. -I../include
 
 # Libraries required for the plugins.
 #
@@ -80,7 +80,7 @@ PLUGIN_EXT	= .dll
 
 # Libraries required for the host.
 #
-HOST_LIBS	= ./libvamp-hostsdk.a -l../lib -lsndfile
+HOST_LIBS	= ./libvamp-hostsdk.a -L../lib -lsndfile
 
 # Libraries required for the RDF template generator.
 #

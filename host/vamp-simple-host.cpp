@@ -414,7 +414,7 @@ int runPlugin(string myname, string soname, string id,
         if (ida) adjustment = ida->getTimestampAdjustment();
     }
 
-    for (size_t i = 0; i < sfinfo.frames; i += stepSize) {
+    for (sf_count_t i = 0; i < sfinfo.frames; i += stepSize) {
 
         int count;
 
