@@ -19,7 +19,7 @@ PLUGIN_LIBRARY_NAME = myplugins
 
 # Edit this to list one .o file for each .cpp file in your plugin project
 #
-PLUGIN_CODE_OBJECTS = MyPlugins.o plugins.o
+PLUGIN_CODE_OBJECTS = MyPlugin.o plugins.o
 
 # Edit this to the location of the Vamp plugin SDK, relative to your
 # project directory
