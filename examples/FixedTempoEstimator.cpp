@@ -44,6 +44,7 @@ using std::endl;
 using Vamp::RealTime;
 
 #include <cmath>
+#include <cstdio>
 
 
 class FixedTempoEstimator::D
