@@ -9,6 +9,9 @@
 
 MyPlugin::MyPlugin(float inputSampleRate) :
     Plugin(inputSampleRate)
+    // Also be sure to set your plugin parameters (presumably stored
+    // in member variables) to their default values here -- the host
+    // will not do that for you
 {
 }
 
@@ -100,6 +103,13 @@ MyPlugin::getParameterDescriptors() const
     // If the plugin has no adjustable parameters, return an empty
     // list here (and there's no need to provide implementations of
     // getParameter and setParameter in that case either).
+
+    // Note that it is your responsibility to make sure the parameters
+    // start off having their default values (e.g. in the constructor
+    // above).  The host needs to know the default value so it can do
+    // things like provide a "reset to default" function, but it will
+    // not explicitly set your parameters to their defaults for you if
+    // they have not changed in the mean time.
 
     ParameterDescriptor d;
     d.identifier = "parameter";
