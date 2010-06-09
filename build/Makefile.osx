@@ -60,18 +60,24 @@ default:	all
 
 # Architecture and developer SDK selection flags.  Define this only
 # if you want to select a different OS/X compatibility level from the
-# default, for example in order to build universal binaries.
+# default (which is to target 10.4 or newer and build universal binaries).
 #
-#ARCHFLAGS	= -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc
+SDKFLAGS	= -isysroot /Developer/SDKs/MacOSX10.4u.sdk 
+ARCHFLAGS	= $(SDKFLAGS) -arch i386 -arch x86_64 -arch ppc
 
 # Compile flags
 #
 CXXFLAGS	= $(ARCHFLAGS) -O2 -Wall -I. -fPIC
 
+# Link flags common to all link targets
+#
+LDFLAGS		= $(ARCHFLAGS) 
+
 # ar, ranlib
 #
 AR		= ar
 RANLIB		= ranlib
+RM_F		= rm -f
 
 # Libraries required for the plugins.
 #
@@ -215,9 +221,11 @@ rdfgen:		$(RDFGEN_TARGET)
 all:		sdk plugins host rdfgen test
 
 $(SDK_STATIC):	$(SDK_OBJECTS) $(API_HEADERS) $(SDK_HEADERS)
+		$(RM_F) $@
 		$(AR) r $@ $(SDK_OBJECTS)
 
 $(HOSTSDK_STATIC):	$(HOSTSDK_OBJECTS) $(API_HEADERS) $(HOSTSDK_HEADERS)
+		$(RM_F) $@
 		$(AR) r $@ $(HOSTSDK_OBJECTS)
 
 $(SDK_DYNAMIC):	$(SDK_OBJECTS) $(API_HEADERS) $(SDK_HEADERS)
