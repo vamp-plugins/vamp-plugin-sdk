@@ -58,11 +58,16 @@ RDFGENDIR	= rdf/generator
 #
 default:	all
 
-# Architecture and developer SDK selection flags.  Define this only
+# Architecture and developer SDK selection flags.  Change these only
 # if you want to select a different OS/X compatibility level from the
-# default (which is to target 10.4 or newer and build universal binaries).
+# default (which is to target 10.4 or newer and build 3-way universal
+# binaries).
+# 
+# If you don't have the 10.4 version of the OS/X SDK, change "10.4u"
+# and "10.4" to "10.5" (or whatever is the oldest SDK available to
+# you) for maximum portability.
 #
-SDKFLAGS	= -isysroot /Developer/SDKs/MacOSX10.4u.sdk 
+SDKFLAGS	= -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4
 ARCHFLAGS	= $(SDKFLAGS) -arch i386 -arch x86_64 -arch ppc
 
 # Compile flags

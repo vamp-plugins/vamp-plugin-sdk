@@ -27,20 +27,23 @@ PLUGIN_CODE_OBJECTS = MyPlugin.o plugins.o
 VAMP_SDK_DIR = ../vamp-plugin-sdk
 
 
-##  Uncomment these for an OS/X native build using command-line tools:
+## Uncomment these for an OS/X universal binary (PPC and 32- and
+## 64-bit Intel) supporting 10.4 or newer (if you have the 10.4 SDK):
 
-# CXXFLAGS = -I$(VAMP_SDK_DIR) -Wall -fPIC
+# CXXFLAGS = -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4 -arch i386 -arch x86_64 -arch ppc -I$(VAMP_SDK_DIR) -Wall -fPIC
 # PLUGIN_EXT = .dylib
 # PLUGIN = $(PLUGIN_LIBRARY_NAME)$(PLUGIN_EXT)
-# LDFLAGS = -dynamiclib -install_name $(PLUGIN) $(VAMP_SDK_DIR)/libvamp-sdk.a -exported_symbols_list vamp-plugin.list
+# LDFLAGS = $(CXXFLAGS) -dynamiclib -install_name $(PLUGIN) $(VAMP_SDK_DIR)/libvamp-sdk.a -exported_symbols_list vamp-plugin.list
 
 
-##  Uncomment these for an OS/X universal binary using command-line tools:
+## Uncomment these for an OS/X universal binary (PPC and 32- and
+## 64-bit Intel) supporting 10.5 or newer (use this if you have the
+## default 10.6 developer tools):
 
-# CXXFLAGS = -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc -I$(VAMP_SDK_DIR) -Wall -fPIC
+# CXXFLAGS = -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 -arch i386 -arch x86_64 -arch ppc -I$(VAMP_SDK_DIR) -Wall -fPIC
 # PLUGIN_EXT = .dylib
 # PLUGIN = $(PLUGIN_LIBRARY_NAME)$(PLUGIN_EXT)
-# LDFLAGS = -dynamiclib -install_name $(PLUGIN) $(VAMP_SDK_DIR)/libvamp-sdk.a -exported_symbols_list vamp-plugin.list
+# LDFLAGS = $(CXXFLAGS) -dynamiclib -install_name $(PLUGIN) $(VAMP_SDK_DIR)/libvamp-sdk.a -exported_symbols_list vamp-plugin.list
 
 
 ##  Uncomment these for Linux using the standard tools:
