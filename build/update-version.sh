@@ -66,6 +66,18 @@ $p 's/(VAMP_SDK_MAJOR_VERSION).*/$1 '$major'/' \
 $p 's/(VAMP_SDK_MINOR_VERSION).*/$1 '$minor'/' \
     vamp-sdk/PluginBase.h
 
+$p 's/(VAMP_SDK_MAJOR_VERSION !=) \d+/$1 '$major'/' \
+    src/vamp-sdk/PluginAdapter.cpp
+
+$p 's/(VAMP_SDK_MINOR_VERSION !=) \d+/$1 '$minor'/' \
+    src/vamp-sdk/PluginAdapter.cpp
+
+$p 's/(VAMP_SDK_MAJOR_VERSION !=) \d+/$1 '$major'/' \
+    src/vamp-hostsdk/PluginHostAdapter.cpp
+
+$p 's/(VAMP_SDK_MINOR_VERSION !=) \d+/$1 '$minor'/' \
+    src/vamp-hostsdk/PluginHostAdapter.cpp
+
 for pc in pkgconfig/*.pc.in ; do
     $p 's/(Version:) .*/$1 '$version'/' $pc
 done
