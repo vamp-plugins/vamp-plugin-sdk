@@ -60,15 +60,33 @@ default:	all
 
 # Architecture and developer SDK selection flags.  Change these only
 # if you want to select a different OS/X compatibility level from the
-# default (which is to target 10.4 or newer and build 3-way universal
-# binaries).
-# 
-# If you don't have the 10.4 version of the OS/X SDK, change "10.4u"
-# and "10.4" to "10.5" (or whatever is the oldest SDK available to
-# you) for maximum portability.
+# default.
 #
-SDKFLAGS	= -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4
-ARCHFLAGS	= $(SDKFLAGS) -arch i386 -arch x86_64 -arch ppc
+# By default, we try to find the oldest available SDK that is newer
+# than 10.3.
+# 
+# If you want to override this to select a particular SDK, change
+# PREFERRED_SDK to the SDK name (e.g. "10.4u") and PREFERRED_MINVERSION
+# to the minimum OS revision (e.g. "10.4").  An example follows this code.
+# 
+SDKPREFIX	:= /Developer/SDKs/MacOSX
+SDKS		:= $(wildcard $(SDKPREFIX)*.sdk)
+SDKVERSIONS	:= $(patsubst $(SDKPREFIX)%.sdk,%,$(SDKS))
+GOOD_SDKS	:= $(filter-out 10.1%,$(filter-out 10.2%,$(filter-out 10.3%,$(SDKVERSIONS))))
+#
+PREFERRED_SDK	:= $(word 1, $(sort $(GOOD_SDKS)))
+PREFERRED_MINVERSION  := $(patsubst %u,%,$(PREFERRED_SDK))
+#
+# Example: to set your own values, uncomment and adjust:
+# PREFERRED_SDK	:= 10.4u
+# PREFERRED_MINVERSION  := 10.4
+
+SDKFLAGS	= -isysroot /Developer/SDKs/MacOSX$(PREFERRED_SDK).sdk -mmacosx-version-min=$(PREFERRED_MINVERSION)
+
+# Our default is to try to build for all available architectures in a
+# universal binary.
+#
+ARCHFLAGS = $(SDKFLAGS) -arch i386 -arch x86_64 -arch ppc
 
 # Compile flags
 #
@@ -211,7 +229,13 @@ RDFGEN_OBJECTS	= \
 RDFGEN_TARGET	= \
 		$(RDFGENDIR)/vamp-rdf-template-generator
 
-sdk:		sdkstatic $(SDK_DYNAMIC) $(HOSTSDK_DYNAMIC)
+show:
+		@echo " *** Found available SDK versions: $(SDKVERSIONS)"
+		@test -n "$(PREFERRED_SDK)" || ( echo "Error: Failed to establish preferred SDK version, please ensure at least one Developer SDK is installed" ; exit 1 )
+		@test -n "$(PREFERRED_MINVERSION)" || ( echo "Error: Failed to establish preferred minimum OS version" ; exit 1 )
+		@echo " *** Default SDK is $(PREFERRED_SDK) for minimum OS/X version $(PREFERRED_MINVERSION)"
+
+sdk:		show sdkstatic $(SDK_DYNAMIC) $(HOSTSDK_DYNAMIC)
 
 sdkstatic:	$(SDK_STATIC) $(HOSTSDK_STATIC)
 		$(RANLIB) $(SDK_STATIC)
