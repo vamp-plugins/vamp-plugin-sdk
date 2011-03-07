@@ -28,7 +28,8 @@ if test "x$PROGS_ARGUMENT" = "xyes" ; then
 		TARGETS="sdk plugins host rdfgen test"
 	else
 		dnl no libsndfile - can't build host!
-		AC_MSG_ERROR([libsndfile not found - cannot build example Vamp host!])
+		AC_MSG_ERROR([libsndfile not found - cannot build example Vamp host!
+If you don't want to build the host, configure with --disable-programs.])
 	fi
 else
 	dnl user didn't want programs - so we won't build them

@@ -63,7 +63,7 @@ default:	all
 # default.
 #
 # By default, we try to find the oldest available SDK that is newer
-# than 10.3.
+# than 10.4.
 # 
 # If you want to override this to select a particular SDK, change
 # PREFERRED_SDK to the SDK name (e.g. "10.4u") and PREFERRED_MINVERSION
@@ -72,7 +72,7 @@ default:	all
 SDKPREFIX	:= /Developer/SDKs/MacOSX
 SDKS		:= $(wildcard $(SDKPREFIX)*.sdk)
 SDKVERSIONS	:= $(patsubst $(SDKPREFIX)%.sdk,%,$(SDKS))
-GOOD_SDKS	:= $(filter-out 10.1%,$(filter-out 10.2%,$(filter-out 10.3%,$(SDKVERSIONS))))
+GOOD_SDKS	:= $(filter-out 10.1%,$(filter-out 10.2%,$(filter-out 10.3%,$(filter-out 10.4%,$(SDKVERSIONS)))))
 #
 PREFERRED_SDK	:= $(word 1, $(sort $(GOOD_SDKS)))
 PREFERRED_MINVERSION  := $(patsubst %u,%,$(PREFERRED_SDK))
