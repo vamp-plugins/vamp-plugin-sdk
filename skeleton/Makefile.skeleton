@@ -36,6 +36,7 @@ VAMP_SDK_DIR := ../vamp-plugin-sdk
 ## Uncomment these for an OS/X universal binary (PPC and 32- and
 ## 64-bit Intel) supporting 10.4 or newer (if you have the 10.4 SDK):
 
+# CXX := g++-4.0
 # CXXFLAGS := -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4 -arch i386 -arch x86_64 -arch ppc -I$(VAMP_SDK_DIR) -Wall -fPIC
 # PLUGIN_EXT := .dylib
 # LDFLAGS := $(CXXFLAGS) -dynamiclib -install_name $(PLUGIN) $(VAMP_SDK_DIR)/libvamp-sdk.a -exported_symbols_list vamp-plugin.list
