@@ -1,4 +1,8 @@
 
+Version 2.2.1, 2011-04-05 (maintenance release):
+
+  * Minor build fixes for OS/X
+
 Version 2.2, 2010-08-26 (maintenance release):
 
   * Fixes to OS/X build procedures so as to build three-way
