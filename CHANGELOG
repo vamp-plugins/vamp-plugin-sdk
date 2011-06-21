@@ -1,4 +1,8 @@
 
+Version 2.3 (minor feature release):
+
+  * Add window type property to PluginInputDomainAdapter
+
 Version 2.2.1, 2011-04-05 (maintenance release):
 
   * Minor build fixes for OS/X

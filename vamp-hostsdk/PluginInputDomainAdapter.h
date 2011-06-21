@@ -54,13 +54,14 @@ namespace HostExt {
  * it.  This permits a host to use time- and frequency-domain plugins
  * interchangeably without needing to handle the conversion itself.
  *
- * This adapter uses a basic Hanning windowed FFT that supports
- * power-of-two block sizes only.  If a frequency domain plugin
- * requests a non-power-of-two blocksize, the adapter will adjust it
- * to a nearby power of two instead.  Thus, getPreferredBlockSize()
- * will always return a power of two if the wrapped plugin is a
- * frequency domain one.  If the plugin doesn't accept the adjusted
- * power of two block size, initialise() will fail.
+ * This adapter uses a basic windowed FFT (using Hann window by
+ * default) that supports power-of-two block sizes only.  If a
+ * frequency domain plugin requests a non-power-of-two blocksize, the
+ * adapter will adjust it to a nearby power of two instead.  Thus,
+ * getPreferredBlockSize() will always return a power of two if the
+ * wrapped plugin is a frequency domain one.  If the plugin doesn't
+ * accept the adjusted power of two block size, initialise() will
+ * fail.
  *
  * The adapter provides no way for the host to discover whether the
  * underlying plugin is actually a time or frequency domain plugin
@@ -70,6 +71,10 @@ namespace HostExt {
  * The FFT implementation is simple and self-contained, but unlikely
  * to be the fastest available: a host can usually do better if it
  * cares enough.
+ *
+ * The window shape for the FFT frame can be set using setWindowType
+ * and the current shape retrieved using getWindowType.  (This was
+ * added in v2.3 of the SDK.)
  *
  * In every respect other than its input domain handling, the
  * PluginInputDomainAdapter behaves identically to the plugin that it
@@ -183,6 +188,39 @@ public:
      * been called is undefined.
      */
     RealTime getTimestampAdjustment() const;
+
+    /**
+     * The set of supported window shapes.
+     */
+    enum WindowType {
+
+        RectangularWindow    = 0,
+
+        BartlettWindow       = 1, /// synonym for RectangularWindow
+        TriangularWindow     = 1, /// synonym for BartlettWindow
+
+        HammingWindow        = 2,
+
+        HanningWindow        = 3, /// synonym for HannWindow
+        HannWindow           = 3, /// synonym for HanningWindow
+
+        BlackmanWindow       = 4,
+
+        NuttallWindow        = 7,
+
+        BlackmanHarrisWindow = 8
+    };
+
+    /**
+     * Return the current window shape.  The default is HanningWindow.
+     */
+    WindowType getWindowType() const;
+    
+    /**
+     * Set the current window shape.
+     */
+    void setWindowType(WindowType type);
+
 
 protected:
     class Impl;

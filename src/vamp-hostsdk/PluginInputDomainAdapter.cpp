@@ -41,6 +41,8 @@
 
 #include <cmath>
 
+#include "Window.h"
+
 
 /**
  * If you want to compile using FFTW instead of the built-in FFT
@@ -95,6 +97,9 @@ public:
     
     RealTime getTimestampAdjustment() const;
 
+    WindowType getWindowType() const;
+    void setWindowType(WindowType type);
+
 protected:
     Plugin *m_plugin;
     float m_inputSampleRate;
@@ -104,7 +109,9 @@ protected:
     float **m_freqbuf;
 
     double *m_ri;
-    double *m_window;
+
+    WindowType m_windowType;
+    Window<double> *m_window;
 
     ProcessTimestampMethod m_method;
     int m_processCount;
@@ -124,6 +131,8 @@ protected:
     FeatureSet processShiftingData(const float *const *inputBuffers, RealTime timestamp);
 
     size_t makeBlockSizeAcceptable(size_t) const;
+    
+    Window<double>::WindowType convertType(WindowType t) const;
 };
 
 PluginInputDomainAdapter::PluginInputDomainAdapter(Plugin *plugin) :
@@ -191,6 +200,18 @@ PluginInputDomainAdapter::getTimestampAdjustment() const
     return m_impl->getTimestampAdjustment();
 }
 
+PluginInputDomainAdapter::WindowType
+PluginInputDomainAdapter::getWindowType() const
+{
+    return m_impl->getWindowType();
+}
+
+void
+PluginInputDomainAdapter::setWindowType(WindowType w)
+{
+    m_impl->setWindowType(w);
+}
+
 
 PluginInputDomainAdapter::Impl::Impl(Plugin *plugin, float inputSampleRate) :
     m_plugin(plugin),
@@ -200,6 +221,7 @@ PluginInputDomainAdapter::Impl::Impl(Plugin *plugin, float inputSampleRate) :
     m_blockSize(0),
     m_freqbuf(0),
     m_ri(0),
+    m_windowType(HanningWindow),
     m_window(0),
     m_method(ShiftTimestamp),
     m_processCount(0),
@@ -242,7 +264,8 @@ PluginInputDomainAdapter::Impl::~Impl()
         delete[] m_ro;
         delete[] m_io;
 #endif
-        delete[] m_window;
+
+        delete m_window;
     }
 }
 
@@ -290,7 +313,7 @@ PluginInputDomainAdapter::Impl::initialise(size_t channels, size_t stepSize, siz
         delete[] m_ro;
         delete[] m_io;
 #endif
-        delete[] m_window;
+        delete m_window;
     }
 
     m_stepSize = int(stepSize);
@@ -301,12 +324,8 @@ PluginInputDomainAdapter::Impl::initialise(size_t channels, size_t stepSize, siz
     for (int c = 0; c < m_channels; ++c) {
         m_freqbuf[c] = new float[m_blockSize + 2];
     }
-    m_window = new double[m_blockSize];
 
-    for (int i = 0; i < m_blockSize; ++i) {
-        // Hanning window
-        m_window[i] = (0.50 - 0.50 * cos((2.0 * M_PI * i) / m_blockSize));
-    }
+    m_window = new Window<double>(convertType(m_windowType), m_blockSize);
 
 #ifdef HAVE_FFTW3
     m_ri = (double *)fftw_malloc(blockSize * sizeof(double));
@@ -426,6 +445,44 @@ PluginInputDomainAdapter::Impl::getProcessTimestampMethod() const
     return m_method;
 }
 
+void
+PluginInputDomainAdapter::Impl::setWindowType(WindowType t)
+{
+    if (m_windowType == t) return;
+    m_windowType = t;
+    if (m_window) {
+        delete m_window;
+        m_window = new Window<double>(convertType(m_windowType), m_blockSize);
+    }
+}
+
+PluginInputDomainAdapter::WindowType
+PluginInputDomainAdapter::Impl::getWindowType() const
+{
+    return m_windowType;
+}
+
+Window<double>::WindowType
+PluginInputDomainAdapter::Impl::convertType(WindowType t) const
+{
+    switch (t) {
+    case RectangularWindow:
+        return Window<double>::RectangularWindow;
+    case BartlettWindow:
+        return Window<double>::BartlettWindow;
+    case HammingWindow:
+        return Window<double>::HammingWindow;
+    case HanningWindow:
+        return Window<double>::HanningWindow;
+    case BlackmanWindow:
+        return Window<double>::BlackmanWindow;
+    case NuttallWindow:
+        return Window<double>::NuttallWindow;
+    case BlackmanHarrisWindow:
+        return Window<double>::BlackmanHarrisWindow;
+    }
+}
+
 Plugin::FeatureSet
 PluginInputDomainAdapter::Impl::process(const float *const *inputBuffers,
                                         RealTime timestamp)
@@ -451,9 +508,7 @@ PluginInputDomainAdapter::Impl::processShiftingTimestamp(const float *const *inp
 
     for (int c = 0; c < m_channels; ++c) {
 
-        for (int i = 0; i < m_blockSize; ++i) {
-            m_ri[i] = double(inputBuffers[c][i]) * m_window[i];
-        }
+        m_window->cut(inputBuffers[c], m_ri);
 
         for (int i = 0; i < m_blockSize/2; ++i) {
             // FFT shift
@@ -511,9 +566,7 @@ PluginInputDomainAdapter::Impl::processShiftingData(const float *const *inputBuf
 
     for (int c = 0; c < m_channels; ++c) {
 
-        for (int i = 0; i < m_blockSize; ++i) {
-            m_ri[i] = double(m_shiftBuffers[c][i]) * m_window[i];
-        }
+        m_window->cut(m_shiftBuffers[c], m_ri);
 
         for (int i = 0; i < m_blockSize/2; ++i) {
             // FFT shift
