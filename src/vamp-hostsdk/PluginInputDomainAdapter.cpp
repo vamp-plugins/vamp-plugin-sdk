@@ -480,6 +480,8 @@ PluginInputDomainAdapter::Impl::convertType(WindowType t) const
         return Window<double>::NuttallWindow;
     case BlackmanHarrisWindow:
         return Window<double>::BlackmanHarrisWindow;
+    default:
+	return Window<double>::HanningWindow;
     }
 }
 
