@@ -537,6 +537,7 @@ printFeatures(int frame, int sr, int output,
         for (unsigned int j = 0; j < features[output][i].values.size(); ++j) {
             (out ? *out : cout) << " " << features[output][i].values[j];
         }
+        (out ? *out : cout) << " " << features[output][i].label;
 
         (out ? *out : cout) << endl;
     }
