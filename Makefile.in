@@ -75,13 +75,13 @@ INSTALL_SDK_LIBS	  = $(INSTALL_PREFIX)/lib
 INSTALL_PLUGINS		  = $(INSTALL_PREFIX)/lib/vamp
 INSTALL_BINARIES	  = $(INSTALL_PREFIX)/bin 
 
-INSTALL_SDK_LIBNAME	  = libvamp-sdk.so.2.2.0
+INSTALL_SDK_LIBNAME	  = libvamp-sdk.so.2.3.0
 INSTALL_SDK_LINK_ABI	  = libvamp-sdk.so.2
 INSTALL_SDK_LINK_DEV	  = libvamp-sdk.so
 INSTALL_SDK_STATIC        = libvamp-sdk.a
 INSTALL_SDK_LA            = libvamp-sdk.la
 
-INSTALL_HOSTSDK_LIBNAME   = libvamp-hostsdk.so.3.2.0
+INSTALL_HOSTSDK_LIBNAME   = libvamp-hostsdk.so.3.3.0
 INSTALL_HOSTSDK_LINK_ABI  = libvamp-hostsdk.so.3
 INSTALL_HOSTSDK_LINK_DEV  = libvamp-hostsdk.so
 INSTALL_HOSTSDK_STATIC    = libvamp-hostsdk.a

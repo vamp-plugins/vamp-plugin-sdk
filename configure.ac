@@ -1,5 +1,5 @@
 
-AC_INIT(vamp-plugin-sdk, 2.2.1, cannam@all-day-breakfast.com)
+AC_INIT(vamp-plugin-sdk, 2.3.0, cannam@all-day-breakfast.com)
 
 AC_CONFIG_SRCDIR(vamp/vamp.h)
 AC_PROG_CXX
