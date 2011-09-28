@@ -2,6 +2,9 @@
 Version 2.3 (minor feature release):
 
   * Add window type property to PluginInputDomainAdapter
+  * Permit vamp-simple-host to use streaming input with indeterminate
+    length (thanks Dan Stowell)
+  * Print label as well as values from vamp-simple-host (thanks Dan)
 
 Version 2.2.1, 2011-04-05 (maintenance release):
 
