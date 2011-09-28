@@ -1,5 +1,5 @@
 
-Version 2.3 (minor feature release):
+Version 2.3, 2011-09-28 (minor feature release):
 
   * Add window type property to PluginInputDomainAdapter
   * Permit vamp-simple-host to use streaming input with indeterminate
