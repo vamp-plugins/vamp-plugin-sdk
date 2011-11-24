@@ -71,7 +71,7 @@ using Vamp::HostExt::PluginLoader;
 using Vamp::HostExt::PluginWrapper;
 using Vamp::HostExt::PluginInputDomainAdapter;
 
-#define HOST_VERSION "1.4"
+#define HOST_VERSION "1.5"
 
 enum Verbosity {
     PluginIds,
