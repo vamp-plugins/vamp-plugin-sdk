@@ -39,7 +39,7 @@ VAMP_SDK_DIR := ../vamp-plugin-sdk
 # CXX := g++-4.0
 # CXXFLAGS := -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4 -arch i386 -arch x86_64 -arch ppc -I$(VAMP_SDK_DIR) -Wall -fPIC
 # PLUGIN_EXT := .dylib
-# LDFLAGS := $(CXXFLAGS) -dynamiclib -install_name $(PLUGIN) $(VAMP_SDK_DIR)/libvamp-sdk.a -exported_symbols_list vamp-plugin.list
+# LDFLAGS := $(CXXFLAGS) -dynamiclib -install_name $(PLUGIN_LIBRARY_NAME)$(PLUGIN_EXT) $(VAMP_SDK_DIR)/libvamp-sdk.a -exported_symbols_list vamp-plugin.list
 
 
 ## Uncomment these for an OS/X universal binary (PPC and 32- and
@@ -48,14 +48,14 @@ VAMP_SDK_DIR := ../vamp-plugin-sdk
 
 # CXXFLAGS := -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 -arch i386 -arch x86_64 -arch ppc -I$(VAMP_SDK_DIR) -Wall -fPIC
 # PLUGIN_EXT := .dylib
-# LDFLAGS := $(CXXFLAGS) -dynamiclib -install_name $(PLUGIN) $(VAMP_SDK_DIR)/libvamp-sdk.a -exported_symbols_list vamp-plugin.list
+# LDFLAGS := $(CXXFLAGS) -dynamiclib -install_name $(PLUGIN_LIBRARY_NAME)$(PLUGIN_EXT) $(VAMP_SDK_DIR)/libvamp-sdk.a -exported_symbols_list vamp-plugin.list
 
 
 ##  Uncomment these for Linux using the standard tools:
 
 # CXXFLAGS := -I$(VAMP_SDK_DIR) -Wall -fPIC
 # PLUGIN_EXT := .so
-# LDFLAGS := -shared -Wl,-soname=$(PLUGIN) $(VAMP_SDK_DIR)/libvamp-sdk.a -Wl,--version-script=vamp-plugin.map
+# LDFLAGS := -shared -Wl,-soname=$(PLUGIN_LIBRARY_NAME)$(PLUGIN_EXT) $(VAMP_SDK_DIR)/libvamp-sdk.a -Wl,--version-script=vamp-plugin.map
 
 
 ##  Uncomment these for a cross-compile from Linux to Windows using MinGW:
@@ -63,7 +63,7 @@ VAMP_SDK_DIR := ../vamp-plugin-sdk
 # CXX := i586-mingw32msvc-g++
 # CXXFLAGS := -I$(VAMP_SDK_DIR) -Wall 
 # PLUGIN_EXT := .dll
-# LDFLAGS := --static-libgcc -Wl,-soname=$(PLUGIN) -shared $(VAMP_SDK_DIR)/libvamp-sdk.a
+# LDFLAGS := --static-libgcc -Wl,-soname=$(PLUGIN_LIBRARY_NAME)$(PLUGIN_EXT) -shared $(VAMP_SDK_DIR)/libvamp-sdk.a
 
 
 ##  Uncomment these for OpenSolaris using SunStudio compiler and GNU make:
@@ -71,18 +71,16 @@ VAMP_SDK_DIR := ../vamp-plugin-sdk
 # CXX := CC
 # CXXFLAGS := -G -I$(VAMP_SDK_DIR) +w -KPIC
 # PLUGIN_EXT := .so
-# LDFLAGS := -G -h$(PLUGIN) $(VAMP_SDK_DIR)/libvamp-sdk.a -Qoption ld -Mvamp-plugin.map
+# LDFLAGS := -G -h$(PLUGIN_LIBRARY_NAME)$(PLUGIN_EXT) $(VAMP_SDK_DIR)/libvamp-sdk.a -Qoption ld -Mvamp-plugin.map
 
 
 
 ##  All of the above
 
-PLUGIN := $(PLUGIN_LIBRARY_NAME)$(PLUGIN_EXT)
-
 PLUGIN_OBJECTS := $(PLUGIN_SOURCES:.cpp=.o)
 PLUGIN_OBJECTS := $(PLUGIN_OBJECTS:.c=.o)
 
-$(PLUGIN): $(PLUGIN_OBJECTS)
+$(PLUGIN_LIBRARY_NAME)$(PLUGIN_EXT): $(PLUGIN_OBJECTS)
 	   $(CXX) -o $@ $^ $(LDFLAGS)
 
 $(PLUGIN_OBJECTS): $(PLUGIN_HEADERS)
