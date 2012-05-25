@@ -3,14 +3,16 @@
 usage() {
     echo "Usage: $0 <version>"
     echo "  e.g. $0 2.2"
+    echo "  e.g. $0 2.2.1"
     exit 2;
 }
 
 version=$1
 [ -n "$version" ] || usage
 
-major=${version%.*}
-minor=${version#*.}
+major=${version%%.*} # 2.3 -> 2, 2.3.1 -> 2
+minor=${version#*.}  # 2.3 -> 3, 2.3.1 -> 3.1
+minor=${minor%.*}    # 3 -> 3, 3.1 -> 3
 
 sdkmajor=$major
 sdkminor=$minor
@@ -18,9 +20,13 @@ sdkminor=$minor
 hostmajor=$(($major+1)) # there has been one API change in a minor release
 hostminor=$minor
 
+acs="`echo $version | tr '.' '_'`"
+
 echo "Major version = $major, minor version = $minor"
 echo "SDK current = $sdkmajor, age = $sdkminor"
 echo "Host SDK current = $hostmajor, age = $hostminor"
+echo "Version string = $version"
+echo "acsymbols string = $acs"
 
 p="perl -i -p -e"
 
@@ -82,4 +88,10 @@ for pc in pkgconfig/*.pc.in ; do
     $p 's/(Version:) .*/$1 '$version'/' $pc
 done
 
-echo "Done, now check with e.g. svn diff -- and don't forget to update CHANGELOG"
+$p 's/^$/\nextern void libvampsdk_v_'$acs'_present(void) { }/' \
+    src/vamp-sdk/acsymbols.c
+
+$p 's/^$/\nextern void libvamphostsdk_v_'$acs'_present(void) { }/' \
+    src/vamp-hostsdk/acsymbols.c
+
+echo "Done, now check with e.g. hg diff -- and don't forget to update CHANGELOG"
