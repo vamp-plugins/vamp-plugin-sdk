@@ -164,7 +164,8 @@ HOSTSDK_HEADERS	= \
 
 SDK_OBJECTS	= \
 		$(SDKSRCDIR)/PluginAdapter.o \
-		$(SDKSRCDIR)/RealTime.o
+		$(SDKSRCDIR)/RealTime.o \
+		$(SDKSRCDIR)/acsymbols.o
 
 HOSTSDK_OBJECTS	= \
 		$(HOSTSDKSRCDIR)/PluginHostAdapter.o \
@@ -174,7 +175,8 @@ HOSTSDK_OBJECTS	= \
 		$(HOSTSDKSRCDIR)/PluginInputDomainAdapter.o \
 		$(HOSTSDKSRCDIR)/PluginLoader.o \
 		$(HOSTSDKSRCDIR)/PluginSummarisingAdapter.o \
-		$(HOSTSDKSRCDIR)/PluginWrapper.o
+		$(HOSTSDKSRCDIR)/PluginWrapper.o \
+		$(HOSTSDKSRCDIR)/acsymbols.o
 
 SDK_STATIC	= \
 		./libvamp-sdk.a

@@ -69,7 +69,7 @@ ARCHFLAGS = -mmacosx-version-min=$(MINVERSION) -arch x86_64 -arch i386
 
 # Compile flags
 #
-CXXFLAGS	= $(ARCHFLAGS) -O2 -Wall -I. -fPIC
+CXXFLAGS	= $(ARCHFLAGS) -O2 -Wall -I../10.6/inst/include -I. -fPIC
 
 # Link flags common to all link targets
 #
@@ -91,7 +91,7 @@ PLUGIN_EXT	= .dylib
 
 # Libraries required for the host.
 #
-HOST_LIBS	= ./libvamp-hostsdk.a -lsndfile -ldl
+HOST_LIBS	= ./libvamp-hostsdk.a -L../10.6/inst/lib -lsndfile -logg -lvorbis -lvorbisenc -lflac -ldl
 
 # Libraries required for the RDF template generator.
 #
@@ -143,7 +143,8 @@ HOSTSDK_HEADERS	= \
 
 SDK_OBJECTS	= \
 		$(SDKSRCDIR)/PluginAdapter.o \
-		$(SDKSRCDIR)/RealTime.o
+		$(SDKSRCDIR)/RealTime.o \
+		$(SDKSRCDIR)/acsymbols.o 
 
 HOSTSDK_OBJECTS	= \
 		$(HOSTSDKSRCDIR)/PluginHostAdapter.o \
@@ -153,7 +154,8 @@ HOSTSDK_OBJECTS	= \
 		$(HOSTSDKSRCDIR)/PluginInputDomainAdapter.o \
 		$(HOSTSDKSRCDIR)/PluginLoader.o \
 		$(HOSTSDKSRCDIR)/PluginSummarisingAdapter.o \
-		$(HOSTSDKSRCDIR)/PluginWrapper.o
+		$(HOSTSDKSRCDIR)/PluginWrapper.o \
+		$(HOSTSDKSRCDIR)/acsymbols.o 
 
 SDK_STATIC	= \
 		./libvamp-sdk.a
