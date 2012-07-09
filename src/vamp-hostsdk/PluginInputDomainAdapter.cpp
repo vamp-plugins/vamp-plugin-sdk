@@ -626,28 +626,15 @@ PluginInputDomainAdapter::Impl::fft(unsigned int n, bool inverse,
 	}
     }
 
-    static unsigned int tableSize = 0;
-    static int *table = 0;
+    int table[n];
 
-    if (tableSize != n) {
-
-	delete[] table;
-
-	table = new int[n];
-
-	for (i = 0; i < n; ++i) {
-	
-	    m = i;
-
-	    for (j = k = 0; j < bits; ++j) {
-		k = (k << 1) | (m & 1);
-		m >>= 1;
-	    }
-
-	    table[i] = k;
-	}
-
-	tableSize = n;
+    for (i = 0; i < n; ++i) {
+        m = i;
+        for (j = k = 0; j < bits; ++j) {
+            k = (k << 1) | (m & 1);
+            m >>= 1;
+        }
+        table[i] = k;
     }
 
     if (ii) {
