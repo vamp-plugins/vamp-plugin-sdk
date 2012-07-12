@@ -1,5 +1,5 @@
 
-Version 2.4, TBA (maintenance and minor feature release):
+Version 2.4, 2012-07-12 (maintenance and minor feature release):
 
   * Provide a simple FFT implementation as a convenience for plugins
   * Add symbols to make the library versions discoverable by autoconf
