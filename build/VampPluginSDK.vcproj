@@ -163,6 +163,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\vamp-sdk\FFT.h"
+				>
+			</File>
+			<File
 				RelativePath="..\vamp-sdk\RealTime.h"
 				>
 			</File>
@@ -184,6 +188,10 @@
 			>
 			<File
 				RelativePath="..\src\vamp-sdk\PluginAdapter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\vamp-sdk\FFT.cpp"
 				>
 			</File>
 			<File

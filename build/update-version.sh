@@ -60,17 +60,35 @@ $p 's/(current)=.*/$1='$hostmajor'/' \
 $p 's/(age)=.*/$1='$hostminor'/' \
     build/libvamp-hostsdk.la.in
 
+$p 's/(PROJECT_NUMBER[^=]*)=.*/$1= '$version'/' \
+    build/Doxyfile
+
 $p 's/(VAMP_API_VERSION).*/$1 '$major'/' \
     vamp/vamp.h
 
 $p 's/(VAMP_SDK_VERSION) +"[^"]*"/$1 "'$version'"/' \
-    vamp-sdk/PluginBase.h
+    vamp-sdk/plugguard.h
 
 $p 's/(VAMP_SDK_MAJOR_VERSION).*/$1 '$major'/' \
-    vamp-sdk/PluginBase.h
+    vamp-sdk/plugguard.h
 
 $p 's/(VAMP_SDK_MINOR_VERSION).*/$1 '$minor'/' \
-    vamp-sdk/PluginBase.h
+    vamp-sdk/plugguard.h
+
+$p 's/(VAMP_SDK_VERSION) +"[^"]*"/$1 "'$version'"/' \
+    vamp-hostsdk/hostguard.h
+
+$p 's/(VAMP_SDK_MAJOR_VERSION).*/$1 '$major'/' \
+    vamp-hostsdk/hostguard.h
+
+$p 's/(VAMP_SDK_MINOR_VERSION).*/$1 '$minor'/' \
+    vamp-hostsdk/hostguard.h
+
+$p 's/(VAMP_SDK_MAJOR_VERSION !=) [\d\.]+/$1 '$major'/' \
+    src/vamp-sdk/FFT.cpp
+
+$p 's/(VAMP_SDK_MINOR_VERSION !=) [\d\.]+/$1 '$minor'/' \
+    src/vamp-sdk/FFT.cpp
 
 $p 's/(VAMP_SDK_MAJOR_VERSION !=) [\d\.]+/$1 '$major'/' \
     src/vamp-sdk/PluginAdapter.cpp
@@ -88,9 +106,11 @@ for pc in pkgconfig/*.pc.in ; do
     $p 's/(Version:) .*/$1 '$version'/' $pc
 done
 
-$p 's/^$/\nextern void libvampsdk_v_'$acs'_present(void) { }/' \
+fgrep -q 'libvampsdk_v_'$acs'_present' src/vamp-sdk/acsymbols.c || \
+    $p 's/^$/\nextern void libvampsdk_v_'$acs'_present(void) { }/' \
     src/vamp-sdk/acsymbols.c
 
+fgrep -q 'libvamphostsdk_v_'$acs'_present' src/vamp-hostsdk/acsymbols.c || \
 $p 's/^$/\nextern void libvamphostsdk_v_'$acs'_present(void) { }/' \
     src/vamp-hostsdk/acsymbols.c
 

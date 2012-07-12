@@ -566,8 +566,6 @@ PluginSummarisingAdapter::Impl::accumulateFinalDurations()
 
         if (acount == 0) continue;
 
-        RealTime prevTimestamp = i->second;
-
 #ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
         std::cerr << "output " << output << ": ";
 #endif
@@ -632,7 +630,6 @@ void
 PluginSummarisingAdapter::Impl::segment()
 {
     SegmentBoundaries::iterator boundaryitr = m_boundaries.begin();
-    RealTime segmentStart = RealTime::zeroTime;
     
 #ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER_SEGMENT
     std::cerr << "segment: starting" << std::endl;

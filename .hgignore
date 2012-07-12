@@ -1,0 +1,15 @@
+syntax: glob
+doc/
+*.o
+autom4te*
+*.m4
+*.a
+*.so
+*.orig
+*~
+host/vamp-simple-host
+rdf/generator/vamp-rdf-template-generator
+config.log
+config.status
+Makefile
+

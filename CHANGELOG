@@ -1,8 +1,13 @@
 
-Version 2.3.1, TBA (maintenance release):
+Version 2.4, TBA (maintenance and minor feature release):
 
+  * Provide a simple FFT implementation as a convenience for plugins
+  * Add symbols to make the library versions discoverable by autoconf
+    using C linkage
   * Fix failure to open plugins from Unicode builds on Windows (thanks
     RJ Ryan)
+  * Fix thread-safety issue in PluginInputDomainAdapter
+  * Add build for OS/X 10.7+/Xcode 4; remove build for OpenSolaris
 
 Version 2.3, 2011-09-28 (minor feature release):
 

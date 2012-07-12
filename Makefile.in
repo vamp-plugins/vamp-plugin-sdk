@@ -75,13 +75,13 @@ INSTALL_SDK_LIBS	  = $(INSTALL_PREFIX)/lib
 INSTALL_PLUGINS		  = $(INSTALL_PREFIX)/lib/vamp
 INSTALL_BINARIES	  = $(INSTALL_PREFIX)/bin 
 
-INSTALL_SDK_LIBNAME	  = libvamp-sdk.so.2.3.0
+INSTALL_SDK_LIBNAME	  = libvamp-sdk.so.2.4.0
 INSTALL_SDK_LINK_ABI	  = libvamp-sdk.so.2
 INSTALL_SDK_LINK_DEV	  = libvamp-sdk.so
 INSTALL_SDK_STATIC        = libvamp-sdk.a
 INSTALL_SDK_LA            = libvamp-sdk.la
 
-INSTALL_HOSTSDK_LIBNAME   = libvamp-hostsdk.so.3.3.0
+INSTALL_HOSTSDK_LIBNAME   = libvamp-hostsdk.so.3.4.0
 INSTALL_HOSTSDK_LINK_ABI  = libvamp-hostsdk.so.3
 INSTALL_HOSTSDK_LINK_DEV  = libvamp-hostsdk.so
 INSTALL_HOSTSDK_STATIC    = libvamp-hostsdk.a
@@ -119,6 +119,7 @@ SDK_HEADERS	= \
 		$(SDKDIR)/PluginAdapter.h \
 		$(SDKDIR)/PluginBase.h \
 		$(SDKDIR)/RealTime.h \
+		$(SDKDIR)/FFT.h \
 		$(SDKDIR)/plugguard.h \
 		$(SDKDIR)/vamp-sdk.h
 
@@ -139,6 +140,7 @@ HOSTSDK_HEADERS	= \
 SDK_OBJECTS	= \
 		$(SDKSRCDIR)/PluginAdapter.o \
 		$(SDKSRCDIR)/RealTime.o \
+		$(SDKSRCDIR)/FFT.o \
 		$(SDKSRCDIR)/acsymbols.o
 
 HOSTSDK_OBJECTS	= \
@@ -363,6 +365,7 @@ src/vamp-sdk/PluginAdapter.o: vamp-sdk/PluginAdapter.h vamp/vamp.h
 src/vamp-sdk/PluginAdapter.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
 src/vamp-sdk/PluginAdapter.o: vamp-sdk/plugguard.h vamp-sdk/RealTime.h
 src/vamp-sdk/RealTime.o: ./vamp-sdk/RealTime.h vamp-sdk/plugguard.h
+src/vamp-sdk/FFT.o: src/vamp-sdk/FFT.cpp vamp-sdk/FFT.h src/vamp-sdk/FFTimpl.cpp
 src/vamp-hostsdk/PluginBufferingAdapter.o: ./vamp-hostsdk/PluginBufferingAdapter.h
 src/vamp-hostsdk/PluginBufferingAdapter.o: ./vamp-hostsdk/PluginWrapper.h
 src/vamp-hostsdk/PluginBufferingAdapter.o: ./vamp-hostsdk/Plugin.h
@@ -387,6 +390,8 @@ src/vamp-hostsdk/PluginInputDomainAdapter.o: vamp-sdk/Plugin.h
 src/vamp-hostsdk/PluginInputDomainAdapter.o: vamp-sdk/PluginBase.h
 src/vamp-hostsdk/PluginInputDomainAdapter.o: vamp-sdk/plugguard.h
 src/vamp-hostsdk/PluginInputDomainAdapter.o: vamp-sdk/RealTime.h
+src/vamp-hostsdk/PluginInputDomainAdapter.o: vamp-sdk/FFT.h
+src/vamp-hostsdk/PluginInputDomainAdapter.o: src/vamp-sdk/FFTimpl.cpp
 src/vamp-hostsdk/PluginLoader.o: ./vamp-hostsdk/PluginHostAdapter.h
 src/vamp-hostsdk/PluginLoader.o: vamp/vamp.h vamp-sdk/Plugin.h
 src/vamp-hostsdk/PluginLoader.o: vamp-sdk/PluginBase.h

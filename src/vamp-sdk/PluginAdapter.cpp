@@ -39,7 +39,7 @@
 #include <cstring>
 #include <cstdlib>
 
-#if ( VAMP_SDK_MAJOR_VERSION != 2 || VAMP_SDK_MINOR_VERSION != 3 )
+#if ( VAMP_SDK_MAJOR_VERSION != 2 || VAMP_SDK_MINOR_VERSION != 4 )
 #error Unexpected version of Vamp SDK header included
 #endif
 

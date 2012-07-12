@@ -145,6 +145,7 @@ SDK_HEADERS	= \
 		$(SDKDIR)/PluginAdapter.h \
 		$(SDKDIR)/PluginBase.h \
 		$(SDKDIR)/RealTime.h \
+		$(SDKDIR)/FFT.h \
 		$(SDKDIR)/plugguard.h \
 		$(SDKDIR)/vamp-sdk.h
 
@@ -165,6 +166,7 @@ HOSTSDK_HEADERS	= \
 SDK_OBJECTS	= \
 		$(SDKSRCDIR)/PluginAdapter.o \
 		$(SDKSRCDIR)/RealTime.o \
+		$(SDKSRCDIR)/FFT.o \
 		$(SDKSRCDIR)/acsymbols.o
 
 HOSTSDK_OBJECTS	= \

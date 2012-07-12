@@ -6,7 +6,7 @@
     An API for audio analysis and feature extraction plugins.
 
     Centre for Digital Music, Queen Mary, University of London.
-    Copyright 2006 Chris Cannam.
+    Copyright 2006-2012 Chris Cannam and QMUL.
   
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
@@ -34,40 +34,37 @@
     authorization.
 */
 
-#ifndef _VAMP_HOSTSDK_HOSTGUARD_H_
-#define _VAMP_HOSTSDK_HOSTGUARD_H_
+#include <vamp-sdk/FFT.h>
 
-#ifdef _VAMP_IN_PLUGINSDK
-#error You have included headers from both vamp-sdk and vamp-hostsdk in the same source file. Please include only vamp-sdk headers in plugin code, and only vamp-hostsdk headers in host code.
-#else
+#include <cmath>
 
-#define _VAMP_IN_HOSTSDK
-
-#define VAMP_SDK_VERSION "2.4"
-#define VAMP_SDK_MAJOR_VERSION 2
-#define VAMP_SDK_MINOR_VERSION 4
-
-#ifdef _VAMP_NO_HOST_NAMESPACE
-#define _VAMP_SDK_HOSTSPACE_BEGIN(h)
-#define _VAMP_SDK_HOSTSPACE_END(h)
-#define _VAMP_SDK_PLUGSPACE_BEGIN(h)
-#define _VAMP_SDK_PLUGSPACE_END(h)
-#else
-#define _VAMP_SDK_HOSTSPACE_BEGIN(h) \
-	namespace _VampHost {
-
-#define _VAMP_SDK_HOSTSPACE_END(h) \
-	} \
-	using namespace _VampHost;
-#define _VAMP_SDK_PLUGSPACE_BEGIN(h) \
-	namespace _VampHost {
-
-#define _VAMP_SDK_PLUGSPACE_END(h) \
-	} \
-	using namespace _VampHost;
+#if ( VAMP_SDK_MAJOR_VERSION != 2 || VAMP_SDK_MINOR_VERSION != 4 )
+#error Unexpected version of Vamp SDK header included
 #endif
 
-#endif
+_VAMP_SDK_PLUGSPACE_BEGIN(FFT.cpp)
 
-#endif
+namespace Vamp {
+
+#include "FFTimpl.cpp"
+
+void
+FFT::forward(unsigned int n,
+	     const double *ri, const double *ii,
+	     double *ro, double *io)
+{
+    fft(n, false, ri, ii, ro, io);
+}
+
+void
+FFT::inverse(unsigned int n,
+	     const double *ri, const double *ii,
+	     double *ro, double *io)
+{
+    fft(n, true, ri, ii, ro, io);
+}
+
+}
+
+_VAMP_SDK_PLUGSPACE_END(FFT.cpp)
 
