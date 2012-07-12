@@ -69,7 +69,8 @@ ARCHFLAGS = -mmacosx-version-min=$(MINVERSION) -arch x86_64 -arch i386
 
 # Compile flags
 #
-CXXFLAGS	= $(ARCHFLAGS) -O2 -Wall -I../10.6/inst/include -I. -fPIC
+CFLAGS		= $(ARCHFLAGS) -fPIC
+CXXFLAGS	= $(ARCHFLAGS) -O2 -Wall -I. -I../10.6/inst/include -fPIC
 
 # Link flags common to all link targets
 #

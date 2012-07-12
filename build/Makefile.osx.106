@@ -90,6 +90,7 @@ ARCHFLAGS = $(SDKFLAGS) -arch i386 -arch x86_64 -arch ppc
 
 # Compile flags
 #
+CFLAGS		= $(ARCHFLAGS) -fPIC
 CXXFLAGS	= $(ARCHFLAGS) -O2 -Wall -I. -fPIC
 
 # Link flags common to all link targets
