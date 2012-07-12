@@ -42,6 +42,11 @@
 #error Unexpected version of Vamp SDK header included
 #endif
 
+#ifdef _MSC_VER
+#include <stdlib.h>
+#include <malloc.h>
+#endif
+
 _VAMP_SDK_PLUGSPACE_BEGIN(FFT.cpp)
 
 namespace Vamp {
