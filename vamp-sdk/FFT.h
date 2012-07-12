@@ -69,9 +69,9 @@ public:
      *
      * All input and output arrays are of size n.
      */
-    void forward(unsigned int n,
-		 const double *ri, const double *ii,
-		 double *ro, double *io);
+    static void forward(unsigned int n,
+                        const double *ri, const double *ii,
+                        double *ro, double *io);
 
     /**
      * Calculate an inverse transform of size n.
@@ -86,9 +86,9 @@ public:
      *
      * All input and output arrays are of size n.
      */
-    void inverse(unsigned int n,
-		 const double *ri, const double *ii,
-		 double *ro, double *io);
+    static void inverse(unsigned int n,
+                        const double *ri, const double *ii,
+                        double *ro, double *io);
 };
 
 }
