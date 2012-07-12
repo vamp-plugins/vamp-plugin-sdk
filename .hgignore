@@ -17,11 +17,9 @@ re:^build/Debug/
 re:^build/Release/
 *.zip
 build/UpgradeLog*
-*.vcxproj
 *.suo
 *.user
 *.sdf
-*.sln
 *.filters
 re:^build/_UpgradeReport_Files/
 *.ipch
