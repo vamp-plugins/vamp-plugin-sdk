@@ -265,7 +265,11 @@ PluginHostAdapter::getCurrentProgram() const
     if (!m_handle) return "";
 
     int pn = m_descriptor->getCurrentProgram(m_handle);
-    return m_descriptor->programs[pn];
+    if (pn < (int)m_descriptor->programCount) {
+        return m_descriptor->programs[pn];
+    } else {
+        return "";
+    }
 }
 
 void
