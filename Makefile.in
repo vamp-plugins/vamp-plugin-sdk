@@ -38,6 +38,7 @@ default:	@TARGETS@
 
 # Compile flags
 #
+CC		= @CC@
 CXX		= @CXX@
 CXXFLAGS	= -I. @CXXFLAGS@ @SNDFILE_CFLAGS@
 
