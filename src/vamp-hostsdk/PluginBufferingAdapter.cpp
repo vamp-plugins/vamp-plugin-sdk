@@ -617,11 +617,11 @@ PluginBufferingAdapter::Impl::adjustFixedRateFeatureTime(int outputNo,
         double secs = feature.timestamp.sec;
         secs += feature.timestamp.nsec / 1e9;
         m_fixedRateFeatureNos[outputNo] =
-            int(secs * m_outputs[outputNo].sampleRate + 0.5);
+            int(secs * double(m_outputs[outputNo].sampleRate) + 0.5);
     }
 
     feature.timestamp = RealTime::fromSeconds
-        (m_fixedRateFeatureNos[outputNo] / m_outputs[outputNo].sampleRate);
+        (m_fixedRateFeatureNos[outputNo] / double(m_outputs[outputNo].sampleRate));
 
     feature.hasTimestamp = true;
     
