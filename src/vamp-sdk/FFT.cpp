@@ -38,7 +38,7 @@
 
 #include <cmath>
 
-#if ( VAMP_SDK_MAJOR_VERSION != 2 || VAMP_SDK_MINOR_VERSION != 4 )
+#if ( VAMP_SDK_MAJOR_VERSION != 2 || VAMP_SDK_MINOR_VERSION != 5 )
 #error Unexpected version of Vamp SDK header included
 #endif
 
