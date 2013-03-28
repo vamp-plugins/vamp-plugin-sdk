@@ -1,3 +1,12 @@
+Version 2.5, 2013-03-28 (maintenance release):
+
+  * Fix incorrect handling of FixedSampleRate outputs in the
+    PluginBufferingAdapter. Un-timestamped features on these outputs
+    were incorrectly being timestamped from the process timestamp,
+    where they should have been timed relative to the previous
+    feature on the output according to the output's sample rate.
+  * Fix return of uninitialised memory through getCurrentProgram
+    when plugin specifies no programs
 
 Version 2.4, 2012-07-12 (maintenance and minor feature release):
 
