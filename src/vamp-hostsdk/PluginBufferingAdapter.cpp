@@ -616,7 +616,6 @@ PluginBufferingAdapter::Impl::adjustFixedRateFeatureTime(int outputNo,
     if (feature.hasTimestamp) {
         double secs = feature.timestamp.sec;
         secs += feature.timestamp.nsec / 1e9;
-        double eps = 0.00001;
         m_fixedRateFeatureNos[outputNo] =
             int(secs * m_outputs[outputNo].sampleRate + 0.5);
     }
