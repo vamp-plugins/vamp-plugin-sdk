@@ -1,4 +1,4 @@
-Version 2.5, 2013-03-28 (maintenance release):
+Version 2.5, 2013-05-08 (maintenance release):
 
   * Fix incorrect handling of FixedSampleRate outputs in the
     PluginBufferingAdapter. Un-timestamped features on these outputs
@@ -7,6 +7,8 @@ Version 2.5, 2013-03-28 (maintenance release):
     feature on the output according to the output's sample rate.
   * Fix return of uninitialised memory through getCurrentProgram
     when plugin specifies no programs
+  * Ensure output sample rate is initialised (to 0) for variable-rate
+    outputs where the plugin forgets to set a rate
 
 Version 2.4, 2012-07-12 (maintenance and minor feature release):
 
