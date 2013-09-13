@@ -461,7 +461,7 @@ int runPlugin(string myname, string soname, string id,
 
         if (sfinfo.frames > 0){
             int pp = progress;
-            progress = lrintf((float(currentStep * stepSize) / sfinfo.frames) * 100.f);
+            progress = (int)((float(currentStep * stepSize) / sfinfo.frames) * 100.f + 0.5f);
             if (progress != pp && out) {
                 cerr << "\r" << progress << "%";
             }
