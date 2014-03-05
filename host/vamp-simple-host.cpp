@@ -114,6 +114,7 @@ void usage(const char *name)
         "  " << name << " --list\n\n"
         "    -- List the plugin libraries and Vamp plugins in the library search path\n"
         "       in a verbose human-readable format.\n\n"
+        "  " << name << " -L\n"
         "  " << name << " --list-full\n\n"
         "    -- List all data reported by all the Vamp plugins in the library search\n"
         "       path in a very verbose human-readable format.\n\n"
@@ -161,7 +162,7 @@ int main(int argc, char **argv)
             enumeratePlugins(PluginInformation);
             return 0;
 
-        } else if (!strcmp(argv[1], "--list-full")) {
+        } else if (!strcmp(argv[1], "-L") || !strcmp(argv[1], "--list-full")) {
 
             enumeratePlugins(PluginInformationDetailed);
             return 0;
