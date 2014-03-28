@@ -69,6 +69,7 @@
  */
 #ifdef HAVE_FFTW3
 #include <fftw3.h>
+#warning "Compiling with FFTW3 support will result in a GPL binary"
 #else
 #include "../vamp-sdk/FFTimpl.cpp"
 #endif
