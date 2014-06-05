@@ -93,7 +93,7 @@ string describe_library(string libname, vector<Plugin *> plugins)
 {
     string res=\
         ":"+libname+" a  vamp:PluginLibrary ;\n\
-    vamp:identifier \""+libname+"\" ";
+    vamp:identifier \""+libname+"\"";
 
     for (size_t i = 0; i < plugins.size(); ++i) {
         res += " ; \n\
@@ -101,6 +101,7 @@ string describe_library(string libname, vector<Plugin *> plugins)
     }
 
     res += " ; \n\
+#   dc:title \"\" ; # Place a descriptive name for the plugin library here and uncomment\n\
 #   foaf:page <Place more-information HTML page URL here and uncomment> ;\n\
     .\n\n";
     return res;
