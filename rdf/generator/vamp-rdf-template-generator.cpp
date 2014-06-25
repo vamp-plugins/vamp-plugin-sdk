@@ -30,8 +30,7 @@ using std::ios;
 using Vamp::HostExt::PluginLoader;
 using Vamp::Plugin;
 
-//???
-string programURI = "http://www.vamp-plugins.org/doap.rdf#template-generator";
+string programURI = "http://vamp-plugins.org/rdf/template-generator";
 
 void usage()
 {
@@ -68,6 +67,7 @@ string describe_namespaces(string pluginBundleBaseURI, string libname)
 @prefix dc:       <http://purl.org/dc/elements/1.1/> .\n\
 @prefix af:       <http://purl.org/ontology/af/> .\n\
 @prefix foaf:     <http://xmlns.com/foaf/0.1/> .\n\
+@prefix doap:     <http://usefulinc.com/ns/doap#> .\n\
 @prefix cc:       <http://web.resource.org/cc/> .\n\
 @prefix :         <#> .\n\n";
 	
@@ -77,44 +77,93 @@ string describe_namespaces(string pluginBundleBaseURI, string libname)
 string describe_doc(string describerURI, string pluginBundleBaseURI,
                     string libname)
 {
-    string res=\
-        "<>  a   vamp:PluginDescription ;\n";
+    string res = "\n## Properties of this document\n\n\
+<> a vamp:PluginDescription ;\n";
+
     if (describerURI != "") {
         res += "    foaf:maker          <"+describerURI+"> ;\n";
     }
+
     res += "\
-    foaf:maker          <"+programURI+"> ;\n\
-    foaf:primaryTopic   <"+pluginBundleBaseURI+libname+"> .\n\n";
+    foaf:maker         <"+programURI+"> ;\n\
+    foaf:primaryTopic  <"+pluginBundleBaseURI+libname+"> .\n\n";
     return res;
 }
 
+bool have_multiple_makers(vector<Plugin *> plugins)
+{
+    string firstMaker = "";
+    for (size_t i = 0; i < plugins.size(); ++i) {
+        if (i == 0) {
+            firstMaker = plugins[i]->getMaker();
+        } else if (plugins[i]->getMaker() != firstMaker) {
+            return true;
+        }
+    }
+    return false;
+}
+
+string describe_maker(vector<Plugin *> plugins, bool multipleMakers)
+{
+    string res = "\n## Maker of the whole plugin library\n\n\
+:library_maker\n";
+
+    if (!multipleMakers) {
+        string name;
+        if (!plugins.empty()) {
+            name = plugins[0]->getMaker();
+        }
+        res += "\
+    foaf:name  \"" + name + "\" ;\n\
+#   foaf:page  <> ;  # Place maker's homepage URL in here and uncomment\n\
+#   foaf:logo  <> ;  # URL of an image here, if you happen to have a logo\n";
+
+    } else {
+        res += "\
+    foaf:name  \"Multiple makers\" ;\n";
+    }
+
+    res += "    .\n\n";
+    return res;
+}
 
 string describe_library(string libname, vector<Plugin *> plugins)
 {
-    string res=\
-        ":"+libname+" a  vamp:PluginLibrary ;\n\
-    vamp:identifier \""+libname+"\"";
+    string res = "\n## Properties of the plugin library, and references to the plugins it contains\n\n\
+plugbase:library a vamp:PluginLibrary ;\n\
+    vamp:identifier        \""+libname+"\" ;\n\
+    foaf:maker             :library_maker";
 
     for (size_t i = 0; i < plugins.size(); ++i) {
         res += " ; \n\
-    vamp:available_plugin plugbase:"+plugins[i]->getIdentifier();
+    vamp:available_plugin  plugbase:"+plugins[i]->getIdentifier();
     }
 
     res += " ; \n\
-#   dc:title \"\" ; # Place a descriptive name for the plugin library here and uncomment\n\
-#   foaf:page <Place more-information HTML page URL here and uncomment> ;\n\
+#   dc:title               \"\" ;  # Place library name here and uncomment\n\
+#   dc:description         \"\" ;  # Place library description here and uncomment\n\
+#   foaf:page              <> ;  # Place more-info HTML page URL here and uncomment\n\
+#   doap:download-page     <> ;  # Place download HTML page URL here and uncomment\n\
     .\n\n";
     return res;
 }
 
-string describe_plugin(Plugin* plugin)
+string describe_plugin(Plugin* plugin, bool multipleMakers)
 {
-    string res=\
-        "plugbase:"+plugin->getIdentifier()+" a   vamp:Plugin ;\n\
+    string res = "\n## Properties of the " + plugin->getName() + " plugin\n\n\
+plugbase:"+plugin->getIdentifier()+" a vamp:Plugin ;\n\
     dc:title              \""+plugin->getName()+"\" ;\n\
     vamp:name             \""+plugin->getName()+"\" ;\n\
     dc:description        \"\"\""+plugin->getDescription()+"\"\"\" ;\n\
-    foaf:maker            [ foaf:name \""+plugin->getMaker()+"\" ] ; # FIXME could give plugin author's URI here\n\
+    foaf:maker            ";
+
+    if (multipleMakers) {
+        res += "[ foaf:name \""+plugin->getMaker()+"\" ] ;\n";
+    } else {
+        res += ":library_maker ;\n";
+    }
+
+    res += "\
     dc:rights             \"\"\""+plugin->getCopyright()+"\"\"\" ;\n\
 #   cc:license            <Place plugin license URI here and uncomment> ; \n\
     vamp:identifier       \""+plugin->getIdentifier()+"\" ;\n\
@@ -125,9 +174,7 @@ string describe_plugin(Plugin* plugin)
     else
         res+="    vamp:input_domain     vamp:TimeDomain ;\n";
 	
-
     Plugin::ParameterList params = plugin->getParameterDescriptors();
-    if (!params.empty()) res+="\n";
     for (Plugin::ParameterList::const_iterator i = params.begin(); i != params.end(); i++)
         res+="    vamp:parameter   plugbase:"+plugin->getIdentifier()+"_param_"+(*i).identifier+" ;\n";
     if (!params.empty()) res+="\n";
@@ -355,9 +402,13 @@ string describe_output(Plugin *plugin, Plugin::OutputDescriptor o)
 string describe(vector<Plugin *> plugins, string pluginBundleBaseURI,
                 string describerURI, string libname)
 {
+    bool multipleMakers = have_multiple_makers(plugins);
+
     string res = describe_namespaces(pluginBundleBaseURI, libname);
 	
     res += describe_doc(describerURI, pluginBundleBaseURI, libname);
+	
+    res += describe_maker(plugins, multipleMakers);
 	
     res += describe_library(libname, plugins);
 
@@ -365,7 +416,7 @@ string describe(vector<Plugin *> plugins, string pluginBundleBaseURI,
 
         Plugin *plugin = plugins[i];
 
-        res += describe_plugin(plugin);
+        res += describe_plugin(plugin, multipleMakers);
 	
         Plugin::ParameterList params = plugin->getParameterDescriptors();
         for (Plugin::ParameterList::const_iterator i = params.begin(); i != params.end(); i++)
