@@ -6,6 +6,7 @@
 @prefix dc:       <http://purl.org/dc/elements/1.1/> .
 @prefix af:       <http://purl.org/ontology/af/> .
 @prefix foaf:     <http://xmlns.com/foaf/0.1/> .
+@prefix doap: 	  <http://usefulinc.com/ns/doap#> .
 @prefix cc:       <http://web.resource.org/cc/> .
 @prefix :         <#> .
 
@@ -13,15 +14,30 @@
     foaf:maker          <http://www.vamp-plugins.org/doap.rdf#template-generator> ;
     foaf:primaryTopic   <http://vamp-plugins.org/rdf/plugins/vamp-example-plugins> .
 
+:maker
+    foaf:name "Vamp SDK Example Plugins" ;
+    foaf:page <http://vamp-plugins.org/> .
+
 :vamp-example-plugins a  vamp:PluginLibrary ;
     vamp:identifier "vamp-example-plugins"  ; 
+    dc:title "Vamp example plugins" ;
+    dc:description """A set of simple plugins as included with the Vamp developers kit. Amplitude tracker, simple percussion onset detector, tempo estimator, spectral centroid, power spectrum, and zero-crossing counter.""" ;
     foaf:page <http://www.vamp-plugins.org/plugin-doc/vamp-example-plugins.html> ;
+    doap:download-page <http://vamp-plugins.org/develop.html> ;
     vamp:available_plugin plugbase:amplitudefollower ; 
     vamp:available_plugin plugbase:fixedtempo ; 
     vamp:available_plugin plugbase:percussiononsets ; 
     vamp:available_plugin plugbase:powerspectrum ; 
     vamp:available_plugin plugbase:spectralcentroid ; 
     vamp:available_plugin plugbase:zerocrossing ; 
+    foaf:maker            :maker ;
+    dc:title "Vamp Example Plugins" ;
+    dc:description """Example plugins from the Vamp Plugin SDK""" ;
+    vamp:has_source true ;
+    vamp:has_binary "linux32" ;
+    vamp:has_binary "linux64" ;
+    vamp:has_binary "osx" ;
+    vamp:has_binary "win32" ;
     .
 
 plugbase:amplitudefollower a   vamp:Plugin ;
@@ -29,7 +45,7 @@ plugbase:amplitudefollower a   vamp:Plugin ;
     vamp:name             "Amplitude Follower" ;
     dc:description        "Track the amplitude of the audio signal" ;
     foaf:page <http://www.vamp-plugins.org/plugin-doc/vamp-example-plugins.html#amplitudefollower> ;
-    foaf:maker            [ foaf:name "Vamp SDK Example Plugins" ] ;
+    foaf:maker            :maker ;
     cc:license            <http://creativecommons.org/licenses/BSD/> ;
     dc:rights             "Freely redistributable (BSD license)" ;
     vamp:identifier       "amplitudefollower" ;
@@ -77,7 +93,7 @@ plugbase:fixedtempo a   vamp:Plugin ;
     vamp:name             "Simple Fixed Tempo Estimator" ;
     dc:description        "Study a short section of audio and estimate its tempo, assuming the tempo is constant" ;
     foaf:page <http://www.vamp-plugins.org/plugin-doc/vamp-example-plugins.html#fixedtempo> ;
-    foaf:maker            [ foaf:name "Vamp SDK Example Plugins" ] ;
+    foaf:maker            :maker ;
     cc:license            <http://creativecommons.org/licenses/BSD/> ;
     dc:rights             "Freely redistributable (BSD license)" ;
     vamp:identifier       "fixedtempo" ;
@@ -149,7 +165,7 @@ plugbase:percussiononsets a   vamp:Plugin ;
     vamp:name             "Simple Percussion Onset Detector" ;
     dc:description        "Detect percussive note onsets by identifying broadband energy rises" ;
     foaf:page <http://www.vamp-plugins.org/plugin-doc/vamp-example-plugins.html#percussiononsets> ;
-    foaf:maker            [ foaf:name "Vamp SDK Example Plugins" ] ; 
+    foaf:maker            :maker ; 
     cc:license            <http://creativecommons.org/licenses/BSD/> ;
     dc:rights             "Freely redistributable (BSD license)" ;
     vamp:identifier       "percussiononsets" ;
@@ -211,7 +227,7 @@ plugbase:powerspectrum a   vamp:Plugin ;
     vamp:name             "Simple Power Spectrum" ;
     dc:description        "Return the power spectrum of a signal" ;
     foaf:page <http://www.vamp-plugins.org/plugin-doc/vamp-example-plugins.html#powerspectrum> ;
-    foaf:maker            [ foaf:name "Vamp SDK Example Plugins" ] ; 
+    foaf:maker            :maker ; 
     cc:license            <http://creativecommons.org/licenses/BSD/> ;
     dc:rights             "Freely redistributable (BSD license)" ;
     vamp:identifier       "powerspectrum" ;
@@ -232,7 +248,7 @@ plugbase:spectralcentroid a   vamp:Plugin ;
     vamp:name             "Spectral Centroid" ;
     dc:description        "Calculate the centroid frequency of the spectrum of the input signal" ;
     foaf:page <http://www.vamp-plugins.org/plugin-doc/vamp-example-plugins.html#spectralcentroid> ;
-    foaf:maker            [ foaf:name "Vamp SDK Example Plugins" ] ; 
+    foaf:maker            :maker ; 
     cc:license            <http://creativecommons.org/licenses/BSD/> ;
     dc:rights             "Freely redistributable (BSD license)" ;
     vamp:identifier       "spectralcentroid" ;
@@ -268,7 +284,7 @@ plugbase:zerocrossing a   vamp:Plugin ;
     vamp:name             "Zero Crossings" ;
     dc:description        "Detect and count zero crossing points" ;
     foaf:page <http://www.vamp-plugins.org/plugin-doc/vamp-example-plugins.html#zerocrossing> ;
-    foaf:maker            [ foaf:name "Vamp SDK Example Plugins" ] ; 
+    foaf:maker            :maker ; 
     cc:license            <http://creativecommons.org/licenses/BSD/> ;
     dc:rights             "Freely redistributable (BSD license)" ;
     vamp:identifier       "zerocrossing" ;
