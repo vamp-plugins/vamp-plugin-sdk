@@ -61,10 +61,12 @@ default:	all
 
 # Tools selection
 #
-CXX		= i586-mingw32msvc-g++
-LD		= i586-mingw32msvc-g++
-AR		= i586-mingw32msvc-ar
-RANLIB		= i586-mingw32msvc-ranlib
+TOOLPREFIX     ?= i586-mingw32msvc-
+CXX		= $(TOOLPREFIX)g++
+CC		= $(TOOLPREFIX)gcc
+LD		= $(TOOLPREFIX)g++
+AR		= $(TOOLPREFIX)ar
+RANLIB		= $(TOOLPREFIX)ranlib
 
 # Compile flags
 #
@@ -88,7 +90,7 @@ RDFGEN_LIBS	= ./libvamp-hostsdk.a
 
 # Flags required to tell the compiler to create a dynamically loadable object
 #
-DYNAMIC_LDFLAGS		= --static-libgcc -shared -Wl,-Bsymbolic
+DYNAMIC_LDFLAGS		= -shared -Wl,-Bsymbolic
 
 # Flags for building specific plugin and library targets.  We need to
 # tell the linker the formal name for the library, and for plugins we
@@ -96,8 +98,8 @@ DYNAMIC_LDFLAGS		= --static-libgcc -shared -Wl,-Bsymbolic
 # hidden except for the public entry point (making for a tidier library).
 #
 PLUGIN_LDFLAGS		= $(DYNAMIC_LDFLAGS) -Wl,--version-script=build/vamp-plugin.map
-SDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS) -Wl,-soname=$(INSTALL_SDK_LIBNAME)
-HOSTSDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS) -Wl,-soname=$(INSTALL_HOSTSDK_LIBNAME)
+SDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS)
+HOSTSDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS)
 
 
 ### End of user-serviceable parts
