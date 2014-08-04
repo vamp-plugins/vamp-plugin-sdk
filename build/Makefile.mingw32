@@ -70,7 +70,7 @@ RANLIB		= $(TOOLPREFIX)ranlib
 
 # Compile flags
 #
-CXXFLAGS	= -O2 -Wall -I. -I../include
+CXXFLAGS	:= $(CXXFLAGS) -O2 -Wall -fno-exceptions -I. -I../include
 
 # Libraries required for the plugins.
 #
@@ -82,11 +82,15 @@ PLUGIN_EXT	= .dll
 
 # Libraries required for the host.
 #
-HOST_LIBS	= ./libvamp-hostsdk.a -L../lib -lsndfile
+HOST_LIBS	= ./libvamp-hostsdk.a -L../lib -lsndfile -lvorbis -logg -lFLAC -lvorbisenc -lws2_32
 
 # Libraries required for the RDF template generator.
 #
 RDFGEN_LIBS	= ./libvamp-hostsdk.a 
+
+# General linker flags
+#
+LDFLAGS		:= $(LDFLAGS) -fno-exceptions -static-libgcc
 
 # Flags required to tell the compiler to create a dynamically loadable object
 #
@@ -193,13 +197,13 @@ HOST_OBJECTS	= \
 		$(HOSTDIR)/vamp-simple-host.o
 
 HOST_TARGET	= \
-		$(HOSTDIR)/vamp-simple-host
+		$(HOSTDIR)/vamp-simple-host.exe
 
 RDFGEN_OBJECTS	= \
 		$(RDFGENDIR)/vamp-rdf-template-generator.o
 
 RDFGEN_TARGET	= \
-		$(RDFGENDIR)/vamp-rdf-template-generator
+		$(RDFGENDIR)/vamp-rdf-template-generator.exe
 
 sdk:		sdkstatic $(SDK_DYNAMIC) $(HOSTSDK_DYNAMIC)
 
@@ -231,13 +235,13 @@ $(PLUGIN_TARGET):	$(PLUGIN_OBJECTS) $(SDK_STATIC) $(PLUGIN_HEADERS)
 		$(CXX) $(LDFLAGS) $(PLUGIN_LDFLAGS) -o $@ $(PLUGIN_OBJECTS) $(PLUGIN_LIBS)
 
 $(HOST_TARGET):	$(HOST_OBJECTS) $(HOSTSDK_STATIC) $(HOST_HEADERS)
-		$(CXX) $(LDFLAGS) $(HOST_LDFLAGS) -o $@ $(HOST_OBJECTS) $(HOST_LIBS)
+		$(CXX) $(LDFLAGS) $(HOST_LDFLAGS) -o $@ $(HOST_OBJECTS) $(LDFLAGS) $(HOST_LIBS)
 
 $(RDFGEN_TARGET):	$(RDFGEN_OBJECTS) $(HOSTSDK_STATIC) 
-		$(CXX) $(LDFLAGS) $(RDFGEN_LDFLAGS) -o $@ $(RDFGEN_OBJECTS) $(RDFGEN_LIBS)
+		$(CXX) $(LDFLAGS) $(RDFGEN_LDFLAGS) -o $@ $(RDFGEN_OBJECTS) $(LDFLAGS) $(RDFGEN_LIBS)
 
 test:		plugins host
-		VAMP_PATH=$(EXAMPLEDIR) $(HOST_TARGET) -l
+		VAMP_PATH=$(EXAMPLEDIR) wine $(HOST_TARGET) -l
 
 clean:		
 		rm -f $(SDK_OBJECTS) $(HOSTSDK_OBJECTS) $(PLUGIN_OBJECTS) $(HOST_OBJECTS) $(RDFGEN_OBJECTS)
