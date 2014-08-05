@@ -12,7 +12,8 @@ rdf/generator/vamp-rdf-template-generator
 config.log
 config.status
 Makefile
-
+*.dll
+*.exe
 re:^build/Debug/
 re:^build/Release/
 *.zip

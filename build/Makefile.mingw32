@@ -90,7 +90,7 @@ RDFGEN_LIBS	= ./libvamp-hostsdk.a
 
 # General linker flags
 #
-LDFLAGS		:= $(LDFLAGS) -fno-exceptions -static-libgcc
+LDFLAGS		:= $(LDFLAGS) -fno-exceptions -static -static-libgcc
 
 # Flags required to tell the compiler to create a dynamically loadable object
 #
