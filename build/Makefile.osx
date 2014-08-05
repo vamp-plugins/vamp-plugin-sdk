@@ -65,16 +65,16 @@ MINVERSION := 10.6
 # Our default is to try to build for all architectures supported by
 # the MINVERSION in a universal binary.
 #
-ARCHFLAGS = -mmacosx-version-min=$(MINVERSION) -arch x86_64 -arch i386
+ARCHFLAGS ?= -mmacosx-version-min=$(MINVERSION) -arch x86_64 -arch i386
 
 # Compile flags
 #
-CFLAGS		= $(ARCHFLAGS) -fPIC
-CXXFLAGS	= $(ARCHFLAGS) -O2 -Wall -I. -I../10.6/inst/include -fPIC
+CFLAGS		+= $(ARCHFLAGS) -fPIC
+CXXFLAGS	+= $(ARCHFLAGS) -O2 -Wall -I. -fPIC
 
 # Link flags common to all link targets
 #
-LDFLAGS		= $(ARCHFLAGS) 
+LDFLAGS		+= $(ARCHFLAGS) 
 
 # ar, ranlib
 #
