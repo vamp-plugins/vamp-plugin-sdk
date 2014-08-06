@@ -101,7 +101,7 @@ DYNAMIC_LDFLAGS		= -shared -Wl,-Bsymbolic
 # also want to tell the linker to make all symbols in the library
 # hidden except for the public entry point (making for a tidier library).
 #
-PLUGIN_LDFLAGS		= $(DYNAMIC_LDFLAGS) -Wl,--version-script=build/vamp-plugin.map
+PLUGIN_LDFLAGS		= $(DYNAMIC_LDFLAGS) -Wl,--retain-symbols-file=build/vamp-plugin.list
 SDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS)
 HOSTSDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS)
 
