@@ -46,9 +46,14 @@ if test "x$GCC" = "xyes"; then
     *[\ \	]-fPIC\ -Wall[\ \	]*) ;;
     *) CXXFLAGS="$CXXFLAGS -fPIC -Wall" ;;
   esac
+  case " $CFLAGS " in
+    *[\ \	]-fPIC\ -Wall[\ \	]*) ;;
+    *) CFLAGS="$CFLAGS -fPIC -Wall" ;;
+  esac
 fi
 changequote([,])dnl
 
 AC_SUBST(CXXFLAGS)
+AC_SUBST(CFLAGS)
 AC_OUTPUT([Makefile])
 

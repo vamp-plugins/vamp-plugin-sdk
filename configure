@@ -3952,7 +3952,12 @@ if test "x$GCC" = "xyes"; then
     *[\ \	]-fPIC\ -Wall[\ \	]*) ;;
     *) CXXFLAGS="$CXXFLAGS -fPIC -Wall" ;;
   esac
+  case " $CFLAGS " in
+    *[\ \	]-fPIC\ -Wall[\ \	]*) ;;
+    *) CFLAGS="$CFLAGS -fPIC -Wall" ;;
+  esac
 fi
+
 
 
 ac_config_files="$ac_config_files Makefile"
