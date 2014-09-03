@@ -193,7 +193,11 @@ public:
         std::vector<std::string> valueNames;
 
         ParameterDescriptor() : // the defaults are invalid: you must set them
-            minValue(0), maxValue(0), defaultValue(0), isQuantized(false) { }
+            minValue(0), 
+            maxValue(0), 
+            defaultValue(0), 
+            isQuantized(false),
+            quantizeStep(0) { }
     };
 
     typedef std::vector<ParameterDescriptor> ParameterList;
