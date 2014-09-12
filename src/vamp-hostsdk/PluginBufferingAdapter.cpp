@@ -566,6 +566,8 @@ PluginBufferingAdapter::Impl::reset()
         m_queue[i]->reset();
     }
 
+    m_fixedRateFeatureNos.clear();
+
     m_plugin->reset();
 }
 
