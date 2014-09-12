@@ -63,11 +63,11 @@ $(PLUGIN): $(PLUGIN_OBJECTS)
 $(PLUGIN_OBJECTS): $(PLUGIN_HEADERS)
 
 clean:
-	rm -f $(OBJECTS)
+	rm -f $(PLUGIN_OBJECTS)
 
 distclean:	clean
 	rm -f $(PLUGIN)
 
 depend:
-	makedepend -Y -fMakefile.inc $(SOURCES) $(HEADERS)
+	makedepend -Y -fMakefile.inc $(PLUGIN_SOURCES) $(PLUGIN_HEADERS)
 
