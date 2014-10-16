@@ -292,10 +292,12 @@ PluginInputDomainAdapter::Impl::initialise(size_t channels, size_t stepSize, siz
         return false;
     }                
         
+#ifndef HAVE_FFTW3
     if (blockSize & (blockSize-1)) {
         std::cerr << "ERROR: PluginInputDomainAdapter::initialise: non-power-of-two\nblocksize " << blockSize << " not supported" << std::endl;
         return false;
     }
+#endif
 
     if (m_channels > 0) {
         for (int c = 0; c < m_channels; ++c) {
