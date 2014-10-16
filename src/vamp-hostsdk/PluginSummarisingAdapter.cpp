@@ -220,8 +220,7 @@ PluginSummarisingAdapter::Impl::~Impl()
 }
 
 bool
-PluginSummarisingAdapter::Impl::initialise(size_t channels,
-                                           size_t stepSize, size_t blockSize)
+PluginSummarisingAdapter::Impl::initialise(size_t, size_t stepSize, size_t blockSize)
 {
     m_stepSize = stepSize;
     m_blockSize = blockSize;
@@ -451,7 +450,7 @@ void
 PluginSummarisingAdapter::Impl::accumulate(int output,
                                            const Feature &f,
                                            RealTime timestamp,
-                                           bool final)
+                                           bool /* final */)
 {
     // What should happen if a feature's duration spans a segment
     // boundary?  I think we probably want to chop it, and pretend
