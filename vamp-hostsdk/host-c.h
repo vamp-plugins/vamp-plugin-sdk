@@ -37,8 +37,10 @@
 /*
     This file defines a low-level API for enumerating and loading
     plugin libraries using C calling conventions. It could be used in
-    C programs or in languages with C-compatible foreign-function
-    interfaces.
+    C programs, or in languages with C-compatible foreign-function
+    interfaces. Note that this works by calling to the C++ Vamp host
+    SDK, so any program using this interface must still link against
+    the rest of the Vamp plugin library and the C++ standard library.
 
     This is not the simplest or easiest interface for hosting Vamp
     plugins -- if you have the capability to use the C++ API, please
@@ -55,7 +57,7 @@
     you go straight from the key to a live instance of the plugin. The
     PluginLoader also provides various facilities to adapt the plugin
     based on your requirements (e.g. to do time- to frequency-domain
-    conversion for its input).
+    conversion for you if the plugin requires it).
 
     This low-level C interface, on the other hand, deals only in
     plugin libraries and static descriptors, not in plugin
@@ -63,13 +65,16 @@
     the base .soname of each library. Then you can retrieve each of
     the raw C plugin descriptors from a library, and use the
     descriptor (whose interface is defined in vamp/vamp.h) to
-    instantiate the plugin. So this header corresponds to the first
-    part of the PluginLoader class interface (finding and loading
-    plugin libraries and retrieving plugin descriptors from them) but
-    does not do any of the rest (instantiating and adapting the
-    plugins themselves), which may mean the resulting plugin is
-    relatively hard to use compared to that provided by the
-    PluginLoader API.
+    instantiate the plugin.
+
+    So this header corresponds to the first part of the PluginLoader
+    class interface: finding and loading plugin libraries and
+    retrieving plugin descriptors from them. But it does not do any of
+    the rest, i.e. instantiating and adapting the plugins themselves.
+    Although this makes the API appear very simple, it means the
+    resulting plugins are relatively hard to use compared to those
+    obtained by the PluginLoader API. There is no way to get to the
+    full C++ abstraction using this API.
 
     This API is not thread-safe; use it from a single application
     thread, or guard access to it with a mutex.
@@ -103,12 +108,17 @@ extern int vhGetLibraryCount();
 extern const char *vhGetLibraryName(int library);
 
 /**
- * Load a plugin library given its library name, that is, the base
- * soname as returned by vhGetLibraryName. If the library cannot be
+ * Return the library index for the given library name, or -1 if the
+ * name is not known.
+ */
+extern int vhGetLibraryIndex(const char *name);
+    
+/**
+ * Load the library with the given index. If the library cannot be
  * loaded for any reason, the return value is 0; otherwise it is an
  * opaque pointer suitable for passing to other functions in this API.
  */
-extern vhLibrary vhLoadLibrary(const char *libraryName);
+extern vhLibrary vhLoadLibrary(int library);
 
 /**
  * Return the number of Vamp plugins in the given library.
@@ -117,8 +127,9 @@ extern int vhGetPluginCount(vhLibrary library);
 
 /**
  * Return a Vamp plugin descriptor for a plugin in a given
- * library. (This simply calls the vampGetPluginDescriptor function in
- * that library with the given plugin index and returns the result.)
+ * library. This simply calls the vampGetPluginDescriptor function in
+ * that library with the given plugin index and returns the
+ * result. See vamp/vamp.h for details about the plugin descriptor.
  */ 
 extern const VampPluginDescriptor *vhGetPluginDescriptor(vhLibrary library,
 							 int plugin);

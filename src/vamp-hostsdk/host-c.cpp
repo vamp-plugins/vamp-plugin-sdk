@@ -74,45 +74,52 @@ int vhGetLibraryCount()
     return int(files.size());
 }
 
-const char *vhGetLibraryName(int library)
+const char *vhGetLibraryName(int index)
 {
     initFilenames();
-    if (library < int(files.size())) {
-        return cnames[files[library]];
+    if (index >= 0 && index < int(files.size())) {
+        return cnames[files[index]];
     }
     else return 0;
 }
 
-vhLibrary vhLoadLibrary(const char *libraryName)
+int vhGetLibraryIndex(const char *name)
 {
     for (size_t i = 0; i < files.size(); ++i) {
-
-        if (Files::lcBasename(libraryName) == Files::lcBasename(files[i])) {
-
-            string fullPath = files[i];
-            void *lib = Files::loadLibrary(fullPath);
-
-            if (!lib) return 0;
-            
-            VampGetPluginDescriptorFunction func =
-                (VampGetPluginDescriptorFunction)Files::lookupInLibrary
-                (lib, "vampGetPluginDescriptor");
-            if (!func) {
-                cerr << "vhLoadLibrary: No vampGetPluginDescriptor function found in library \""
-                     << fullPath << "\"" << endl;
-                Files::unloadLibrary(lib);
-                return 0;
-            }
-
-            vhLibrary_t *vhl = new vhLibrary_t(lib, func);
-            while (vhl->func(VAMP_API_VERSION, vhl->nplugins)) {
-                ++vhl->nplugins;
-            }
-            return vhl;
+        if (Files::lcBasename(name) == Files::lcBasename(files[i])) {
+            return i;
         }
     }
+    return -1;
+}
 
-    return 0;
+vhLibrary vhLoadLibrary(int index)
+{
+    initFilenames();
+    if (index < 0 || index >= int(files.size())) {
+        return 0;
+    }
+
+    string fullPath = files[index];
+    void *lib = Files::loadLibrary(fullPath);
+
+    if (!lib) return 0;
+            
+    VampGetPluginDescriptorFunction func =
+        (VampGetPluginDescriptorFunction)Files::lookupInLibrary
+        (lib, "vampGetPluginDescriptor");
+    if (!func) {
+        cerr << "vhLoadLibrary: No vampGetPluginDescriptor function found in library \""
+             << fullPath << "\"" << endl;
+        Files::unloadLibrary(lib);
+        return 0;
+    }
+
+    vhLibrary_t *vhl = new vhLibrary_t(lib, func);
+    while (vhl->func(VAMP_API_VERSION, vhl->nplugins)) {
+        ++vhl->nplugins;
+    }
+    return vhl;
 }
 
 int vhGetPluginCount(vhLibrary library)
