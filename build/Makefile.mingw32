@@ -142,6 +142,7 @@ SDK_OBJECTS	= \
 		$(SDKSRCDIR)/acsymbols.o
 
 HOSTSDK_OBJECTS	= \
+		$(HOSTSDKSRCDIR)/Files.o \
 		$(HOSTSDKSRCDIR)/PluginHostAdapter.o \
 		$(HOSTSDKSRCDIR)/RealTime.o \
 		$(HOSTSDKSRCDIR)/PluginBufferingAdapter.o \
@@ -150,6 +151,7 @@ HOSTSDK_OBJECTS	= \
 		$(HOSTSDKSRCDIR)/PluginLoader.o \
 		$(HOSTSDKSRCDIR)/PluginSummarisingAdapter.o \
 		$(HOSTSDKSRCDIR)/PluginWrapper.o \
+		$(HOSTSDKSRCDIR)/host-c.o \
 		$(HOSTSDKSRCDIR)/acsymbols.o
 
 SDK_STATIC	= \
