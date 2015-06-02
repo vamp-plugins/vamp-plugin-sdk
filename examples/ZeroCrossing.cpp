@@ -42,6 +42,7 @@ using std::cerr;
 using std::endl;
 
 #include <cmath>
+#include <algorithm>
 
 ZeroCrossing::ZeroCrossing(float inputSampleRate) :
     Plugin(inputSampleRate),

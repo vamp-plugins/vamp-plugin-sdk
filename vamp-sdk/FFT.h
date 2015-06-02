@@ -60,6 +60,7 @@ class FFT
 public:
     /**
      * Calculate a forward transform of size n.
+     * n must be a power of 2, greater than 1.
      *
      * ri and ii must point to the real and imaginary component arrays
      * of the input. For real input, ii may be NULL.
@@ -75,6 +76,7 @@ public:
 
     /**
      * Calculate an inverse transform of size n.
+     * n must be a power of 2, greater than 1.
      *
      * ri and ii must point to the real and imaginary component arrays
      * of the input. For real input, ii may be NULL.
