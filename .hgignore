@@ -24,5 +24,6 @@ build/UpgradeLog*
 *.filters
 re:^build/_UpgradeReport_Files/
 *.ipch
+*.opensdf
 re:^build/x64/Debug/
 re:^build/x64/Release/
