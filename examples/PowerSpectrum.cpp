@@ -89,7 +89,7 @@ PowerSpectrum::getCopyright() const
 }
 
 bool
-PowerSpectrum::initialise(size_t channels, size_t stepSize, size_t blockSize)
+PowerSpectrum::initialise(size_t channels, size_t, size_t blockSize)
 {
     if (channels < getMinChannelCount() ||
 	channels > getMaxChannelCount()) return false;
@@ -133,7 +133,7 @@ PowerSpectrum::getOutputDescriptors() const
 }
 
 PowerSpectrum::FeatureSet
-PowerSpectrum::process(const float *const *inputBuffers, Vamp::RealTime timestamp)
+PowerSpectrum::process(const float *const *inputBuffers, Vamp::RealTime)
 {
     FeatureSet fs;
 

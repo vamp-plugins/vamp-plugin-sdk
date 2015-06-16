@@ -431,7 +431,7 @@ FixedTempoEstimator::D::calculate()
 
             if (k0 >= 0 && k0 < int(n/2)) {
 
-                int kmax = 0, kmin = 0;
+                int kmax = 0;
                 float kvmax = 0, kvmin = 0;
                 bool have = false;
 
@@ -439,8 +439,8 @@ FixedTempoEstimator::D::calculate()
 
                     if (k < 0 || k >= n/2) continue;
 
-                    if (!have || (m_r[k] > kvmax)) { kmax = k; kvmax = m_r[k]; }
-                    if (!have || (m_r[k] < kvmin)) { kmin = k; kvmin = m_r[k]; }
+                    if (!have || (m_r[k] > kvmax)) { kvmax = m_r[k]; kmax = k; }
+                    if (!have || (m_r[k] < kvmin)) { kvmin = m_r[k]; }
                     
                     have = true;
                 }

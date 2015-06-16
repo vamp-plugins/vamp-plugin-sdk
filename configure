@@ -3950,11 +3950,11 @@ fi
 if test "x$GCC" = "xyes"; then
   case " $CXXFLAGS " in
     *[\ \	]-fPIC\ -Wall[\ \	]*) ;;
-    *) CXXFLAGS="$CXXFLAGS -fPIC -Wall" ;;
+    *) CXXFLAGS="$CXXFLAGS -fPIC -Wall -Wextra" ;;
   esac
   case " $CFLAGS " in
     *[\ \	]-fPIC\ -Wall[\ \	]*) ;;
-    *) CFLAGS="$CFLAGS -fPIC -Wall" ;;
+    *) CFLAGS="$CFLAGS -fPIC -Wall -Wextra" ;;
   esac
 fi
 

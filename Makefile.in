@@ -138,6 +138,7 @@ HOSTSDK_HEADERS	= \
 		$(HOSTSDKDIR)/PluginSummarisingAdapter.h \
 		$(HOSTSDKDIR)/PluginWrapper.h \
 		$(HOSTSDKDIR)/hostguard.h \
+		$(HOSTSDKDIR)/host-c.h \
 		$(HOSTSDKDIR)/vamp-hostsdk.h
 
 SDK_OBJECTS	= \
@@ -155,6 +156,7 @@ HOSTSDK_OBJECTS	= \
 		$(HOSTSDKSRCDIR)/PluginLoader.o \
 		$(HOSTSDKSRCDIR)/PluginSummarisingAdapter.o \
 		$(HOSTSDKSRCDIR)/PluginWrapper.o \
+		$(HOSTSDKSRCDIR)/host-c.o \
 		$(HOSTSDKSRCDIR)/acsymbols.o
 
 SDK_STATIC	= \
