@@ -148,6 +148,7 @@ SDK_OBJECTS	= \
 		$(SDKSRCDIR)/acsymbols.o
 
 HOSTSDK_OBJECTS	= \
+		$(HOSTSDKSRCDIR)/Files.o \
 		$(HOSTSDKSRCDIR)/PluginHostAdapter.o \
 		$(HOSTSDKSRCDIR)/RealTime.o \
 		$(HOSTSDKSRCDIR)/PluginBufferingAdapter.o \
