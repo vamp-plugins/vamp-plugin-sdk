@@ -175,7 +175,7 @@ Files::lcBasename(string path)
     if (li != string::npos) basename = basename.substr(li + 1);
 
 #ifdef _WIN32
-    string::size_type li = basename.rfind('\\');
+    li = basename.rfind('\\');
     if (li != string::npos) basename = basename.substr(li + 1);
 #endif
 
