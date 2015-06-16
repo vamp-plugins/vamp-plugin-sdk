@@ -5,10 +5,8 @@ The Vamp Plugin SDK -- Platform Notes for OS/X
 Prerequisites
 -------------
 
-You must have Xcode installed, with the command-line build tools.
-
-(If you are using Xcode 4, you may have to go to Preferences ->
-Downloads -> Components and install the Command Line Tools component.)
+You must have Xcode installed, with the command-line build tools (an
+optional component).
 
 You must have libsndfile (http://www.mega-nerd.com/libsndfile/)
 installed in order to build the command-line host successfully.  But
@@ -34,8 +32,8 @@ If you are using an IDE such as Xcode, you may prefer to simply add
 the vamp-sdk and src/vamp-sdk (for plugins) or vamp-hostsdk and
 src/vamp-hostsdk (for hosts) directories to your existing project.
 
-If you are using OS/X 10.6 or older, use Makefile.osx.106 instead of
-Makefile.osx.
+If you are using OS/X 10.6 or older, you could try Makefile.osx.106
+instead of Makefile.osx.
 
 
 Installing the Example Plugins
