@@ -92,7 +92,10 @@ RealTime::RealTime(int s, int n) :
 RealTime
 RealTime::fromSeconds(double sec)
 {
-    if (sec >= 0) {
+    if (sec != sec) { // NaN
+        cerr << "ERROR: NaN/Inf passed to Vamp::RealTime::fromSeconds" << endl;
+        return RealTime::zeroTime;
+    } else if (sec >= 0) {
         return RealTime(int(sec), int((sec - int(sec)) * ONE_BILLION + 0.5));
     } else {
         return -fromSeconds(-sec);
