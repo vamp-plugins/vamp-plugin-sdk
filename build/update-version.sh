@@ -42,6 +42,12 @@ $p 's/(INSTALL_SDK_LIBNAME\s*=\s*libvamp-sdk.so).*/$1.'$sdkmajor'.'$sdkminor'.0/
 $p 's/(INSTALL_SDK_LINK_ABI\s*=\s*libvamp-sdk.so).*/$1.'$sdkmajor'/' \
     Makefile.in
 
+$p 's/(INSTALL_SDK_LIBNAME\s*=\s*libvamp-sdk-dynamic).*.dylib/$1.'$sdkmajor'.'$sdkminor'.0.dylib/' \
+    Makefile.in
+
+$p 's/(INSTALL_SDK_LINK_ABI\s*=\s*libvamp-sdk-dynamic).*.dylib/$1.'$sdkmajor'.dylib/' \
+    Makefile.in
+
 $p 's/(current)=.*/$1='$sdkmajor'/' \
     build/libvamp-sdk.la.in
 
@@ -52,6 +58,12 @@ $p 's/(INSTALL_HOSTSDK_LIBNAME\s*=\s*libvamp-hostsdk.so).*/$1.'$hostmajor'.'$hos
     Makefile.in
 
 $p 's/(INSTALL_HOSTSDK_LINK_ABI\s*=\s*libvamp-hostsdk.so).*/$1.'$hostmajor'/' \
+    Makefile.in
+
+$p 's/(INSTALL_HOSTSDK_LIBNAME\s*=\s*libvamp-hostsdk).*.dylib/$1.'$hostmajor'.'$hostminor'.0.dylib/' \
+    Makefile.in
+
+$p 's/(INSTALL_HOSTSDK_LINK_ABI\s*=\s*libvamp-hostsdk).*.dylib/$1.'$hostmajor'.dylib/' \
     Makefile.in
 
 $p 's/(current)=.*/$1='$hostmajor'/' \

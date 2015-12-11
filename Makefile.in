@@ -104,15 +104,31 @@ HOSTSDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS) -Wl,-soname=$(INSTALL_HOSTSDK_LINK_
 PLUGIN_LDFLAGS		= $(DYNAMIC_LDFLAGS) -Wl,--version-script=build/vamp-plugin.map
 
 
-## For OS/X with g++:
-#DYNAMIC_LDFLAGS		= -dynamiclib
-#PLUGIN_LDFLAGS			= $(DYNAMIC_LDFLAGS)
-#SDK_DYNAMIC_LDFLAGS		= $(DYNAMIC_LDFLAGS)
-#HOSTSDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS)
+# Adapt install details when found to be running on OSX (thanks to David O)
+uname_S = $(shell uname -s)
+ifeq ($(uname_S),Darwin)
+
+	DYNAMIC_LDFLAGS		  = -dynamiclib
+	SDK_DYNAMIC_LDFLAGS	  = $(DYNAMIC_LDFLAGS)
+	HOSTSDK_DYNAMIC_LDFLAGS	  = $(DYNAMIC_LDFLAGS)
+	PLUGIN_LDFLAGS		  = $(DYNAMIC_LDFLAGS) -exported_symbols_list vamp-plugin.list
+
+	INSTALL_HOSTSDK_LIBNAME   = libvamp-hostsdk.3.6.0.dylib
+	INSTALL_HOSTSDK_LINK_ABI  = libvamp-hostsdk.3.dylib
+
+# The OS X linker doesn't allow you to request static linkage when
+# linking by library search path, if the same library name is found in
+# both static and dynamic versions. So if we install both static and
+# dynamic, the static library will never be used. That's OK for the
+# host SDK, but we do want plugins to get static linkage of the plugin
+# SDK. So install the dynamic version under a different name.
+	INSTALL_SDK_LIBNAME	  = libvamp-sdk-dynamic.2.6.0.dylib
+	INSTALL_SDK_LINK_ABI	  = libvamp-sdk-dynamic.2.dylib
+
+endif
 
 
 ### End of user-serviceable parts
-
 
 API_HEADERS	= \
 		$(APIDIR)/vamp.h
