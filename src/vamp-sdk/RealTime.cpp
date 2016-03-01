@@ -92,7 +92,14 @@ RealTime::RealTime(int s, int n) :
 RealTime
 RealTime::fromSeconds(double sec)
 {
-    return RealTime(int(sec), int((sec - int(sec)) * ONE_BILLION + 0.5));
+    if (sec != sec) { // NaN
+        cerr << "ERROR: NaN/Inf passed to Vamp::RealTime::fromSeconds" << endl;
+        return RealTime::zeroTime;
+    } else if (sec >= 0) {
+        return RealTime(int(sec), int((sec - int(sec)) * ONE_BILLION + 0.5));
+    } else {
+        return -fromSeconds(-sec);
+    }
 }
 
 RealTime
@@ -139,10 +146,6 @@ RealTime::toString() const
     std::stringstream out;
     out << *this;
     
-#if (__GNUC__ < 3)
-    out << std::ends;
-#endif
-
     std::string s = out.str();
 
     // remove trailing R
@@ -157,17 +160,19 @@ RealTime::toText(bool fixedDp) const
     std::stringstream out;
 
     if (sec >= 3600) {
-	out << (sec / 3600) << ":";
+        out << (sec / 3600) << ":";
     }
-
+    
     if (sec >= 60) {
-	out << (sec % 3600) / 60 << ":";
+        int minutes = (sec % 3600) / 60;
+        if (sec >= 3600 && minutes < 10) out << "0";
+        out << minutes << ":";
     }
-
+    
     if (sec >= 10) {
-	out << ((sec % 60) / 10);
+        out << ((sec % 60) / 10);
     }
-
+    
     out << (sec % 10);
     
     int ms = msec();
@@ -191,15 +196,10 @@ RealTime::toText(bool fixedDp) const
 	out << ".000";
     }
 	
-#if (__GNUC__ < 3)
-    out << std::ends;
-#endif
-
     std::string s = out.str();
 
     return s;
 }
-
 
 RealTime
 RealTime::operator/(int d) const

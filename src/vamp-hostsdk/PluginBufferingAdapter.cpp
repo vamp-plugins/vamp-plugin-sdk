@@ -41,6 +41,10 @@
 #include <vamp-hostsdk/PluginBufferingAdapter.h>
 #include <vamp-hostsdk/PluginInputDomainAdapter.h>
 
+#include <iostream>
+using std::cerr;
+using std::endl;
+
 using std::vector;
 using std::map;
 
@@ -512,13 +516,13 @@ PluginBufferingAdapter::Impl::getOutputDescriptors() const
 
         case OutputDescriptor::OneSamplePerStep:
             outs[i].sampleType = OutputDescriptor::FixedSampleRate;
-            outs[i].sampleRate = (1.f / m_inputSampleRate) * m_stepSize;
+            outs[i].sampleRate = m_inputSampleRate / m_stepSize;
             m_rewriteOutputTimes[i] = true;
             break;
             
         case OutputDescriptor::FixedSampleRate:
             if (outs[i].sampleRate == 0.f) {
-                outs[i].sampleRate = (1.f / m_inputSampleRate) * m_stepSize;
+                outs[i].sampleRate = m_inputSampleRate / m_stepSize;
             }
             // We actually only need to rewrite output times for
             // features that don't have timestamps already, but we
@@ -615,16 +619,25 @@ void
 PluginBufferingAdapter::Impl::adjustFixedRateFeatureTime(int outputNo,
                                                          Feature &feature)
 {
+//    cerr << "adjustFixedRateFeatureTime: from " << feature.timestamp;
+    
+    double rate = m_outputs[outputNo].sampleRate;
+    if (rate == 0.0) {
+        rate = m_inputSampleRate / m_stepSize;
+    }
+    
     if (feature.hasTimestamp) {
         double secs = feature.timestamp.sec;
         secs += feature.timestamp.nsec / 1e9;
-        m_fixedRateFeatureNos[outputNo] =
-            int(secs * double(m_outputs[outputNo].sampleRate) + 0.5);
+        m_fixedRateFeatureNos[outputNo] = int(secs * rate + 0.5);
+//        cerr << " [secs = " << secs << ", no = " << m_fixedRateFeatureNos[outputNo] << "]";
     }
 
     feature.timestamp = RealTime::fromSeconds
-        (m_fixedRateFeatureNos[outputNo] / double(m_outputs[outputNo].sampleRate));
+        (m_fixedRateFeatureNos[outputNo] / rate);
 
+//    cerr << " to " << feature.timestamp << " (rate = " << rate << ", hasTimestamp = " << feature.hasTimestamp << ")" << endl;
+    
     feature.hasTimestamp = true;
     
     m_fixedRateFeatureNos[outputNo] = m_fixedRateFeatureNos[outputNo] + 1;

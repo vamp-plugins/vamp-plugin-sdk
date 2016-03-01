@@ -1,3 +1,18 @@
+
+Version 2.6, 2015-06-16 (maintenance and minor feature release)
+
+  * Add a simple C-linkage API for plugin library discovery and
+    loading -- the missing part when trying to use Vamp plugins from C
+    or a language with only C-linkage foreign-function interface
+  * Fix bug in PluginBufferingAdapter reset() function, which failed
+    to reset timestamp rewrites (symptom: timestamps appeared to
+    continue to ascend from end point on next run after a reset)
+  * Fix sometime 1-sample rounding error in PluginInputDomainAdapter
+  * Update build files for more recent OS versions
+  * Add -L option to simple host, as synonym for --list-full
+  * Add a combined Visual C++ solution that includes the plugin SDK,
+    host SDK, example plugins, and simple host projects
+
 Version 2.5, 2013-05-08 (maintenance release):
 
   * Fix incorrect handling of FixedSampleRate outputs in the

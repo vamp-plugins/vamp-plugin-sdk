@@ -1,5 +1,5 @@
 
-AC_INIT(vamp-plugin-sdk, 2.5, cannam@all-day-breakfast.com)
+AC_INIT(vamp-plugin-sdk, 2.6, cannam@all-day-breakfast.com)
 
 AC_CONFIG_SRCDIR(vamp/vamp.h)
 AC_PROG_CXX
@@ -44,11 +44,11 @@ changequote(,)dnl
 if test "x$GCC" = "xyes"; then
   case " $CXXFLAGS " in
     *[\ \	]-fPIC\ -Wall[\ \	]*) ;;
-    *) CXXFLAGS="$CXXFLAGS -fPIC -Wall" ;;
+    *) CXXFLAGS="$CXXFLAGS -fPIC -Wall -Wextra" ;;
   esac
   case " $CFLAGS " in
     *[\ \	]-fPIC\ -Wall[\ \	]*) ;;
-    *) CFLAGS="$CFLAGS -fPIC -Wall" ;;
+    *) CFLAGS="$CFLAGS -fPIC -Wall -Wextra" ;;
   esac
 fi
 changequote([,])dnl

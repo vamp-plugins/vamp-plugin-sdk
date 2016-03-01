@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -93,7 +93,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_USE_MATH_DEFINES;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
@@ -124,9 +124,11 @@
     <ClInclude Include="..\vamp-hostsdk\PluginSummarisingAdapter.h" />
     <ClInclude Include="..\vamp-hostsdk\PluginWrapper.h" />
     <ClInclude Include="..\vamp-hostsdk\RealTime.h" />
+    <ClInclude Include="..\vamp-hostsdk\host-c.h" />
     <ClInclude Include="..\vamp-hostsdk\vamp-hostsdk.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\vamp-hostsdk\Files.cpp" />
     <ClCompile Include="..\src\vamp-hostsdk\PluginBufferingAdapter.cpp" />
     <ClCompile Include="..\src\vamp-hostsdk\PluginChannelAdapter.cpp" />
     <ClCompile Include="..\src\vamp-hostsdk\PluginHostAdapter.cpp" />
@@ -135,6 +137,7 @@
     <ClCompile Include="..\src\vamp-hostsdk\PluginSummarisingAdapter.cpp" />
     <ClCompile Include="..\src\vamp-hostsdk\PluginWrapper.cpp" />
     <ClCompile Include="..\src\vamp-hostsdk\RealTime.cpp" />
+    <ClCompile Include="..\src\vamp-hostsdk\host-c.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

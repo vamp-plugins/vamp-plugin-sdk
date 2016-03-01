@@ -9,7 +9,7 @@ An API for audio analysis and feature extraction plugins.
 Vamp is an API for C and C++ plugins that process sampled audio data
 to produce descriptive output (measurements or semantic observations).
 
-This is version 2.5 of the Vamp plugin Software Development Kit.
+This is version 2.6 of the Vamp plugin Software Development Kit.
 
 Plugins and hosts built with this SDK are binary compatible with those
 built using version 1.0 of the SDK, with certain restrictions.  See
@@ -115,6 +115,17 @@ Host authors should also refer to the example host code in the host
 directory of the SDK.
 
 Hosts should link with -lvamp-hostsdk.
+
+
+vamp-hostsdk/host-c.h
+---------------------
+
+A C-linkage header wrapping the part of the C++ SDK code that handles
+plugin discovery and library loading. Host programs written in C or in
+a language with a C-linkage foreign function interface may choose to
+use this header to discover and load plugin libraries, together with
+the vamp/vamp.h formal API to interact with plugins themselves. See
+the header for more documentation.
 
 
 examples
@@ -237,7 +248,7 @@ Authors
 Vamp and the Vamp SDK were designed and made at the Centre for Digital
 Music at Queen Mary, University of London.
 
-The SDK was written by Chris Cannam, copyright (c) 2005-2014
+The SDK was written by Chris Cannam, copyright (c) 2005-2015
 Chris Cannam and QMUL.
 
 Mark Sandler and Christian Landone provided ideas and direction, and

@@ -641,8 +641,6 @@ PluginSummarisingAdapter::Impl::findSegmentBounds(RealTime t,
 void
 PluginSummarisingAdapter::Impl::segment()
 {
-    SegmentBoundaries::iterator boundaryitr = m_boundaries.begin();
-    
 #ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER_SEGMENT
     cerr << "segment: starting" << endl;
 #endif

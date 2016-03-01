@@ -508,7 +508,14 @@ PluginInputDomainAdapter::Impl::processShiftingTimestamp(const float *const *inp
                                                          RealTime timestamp)
 {
     if (m_method == ShiftTimestamp) {
+        // we may need to add one nsec if timestamp +
+        // getTimestampAdjustment() rounds down
         timestamp = timestamp + getTimestampAdjustment();
+        RealTime nsec(0, 1);
+        if (RealTime::realTime2Frame(timestamp, m_inputSampleRate) <
+            RealTime::realTime2Frame(timestamp + nsec, m_inputSampleRate)) {
+            timestamp = timestamp + nsec;
+        }
     }
 
     for (int c = 0; c < m_channels; ++c) {

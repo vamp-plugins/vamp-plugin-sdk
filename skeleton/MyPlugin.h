@@ -5,8 +5,8 @@
 
 
 // Remember to use a different guard symbol in each header!
-#ifndef _MY_PLUGIN_H_
-#define _MY_PLUGIN_H_
+#ifndef MY_PLUGIN_H
+#define MY_PLUGIN_H
 
 #include <vamp-sdk/Plugin.h>
 

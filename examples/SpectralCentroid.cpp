@@ -143,7 +143,7 @@ SpectralCentroid::getOutputDescriptors() const
 }
 
 SpectralCentroid::FeatureSet
-SpectralCentroid::process(const float *const *inputBuffers, Vamp::RealTime timestamp)
+SpectralCentroid::process(const float *const *inputBuffers, Vamp::RealTime)
 {
     if (m_stepSize == 0) {
 	cerr << "ERROR: SpectralCentroid::process: "

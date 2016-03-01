@@ -14,12 +14,12 @@ CFLAGS		:= -Wall -Wextra -g -fPIC
 
 # ... or for a release build
 
-#CFLAGS		:= -Wall -Wextra -O3 -ftree-vectorize -fPIC
+#CFLAGS		:= -Wall -Wextra -O3 -fPIC
 
 
 # Flags to determine processor architecture and system SDK
 
-ARCHFLAGS	?= -mmacosx-version-min=10.6 -arch x86_64 -arch i386
+ARCHFLAGS	?= -mmacosx-version-min=10.7 -arch x86_64 -stdlib=libc++
 
 
 # Location of Vamp plugin SDK relative to the project directory

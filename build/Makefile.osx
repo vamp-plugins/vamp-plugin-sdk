@@ -60,12 +60,12 @@ default:	all
 
 # Minimum version of OS/X to target. This will determine the
 # compiler's choice of platform SDK material
-MINVERSION := 10.6
+MINVERSION := 10.7
 
 # Our default is to try to build for all architectures supported by
 # the MINVERSION in a universal binary.
 #
-ARCHFLAGS ?= -mmacosx-version-min=$(MINVERSION) -arch x86_64 -arch i386
+ARCHFLAGS ?= -mmacosx-version-min=$(MINVERSION) -arch x86_64 -stdlib=libc++
 
 # Compile flags
 #
@@ -141,6 +141,7 @@ HOSTSDK_HEADERS	= \
 		$(HOSTSDKDIR)/PluginSummarisingAdapter.h \
 		$(HOSTSDKDIR)/PluginWrapper.h \
 		$(HOSTSDKDIR)/hostguard.h \
+		$(HOSTSDKDIR)/host-c.h \
 		$(HOSTSDKDIR)/vamp-hostsdk.h
 
 SDK_OBJECTS	= \
@@ -150,6 +151,7 @@ SDK_OBJECTS	= \
 		$(SDKSRCDIR)/acsymbols.o 
 
 HOSTSDK_OBJECTS	= \
+		$(HOSTSDKSRCDIR)/Files.o \
 		$(HOSTSDKSRCDIR)/PluginHostAdapter.o \
 		$(HOSTSDKSRCDIR)/RealTime.o \
 		$(HOSTSDKSRCDIR)/PluginBufferingAdapter.o \
@@ -158,6 +160,7 @@ HOSTSDK_OBJECTS	= \
 		$(HOSTSDKSRCDIR)/PluginLoader.o \
 		$(HOSTSDKSRCDIR)/PluginSummarisingAdapter.o \
 		$(HOSTSDKSRCDIR)/PluginWrapper.o \
+		$(HOSTSDKSRCDIR)/host-c.o \
 		$(HOSTSDKSRCDIR)/acsymbols.o 
 
 SDK_STATIC	= \
