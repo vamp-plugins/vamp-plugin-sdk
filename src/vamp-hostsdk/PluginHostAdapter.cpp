@@ -126,7 +126,11 @@ PluginHostAdapter::initialise(size_t channels,
                               size_t blockSize)
 {
     if (!m_handle) return false;
-    return m_descriptor->initialise(m_handle, channels, stepSize, blockSize) ?
+    return m_descriptor->initialise
+        (m_handle,
+         (unsigned int)channels,
+         (unsigned int)stepSize,
+         (unsigned int)blockSize) ?
         true : false;
 }
 

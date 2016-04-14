@@ -366,8 +366,8 @@ PluginSummarisingAdapter::Impl::getSummaryForOutput(int output,
                 break;
 
             case StandardDeviation:
-                if (continuous) result = sqrtf(summary.variance_c);
-                else result = sqrtf(summary.variance);
+                if (continuous) result = sqrt(summary.variance_c);
+                else result = sqrt(summary.variance);
                 break;
 
             case Count:
@@ -381,7 +381,7 @@ PluginSummarisingAdapter::Impl::getSummaryForOutput(int output,
                 break;
             }
             
-            f.values.push_back(result);
+            f.values.push_back(float(result));
         }
 
         fl.push_back(f);
@@ -556,7 +556,7 @@ PluginSummarisingAdapter::Impl::accumulate(int output,
     result.duration = INVALID_DURATION;
 
     if (int(f.values.size()) > m_accumulators[output].bins) {
-        m_accumulators[output].bins = f.values.size();
+        m_accumulators[output].bins = int(f.values.size());
     }
 
     for (int i = 0; i < int(f.values.size()); ++i) {
@@ -574,7 +574,7 @@ PluginSummarisingAdapter::Impl::accumulateFinalDurations()
 
         int output = i->first;
 
-        int acount = m_accumulators[output].results.size();
+        int acount = int(m_accumulators[output].results.size());
 
         if (acount == 0) continue;
 
@@ -760,7 +760,7 @@ PluginSummarisingAdapter::Impl::reduce()
             RealTime segmentStart = j->first;
             OutputAccumulator &accumulator = j->second;
 
-            int sz = accumulator.results.size();
+            int sz = int(accumulator.results.size());
 
 #ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
             cerr << "reduce: segment starting at " << segmentStart
@@ -819,9 +819,10 @@ PluginSummarisingAdapter::Impl::reduce()
 
                 for (int k = 0; k < sz; ++k) {
                     float value = accumulator.results[k].values[bin];
-                    valvec.push_back(ValueDurationFloatPair
-                                     (value,
-                                      toSec(accumulator.results[k].duration)));
+                    valvec.push_back
+                        (ValueDurationFloatPair
+                         (value,
+                          float(toSec(accumulator.results[k].duration))));
                 }
 
                 sort(valvec.begin(), valvec.end());

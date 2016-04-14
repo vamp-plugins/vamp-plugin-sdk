@@ -75,9 +75,12 @@ Files::listLibraryFilesMatching(string libraryName)
     vector<string> path = Vamp::PluginHostAdapter::getPluginPath();
     vector<string> libraryFiles;
 
-    // we match case-insensitively
+    // we match case-insensitively, but only with ascii range
+    // characters (this string is expected to be utf-8)
     for (size_t i = 0; i < libraryName.length(); ++i) {
-	libraryName[i] = tolower(libraryName[i]);
+        if (!(libraryName[i] & 0x80)) {
+            libraryName[i] = char(tolower(libraryName[i]));
+        }
     }
 
     for (size_t i = 0; i < path.size(); ++i) {
@@ -88,10 +91,14 @@ Files::listLibraryFilesMatching(string libraryName)
              fi != files.end(); ++fi) {
             
             if (libraryName != "") {
-		// we match case-insensitively
+		// we match case-insensitively, but only with ascii
+		// range characters (this string is expected to be
+		// utf-8)
                 string temp = *fi;
                 for (size_t i = 0; i < temp.length(); ++i) {
-                    temp[i] = tolower(temp[i]);
+                    if (!(temp[i] & 0x80)) {
+                        temp[i] = char(tolower(temp[i]));
+                    }
                 }
                 // libraryName should be lacking an extension, as it
                 // is supposed to have come from the plugin key
@@ -182,8 +189,12 @@ Files::lcBasename(string path)
     li = basename.find('.');
     if (li != string::npos) basename = basename.substr(0, li);
 
+    // case-insensitive, but only with ascii range characters (this
+    // string is expected to be utf-8)
     for (size_t i = 0; i < basename.length(); ++i) {
-        basename[i] = tolower(basename[i]);
+        if (!(basename[i] & 0x80)) {
+            basename[i] = char(tolower(basename[i]));
+        }
     }
 
     return basename;

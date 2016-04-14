@@ -481,7 +481,7 @@ PluginBufferingAdapter::Impl::initialise(size_t channels, size_t stepSize, size_
     m_buffers = new float *[m_channels];
 
     for (size_t i = 0; i < m_channels; ++i) {
-        m_queue.push_back(new RingBuffer(m_blockSize + m_inputBlockSize));
+        m_queue.push_back(new RingBuffer(int(m_blockSize + m_inputBlockSize)));
         m_buffers[i] = new float[m_blockSize];
     }
     
@@ -510,19 +510,19 @@ PluginBufferingAdapter::Impl::getOutputDescriptors() const
 
     PluginBufferingAdapter::OutputList outs = m_outputs;
 
-    for (size_t i = 0; i < outs.size(); ++i) {
+    for (int i = 0; i < int(outs.size()); ++i) {
 
         switch (outs[i].sampleType) {
 
         case OutputDescriptor::OneSamplePerStep:
             outs[i].sampleType = OutputDescriptor::FixedSampleRate;
-            outs[i].sampleRate = m_inputSampleRate / m_stepSize;
+            outs[i].sampleRate = m_inputSampleRate / float(m_stepSize);
             m_rewriteOutputTimes[i] = true;
             break;
             
         case OutputDescriptor::FixedSampleRate:
             if (outs[i].sampleRate == 0.f) {
-                outs[i].sampleRate = m_inputSampleRate / m_stepSize;
+                outs[i].sampleRate = m_inputSampleRate / float(m_stepSize);
             }
             // We actually only need to rewrite output times for
             // features that don't have timestamps already, but we
@@ -595,7 +595,7 @@ PluginBufferingAdapter::Impl::process(const float *const *inputBuffers,
     // queue the new input
     
     for (size_t i = 0; i < m_channels; ++i) {
-        int written = m_queue[i]->write(inputBuffers[i], m_inputBlockSize);
+        int written = m_queue[i]->write(inputBuffers[i], int(m_inputBlockSize));
         if (written < int(m_inputBlockSize) && i == 0) {
             std::cerr << "WARNING: PluginBufferingAdapter::Impl::process: "
                       << "Buffer overflow: wrote " << written 
@@ -623,7 +623,7 @@ PluginBufferingAdapter::Impl::adjustFixedRateFeatureTime(int outputNo,
     
     double rate = m_outputs[outputNo].sampleRate;
     if (rate == 0.0) {
-        rate = m_inputSampleRate / m_stepSize;
+        rate = m_inputSampleRate / float(m_stepSize);
     }
     
     if (feature.hasTimestamp) {
@@ -656,7 +656,7 @@ PluginBufferingAdapter::Impl::getRemainingFeatures()
     // pad any last samples remaining and process
     if (m_queue[0]->getReadSpace() > 0) {
         for (size_t i = 0; i < m_channels; ++i) {
-            m_queue[i]->zero(m_blockSize - m_queue[i]->getReadSpace());
+            m_queue[i]->zero(int(m_blockSize) - m_queue[i]->getReadSpace());
         }
         processBlock(allFeatureSets);
     }			
@@ -689,7 +689,7 @@ void
 PluginBufferingAdapter::Impl::processBlock(FeatureSet& allFeatureSets)
 {
     for (size_t i = 0; i < m_channels; ++i) {
-        m_queue[i]->peek(m_buffers[i], m_blockSize);
+        m_queue[i]->peek(m_buffers[i], int(m_blockSize));
     }
 
     long frame = m_frame;
@@ -749,7 +749,7 @@ PluginBufferingAdapter::Impl::processBlock(FeatureSet& allFeatureSets)
     // step forward
 
     for (size_t i = 0; i < m_channels; ++i) {
-        m_queue[i]->skip(m_stepSize);
+        m_queue[i]->skip(int(m_stepSize));
     }
     
     // increment internal frame counter each time we step forward

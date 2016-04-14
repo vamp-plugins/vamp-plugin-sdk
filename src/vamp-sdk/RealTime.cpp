@@ -112,7 +112,7 @@ RealTime::fromMilliseconds(int msec)
 RealTime
 RealTime::fromTimeval(const struct timeval &tv)
 {
-    return RealTime(tv.tv_sec, tv.tv_usec * 1000);
+    return RealTime(int(tv.tv_sec), int(tv.tv_usec * 1000));
 }
 #endif
 
@@ -236,7 +236,7 @@ RealTime::frame2RealTime(long frame, unsigned int sampleRate)
     if (frame < 0) return -frame2RealTime(-frame, sampleRate);
 
     RealTime rt;
-    rt.sec = frame / long(sampleRate);
+    rt.sec = int(frame / long(sampleRate));
     frame -= rt.sec * long(sampleRate);
     rt.nsec = (int)(((double(frame) * 1000000.0) / sampleRate) * 1000.0);
     return rt;

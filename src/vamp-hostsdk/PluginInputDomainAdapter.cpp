@@ -333,7 +333,7 @@ PluginInputDomainAdapter::Impl::initialise(size_t channels, size_t stepSize, siz
 #ifdef HAVE_FFTW3
     m_ri = (double *)fftw_malloc(blockSize * sizeof(double));
     m_cbuf = (fftw_complex *)fftw_malloc((blockSize/2 + 1) * sizeof(fftw_complex));
-    m_plan = fftw_plan_dft_r2c_1d(blockSize, m_ri, m_cbuf, FFTW_MEASURE);
+    m_plan = fftw_plan_dft_r2c_1d(int(blockSize), m_ri, m_cbuf, FFTW_MEASURE);
 #else
     m_ri = new double[m_blockSize];
     m_ro = new double[m_blockSize];
@@ -507,13 +507,18 @@ Plugin::FeatureSet
 PluginInputDomainAdapter::Impl::processShiftingTimestamp(const float *const *inputBuffers,
                                                          RealTime timestamp)
 {
+    unsigned int roundedRate = 1;
+    if (m_inputSampleRate > 0.f) {
+        roundedRate = (unsigned int)round(m_inputSampleRate);
+    }
+    
     if (m_method == ShiftTimestamp) {
         // we may need to add one nsec if timestamp +
         // getTimestampAdjustment() rounds down
         timestamp = timestamp + getTimestampAdjustment();
         RealTime nsec(0, 1);
-        if (RealTime::realTime2Frame(timestamp, m_inputSampleRate) <
-            RealTime::realTime2Frame(timestamp + nsec, m_inputSampleRate)) {
+        if (RealTime::realTime2Frame(timestamp, roundedRate) <
+            RealTime::realTime2Frame(timestamp + nsec, roundedRate)) {
             timestamp = timestamp + nsec;
         }
     }
