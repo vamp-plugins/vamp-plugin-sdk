@@ -71,6 +71,7 @@ public:
 	std::string name;
 	std::string description;
     };
+    typedef std::vector<Basic> BasicList;
 
     PluginStaticData() : // invalid static data by default
 	pluginVersion(0), minChannelCount(0), maxChannelCount(0),
@@ -87,7 +88,7 @@ public:
     PluginBase::ParameterList parameters;
     PluginBase::ProgramList programs;
     Plugin::InputDomain inputDomain;
-    std::vector<Basic> basicOutputInfo;
+    BasicList basicOutputInfo;
 
     static PluginStaticData
     fromPlugin(std::string pluginKey,
