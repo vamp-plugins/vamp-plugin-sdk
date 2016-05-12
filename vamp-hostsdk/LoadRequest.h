@@ -135,6 +135,8 @@ struct LoadResponse
      * information about it that does not depend on its configuration
      * (parameters, programs, initialisation parameters). The contents
      * of this structure are only valid if plugin is non-0.
+     *
+     * Much of the data in here is duplicated with the plugin itself.
      */
     PluginStaticData staticData;
 

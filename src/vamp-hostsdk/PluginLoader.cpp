@@ -61,6 +61,7 @@ public:
     virtual ~Impl();
 
     PluginKeyList listPlugins();
+    PluginStaticDataList listPluginData();
 
     Plugin *loadPlugin(PluginKey key,
                        float inputSampleRate,
@@ -142,10 +143,16 @@ PluginLoader::getInstance()
     return m_instance;
 }
 
-vector<PluginLoader::PluginKey>
+PluginLoader::PluginKeyList
 PluginLoader::listPlugins() 
 {
     return m_impl->listPlugins();
+}
+
+PluginLoader::PluginStaticDataList
+PluginLoader::listPluginData() 
+{
+    return m_impl->listPluginData();
 }
 
 Plugin *
@@ -201,7 +208,7 @@ PluginLoader::Impl::setInstanceToClean(PluginLoader *instance)
     m_cleaner.setInstance(instance);
 }
 
-vector<PluginLoader::PluginKey>
+PluginLoader::PluginKeyList
 PluginLoader::Impl::listPlugins() 
 {
     if (!m_allPluginsEnumerated) enumeratePlugins();
@@ -213,6 +220,26 @@ PluginLoader::Impl::listPlugins()
     }
 
     return plugins;
+}
+
+PluginLoader::PluginStaticDataList
+PluginLoader::Impl::listPluginData() 
+{
+    PluginKeyList keys = listPlugins();
+    PluginStaticDataList dataList;
+
+    for (PluginKeyList::const_iterator ki = keys.begin(); ki != keys.end(); ++ki) {
+        string key = *ki;
+	Plugin *p = loadPlugin(key, 44100, 0);
+	if (p) {
+            string library = getLibraryPathForPlugin(key);
+            PluginCategoryHierarchy category = getPluginCategory(key);
+	    dataList.push_back(PluginStaticData::fromPlugin(key, category, p));
+	}
+        delete p;
+    }
+
+    return dataList;
 }
 
 void

@@ -126,4 +126,7 @@ fgrep -q 'libvamphostsdk_v_'$acs'_present' src/vamp-hostsdk/acsymbols.c || \
 $p 's/^$/\nextern void libvamphostsdk_v_'$acs'_present(void) { }/' \
     src/vamp-hostsdk/acsymbols.c
 
-echo "Done, now check with e.g. hg diff -- and don't forget to update CHANGELOG"
+echo "Done, now check changes with e.g. hg diff"
+echo "*** Don't forget to update CHANGELOG"
+echo "*** Don't forget to re-run \"aclocal -I . && autoconf\""
+

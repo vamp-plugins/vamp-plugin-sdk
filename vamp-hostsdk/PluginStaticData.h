@@ -54,6 +54,11 @@ namespace HostExt {
  * plugin after it is loaded. That is, everything that does not depend
  * on a parameter or initialisation setting.
  *
+ * All of the information in here can be queried from other sources
+ * directly (notably the Plugin class itself); this structure just
+ * pulls it together in one place and provides something that can be
+ * stored and recalled without having a Plugin object to hand.
+ *
  * \note This class was introduced in version 2.7 of the Vamp plugin
  * SDK and is used only by host SDK functions that were also
  * introduced in that release (or newer).
