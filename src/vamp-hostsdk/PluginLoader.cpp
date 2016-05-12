@@ -405,6 +405,7 @@ PluginLoader::Impl::loadPlugin(LoadRequest req)
                                 req.inputSampleRate,
                                 req.adapterFlags);
     LoadResponse response;
+    response.plugin = plugin;
     if (!plugin) return response;
 
     response.plugin = plugin;

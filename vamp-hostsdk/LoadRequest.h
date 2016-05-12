@@ -72,10 +72,33 @@ struct LoadRequest
     LoadRequest() : // invalid request by default
 	inputSampleRate(0.f),
 	adapterFlags(0) { }
-    
-    std::string pluginKey; //!!! separate out key from PluginLoader??
+
+    /**
+     * PluginKey is a string type that is used to identify a plugin
+     * uniquely within the scope of "the current system". For further
+     * details \see PluginLoader::PluginKey.
+     */
+    typedef std::string PluginKey;
+
+    /**
+     * The identifying key for the plugin to be loaded.
+     */
+    PluginKey pluginKey;
+
+    /**
+     * Sample rate to be passed to the plugin's constructor.
+     */
     float inputSampleRate;
-    int adapterFlags; //!!! from PluginLoader::AdapterFlags, but how best to handle?
+
+    /** 
+     * A bitwise OR of the values in the PluginLoader::AdapterFlags
+     * enumeration, indicating under which circumstances an adapter
+     * should be used to wrap the original plugin.  If adapterFlags is
+     * 0, no optional adapters will be used.
+     *
+     * \see PluginLoader::AdapterFlags, PluginLoader::loadPlugin
+     */
+    int adapterFlags;
 };
 
 /**
@@ -100,9 +123,26 @@ struct LoadResponse
 {
     LoadResponse() : // invalid (failed) response by default
 	plugin(0) { }
-    
+
+    /**
+     * A pointer to the loaded plugin, or 0 if loading failed. Caller
+     * takes ownership of the plugin and must delete it after use.
+     */
     Plugin *plugin;
+
+    /**
+     * The static data associated with the loaded plugin, that is, all
+     * information about it that does not depend on its configuration
+     * (parameters, programs, initialisation parameters). The contents
+     * of this structure are only valid if plugin is non-0.
+     */
     PluginStaticData staticData;
+
+    /**
+     * The default configuration for this plugin, that is, default
+     * values for parameters etc. The contents of this structure are
+     * only valid if plugin is non-0.
+     */
     PluginConfiguration defaultConfiguration;
 };
 
