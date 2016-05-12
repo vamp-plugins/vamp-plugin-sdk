@@ -6,7 +6,7 @@
     An API for audio analysis and feature extraction plugins.
 
     Centre for Digital Music, Queen Mary, University of London.
-    Copyright 2006-2009 Chris Cannam and QMUL.
+    Copyright 2006-2016 Chris Cannam and QMUL.
   
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
@@ -66,6 +66,10 @@ public:
                        float inputSampleRate,
                        int adapterFlags);
 
+    LoadResponse loadPlugin(LoadRequest req);
+
+    Plugin::OutputList configurePlugin(Plugin *plugin, PluginConfiguration config);
+    
     PluginKey composePluginKey(string libraryName, string identifier);
 
     PluginCategoryHierarchy getPluginCategory(PluginKey key);
@@ -150,6 +154,18 @@ PluginLoader::loadPlugin(PluginKey key,
                          int adapterFlags)
 {
     return m_impl->loadPlugin(key, inputSampleRate, adapterFlags);
+}
+
+LoadResponse
+PluginLoader::loadPlugin(LoadRequest req)
+{
+    return m_impl->loadPlugin(req);
+}
+
+Plugin::OutputList
+PluginLoader::configurePlugin(Plugin *plugin, PluginConfiguration config)
+{
+    return m_impl->configurePlugin(plugin, config);
 }
 
 PluginLoader::PluginKey
@@ -380,6 +396,57 @@ PluginLoader::Impl::loadPlugin(PluginKey key,
          << fullPath << "\"" << endl;
 
     return 0;
+}
+
+LoadResponse
+PluginLoader::Impl::loadPlugin(LoadRequest req)
+{
+    Plugin *plugin = loadPlugin(req.pluginKey,
+                                req.inputSampleRate,
+                                req.adapterFlags);
+    LoadResponse response;
+    if (!plugin) return response;
+
+    response.plugin = plugin;
+    response.staticData = PluginStaticData::fromPlugin
+        (req.pluginKey,
+         getPluginCategory(req.pluginKey),
+         plugin);
+
+    int defaultChannels = 0;
+    if (plugin->getMinChannelCount() == plugin->getMaxChannelCount()) {
+        defaultChannels = plugin->getMinChannelCount();
+    }
+    
+    response.defaultConfiguration = PluginConfiguration::fromPlugin
+        (plugin,
+         defaultChannels,
+         plugin->getPreferredStepSize(),
+         plugin->getPreferredBlockSize());
+    
+    return response;
+}
+
+Plugin::OutputList
+PluginLoader::Impl::configurePlugin(Plugin *plugin, PluginConfiguration config)
+{
+    for (PluginConfiguration::ParameterMap::const_iterator i =
+             config.parameterValues.begin();
+         i != config.parameterValues.end(); ++i) {
+        plugin->setParameter(i->first, i->second);
+    }
+
+    if (config.currentProgram != "") {
+        plugin->selectProgram(config.currentProgram);
+    }
+
+    if (plugin->initialise(config.channelCount,
+                           config.stepSize,
+                           config.blockSize)) {
+        return plugin->getOutputDescriptors();
+    } else {
+        return Plugin::OutputList();
+    }
 }
 
 void

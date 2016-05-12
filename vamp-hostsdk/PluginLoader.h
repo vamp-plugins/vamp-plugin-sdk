@@ -43,6 +43,7 @@
 
 #include "hostguard.h"
 #include "PluginWrapper.h"
+#include "LoadRequest.h"
 
 _VAMP_SDK_HOSTSPACE_BEGIN(PluginLoader.h)
 
@@ -201,6 +202,34 @@ public:
                        float inputSampleRate,
                        int adapterFlags = 0);
 
+    /**
+     * Load a Vamp plugin, given its key, inputSampleRate and the
+     * adapter flags, bundled into a LoadRequest structure. The loaded
+     * plugin is returned along with its static data and default
+     * configuration in a LoadResponse.
+     * 
+     * \see AdapterFlags, PluginInputDomainAdapter, PluginChannelAdapter, LoadRequest, LoadResponse
+     */
+    LoadResponse loadPlugin(LoadRequest req);
+
+    /**
+     * Configure and initialise a Vamp plugin. This applies the
+     * parameter and program settings found in the supplied
+     * PluginConfiguration structure and initialises the plugin. (Many
+     * hosts will prefer to do this themselves in stages, by calling
+     * methods on the plugin directly.)
+     *
+     * Returns the result of calling getOutputDescriptors() on the
+     * configured and initialised plugin, representing the outputs of
+     * the plugin following configuration (since output ranges etc can
+     * depend on the parameters). If plugin initialisation fails,
+     * returns an empty list.
+     *
+     * \see PluginConfiguration
+     */
+    Plugin::OutputList configurePlugin(Plugin *plugin,
+                                       PluginConfiguration configuration);
+    
     /**
      * Given a Vamp plugin library name and plugin identifier, return
      * the corresponding plugin key in a form suitable for passing in to

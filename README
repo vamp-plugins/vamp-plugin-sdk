@@ -12,6 +12,9 @@ to produce descriptive output (measurements or semantic observations).
 This is version 2.6 of the Vamp plugin Software Development Kit.
 
 Plugins and hosts built with this SDK are binary compatible with those
+built using any version 2.0 or newer of the SDK.
+
+Plugins and hosts built with this SDK are binary compatible with those
 built using version 1.0 of the SDK, with certain restrictions.  See
 the file README.compat for more details.
 
@@ -248,7 +251,7 @@ Authors
 Vamp and the Vamp SDK were designed and made at the Centre for Digital
 Music at Queen Mary, University of London.
 
-The SDK was written by Chris Cannam, copyright (c) 2005-2015
+The SDK was written by Chris Cannam, copyright (c) 2005-2016
 Chris Cannam and QMUL.
 
 Mark Sandler and Christian Landone provided ideas and direction, and

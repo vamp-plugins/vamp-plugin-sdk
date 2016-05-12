@@ -146,13 +146,16 @@ HOSTSDK_HEADERS	= \
 		$(HOSTSDKDIR)/Plugin.h \
 		$(HOSTSDKDIR)/PluginBase.h \
 		$(HOSTSDKDIR)/PluginHostAdapter.h \
-		$(HOSTSDKDIR)/RealTime.h \
 		$(HOSTSDKDIR)/PluginBufferingAdapter.h \
 		$(HOSTSDKDIR)/PluginChannelAdapter.h \
 		$(HOSTSDKDIR)/PluginInputDomainAdapter.h \
 		$(HOSTSDKDIR)/PluginLoader.h \
 		$(HOSTSDKDIR)/PluginSummarisingAdapter.h \
 		$(HOSTSDKDIR)/PluginWrapper.h \
+		$(HOSTSDKDIR)/RealTime.h \
+		$(HOSTSDKDIR)/PluginConfiguration.h \
+		$(HOSTSDKDIR)/PluginStaticData.h \
+		$(HOSTSDKDIR)/LoadRequest.h \
 		$(HOSTSDKDIR)/hostguard.h \
 		$(HOSTSDKDIR)/host-c.h \
 		$(HOSTSDKDIR)/vamp-hostsdk.h
