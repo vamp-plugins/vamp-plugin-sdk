@@ -102,7 +102,7 @@ struct LoadRequest
 };
 
 /**
- * \class LoadResponse LoadResponse.h <vamp-hostsdk/LoadResponse.h>
+ * \class LoadResponse LoadRequest.h <vamp-hostsdk/LoadRequest.h>
  * 
  * Vamp::HostExt::LoadResponse is a structure containing the
  * information returned by PluginLoader when asked to load a plugin

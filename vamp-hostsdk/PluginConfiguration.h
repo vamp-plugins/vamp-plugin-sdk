@@ -39,6 +39,8 @@
 
 #include "hostguard.h"
 
+#include "Plugin.h"
+
 #include <map>
 #include <string>
 
@@ -100,6 +102,44 @@ struct PluginConfiguration
 
 	return c;
     }
+};
+
+/**
+ * \class ConfigurationRequest PluginConfiguration.h <vamp-hostsdk/PluginConfiguration.h>
+ * 
+ * A wrapper for a plugin pointer and PluginConfiguration, bundling up
+ * the data needed to configure a plugin after it has been loaded.
+ *
+ * \see PluginConfiguration, ConfigurationResponse, LoadRequest, LoadResponse
+ */
+struct ConfigurationRequest
+{
+public:
+    ConfigurationRequest() : // invalid request by default
+	plugin(0) { }
+
+    Plugin *plugin;
+    PluginConfiguration configuration;
+};
+
+/**
+ * \class ConfigurationResponse PluginConfiguration.h <vamp-hostsdk/PluginConfiguration.h>
+ *
+ * The return value from a configuration request (i.e. setting the
+ * parameters and initialising the plugin). If the configuration was
+ * successful, the output list will contain the final
+ * post-initialisation output descriptors. If configuration failed,
+ * the output list will be empty.
+ *
+ * \see PluginConfiguration, ConfigurationRequest, LoadRequest, LoadResponse
+ */
+struct ConfigurationResponse
+{
+public:
+    ConfigurationResponse() // failed by default
+    { }
+
+    Plugin::OutputList outputs;
 };
 
 }
