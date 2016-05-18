@@ -214,8 +214,8 @@ public:
         plugin(0) { }
 
     Plugin *plugin;
+    std::vector<std::vector<float> > inputBuffers;
     RealTime timestamp;
-    std::vector<std::vector<float> > input;
 };
 
 /**
