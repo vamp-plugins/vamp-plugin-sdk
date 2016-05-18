@@ -43,7 +43,7 @@
 
 #include "hostguard.h"
 #include "PluginWrapper.h"
-#include "LoadRequest.h"
+#include "RequestResponse.h"
 
 _VAMP_SDK_HOSTSPACE_BEGIN(PluginLoader.h)
 

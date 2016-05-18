@@ -45,7 +45,7 @@
 #include <map>
 #include <string>
 
-_VAMP_SDK_HOSTSPACE_BEGIN(LoadRequest.h)
+_VAMP_SDK_HOSTSPACE_BEGIN(RequestResponse.h)
 
 namespace Vamp {
 
@@ -54,7 +54,7 @@ class Plugin;
 namespace HostExt {
 
 /**
- * \class LoadRequest LoadRequest.h <vamp-hostsdk/LoadRequest.h>
+ * \class LoadRequest RequestResponse.h <vamp-hostsdk/RequestResponse.h>
  * 
  * Vamp::HostExt::LoadRequest is a structure containing the
  * information necessary to load a plugin. When a request is made to
@@ -102,7 +102,7 @@ struct LoadRequest
 };
 
 /**
- * \class LoadResponse LoadRequest.h <vamp-hostsdk/LoadRequest.h>
+ * \class LoadResponse RequestResponse.h <vamp-hostsdk/RequestResponse.h>
  * 
  * Vamp::HostExt::LoadResponse is a structure containing the
  * information returned by PluginLoader when asked to load a plugin
@@ -152,6 +152,6 @@ struct LoadResponse
 
 }
 
-_VAMP_SDK_HOSTSPACE_END(LoadRequest.h)
+_VAMP_SDK_HOSTSPACE_END(RequestResponse.h)
 
 #endif

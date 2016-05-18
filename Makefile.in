@@ -155,7 +155,7 @@ HOSTSDK_HEADERS	= \
 		$(HOSTSDKDIR)/RealTime.h \
 		$(HOSTSDKDIR)/PluginConfiguration.h \
 		$(HOSTSDKDIR)/PluginStaticData.h \
-		$(HOSTSDKDIR)/LoadRequest.h \
+		$(HOSTSDKDIR)/RequestResponse.h \
 		$(HOSTSDKDIR)/hostguard.h \
 		$(HOSTSDKDIR)/host-c.h \
 		$(HOSTSDKDIR)/vamp-hostsdk.h
