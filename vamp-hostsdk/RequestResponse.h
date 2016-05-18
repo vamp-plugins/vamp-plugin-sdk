@@ -34,8 +34,8 @@
     authorization.
 */
 
-#ifndef VAMP_LOAD_REQUEST_H
-#define VAMP_LOAD_REQUEST_H
+#ifndef VAMP_REQUEST_RESPONSE_H
+#define VAMP_REQUEST_RESPONSE_H
 
 #include "PluginStaticData.h"
 #include "PluginConfiguration.h"
@@ -146,6 +146,44 @@ struct LoadResponse
      * only valid if plugin is non-0.
      */
     PluginConfiguration defaultConfiguration;
+};
+
+/**
+ * \class ConfigurationRequest RequestResponse.h <vamp-hostsdk/RequestResponse.h>
+ * 
+ * A wrapper for a plugin pointer and PluginConfiguration, bundling up
+ * the data needed to configure a plugin after it has been loaded.
+ *
+ * \see PluginConfiguration, ConfigurationResponse, LoadRequest, LoadResponse
+ */
+struct ConfigurationRequest
+{
+public:
+    ConfigurationRequest() : // invalid request by default
+	plugin(0) { }
+
+    Plugin *plugin;
+    PluginConfiguration configuration;
+};
+
+/**
+ * \class ConfigurationResponse RequestResponse.h <vamp-hostsdk/RequestResponse.h>
+ *
+ * The return value from a configuration request (i.e. setting the
+ * parameters and initialising the plugin). If the configuration was
+ * successful, the output list will contain the final
+ * post-initialisation output descriptors. If configuration failed,
+ * the output list will be empty.
+ *
+ * \see PluginConfiguration, ConfigurationRequest, LoadRequest, LoadResponse
+ */
+struct ConfigurationResponse
+{
+public:
+    ConfigurationResponse() // failed by default
+    { }
+
+    Plugin::OutputList outputs;
 };
 
 }
