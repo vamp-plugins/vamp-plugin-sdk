@@ -230,21 +230,20 @@ public:
 
     /**
      * Configure and initialise a Vamp plugin. This applies the
-     * parameter and program settings found in the supplied
-     * PluginConfiguration structure and initialises the plugin. (Many
-     * hosts will prefer to do this themselves in stages, by calling
-     * methods on the plugin directly.)
+     * parameter and program settings found in the PluginConfiguration
+     * part of the supplied ConfigurationRequest and initialises the
+     * plugin. (Many hosts will prefer to do this themselves in
+     * stages, by calling methods on the plugin directly.)
      *
-     * Returns the result of calling getOutputDescriptors() on the
-     * configured and initialised plugin, representing the outputs of
-     * the plugin following configuration (since output ranges etc can
-     * depend on the parameters). If plugin initialisation fails,
-     * returns an empty list.
+     * Return a ConfigurationResponse containing the result of calling
+     * getOutputDescriptors() on the configured and initialised
+     * plugin, representing the outputs of the plugin following
+     * configuration (since output ranges etc can depend on the
+     * parameters). If initialisation fails, returns an empty list.
      *
-     * \see PluginConfiguration
+     * \see PluginConfiguration, ConfigurationRequest, ConfigurationResponse
      */
-    Plugin::OutputList configurePlugin(Plugin *plugin,
-                                       PluginConfiguration configuration);
+    ConfigurationResponse configurePlugin(ConfigurationRequest req);
     
     /**
      * Given a Vamp plugin library name and plugin identifier, return

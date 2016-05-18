@@ -155,6 +155,9 @@ struct LoadResponse
  * the data needed to configure a plugin after it has been loaded.
  *
  * \see PluginConfiguration, ConfigurationResponse, LoadRequest, LoadResponse
+ *
+ * \note This class was introduced in version 2.7 of the Vamp plugin
+ * SDK, along with the PluginLoader method that returns this structure.
  */
 struct ConfigurationRequest
 {
@@ -176,6 +179,9 @@ public:
  * the output list will be empty.
  *
  * \see PluginConfiguration, ConfigurationRequest, LoadRequest, LoadResponse
+ *
+ * \note This class was introduced in version 2.7 of the Vamp plugin
+ * SDK, along with the PluginLoader method that returns this structure.
  */
 struct ConfigurationResponse
 {
@@ -184,6 +190,55 @@ public:
     { }
 
     Plugin::OutputList outputs;
+};
+
+/**
+ * \class ProcessRequest RequestResponse.h <vamp-hostsdk/RequestResponse.h>
+ *
+ * A structure that bundles the necessary data for making a process
+ * call: plugin, input buffers, and timestamp. Caller retains
+ * ownership of the plugin, but the buffers are passed "by value" to
+ * avoid ownership concerns. 
+ *
+ * \see Plugin::process()
+ *
+ * \note This class was introduced in version 2.7 of the Vamp plugin
+ * SDK, but it is not currently used by the SDK. It is supplied as a
+ * convenience for code using the SDK, and for symmetry with the load
+ * and configuration request structs.
+ */
+struct ProcessRequest
+{
+public:
+    ProcessRequest() : // invalid by default
+        plugin(0) { }
+
+    Plugin *plugin;
+    RealTime timestamp;
+    std::vector<std::vector<float> > input;
+};
+
+/**
+ * \class ProcessResponse RequestResponse.h <vamp-hostsdk/RequestResponse.h>
+ *
+ * A structure that bundles the data returned by a process call and by
+ * Plugin::getRemainingFeatures(). This is simply a FeatureSet
+ * wrapper, named for symmetry with the other request-response pairs.
+ *
+ * \see Plugin::process(), Plugin::getRemainingFeatures()
+ *
+ * \note This class was introduced in version 2.7 of the Vamp plugin
+ * SDK, but it is not currently used by the SDK. It is supplied as a
+ * convenience for code using the SDK, and for symmetry with the load
+ * and configuration request structs.
+ */
+struct ProcessResponse
+{
+public:
+    ProcessResponse() // empty by default
+    { }
+
+    Plugin::FeatureSet features;
 };
 
 }

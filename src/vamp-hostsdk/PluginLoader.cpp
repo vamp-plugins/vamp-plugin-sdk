@@ -69,7 +69,7 @@ public:
 
     LoadResponse loadPlugin(LoadRequest req);
 
-    Plugin::OutputList configurePlugin(Plugin *plugin, PluginConfiguration config);
+    ConfigurationResponse configurePlugin(ConfigurationRequest req);
     
     PluginKey composePluginKey(string libraryName, string identifier);
 
@@ -169,10 +169,10 @@ PluginLoader::loadPlugin(LoadRequest req)
     return m_impl->loadPlugin(req);
 }
 
-Plugin::OutputList
-PluginLoader::configurePlugin(Plugin *plugin, PluginConfiguration config)
+ConfigurationResponse
+PluginLoader::configurePlugin(ConfigurationRequest req)
 {
-    return m_impl->configurePlugin(plugin, config);
+    return m_impl->configurePlugin(req);
 }
 
 PluginLoader::PluginKey
@@ -455,26 +455,28 @@ PluginLoader::Impl::loadPlugin(LoadRequest req)
     return response;
 }
 
-Plugin::OutputList
-PluginLoader::Impl::configurePlugin(Plugin *plugin, PluginConfiguration config)
+ConfigurationResponse
+PluginLoader::Impl::configurePlugin(ConfigurationRequest req)
 {
     for (PluginConfiguration::ParameterMap::const_iterator i =
-             config.parameterValues.begin();
-         i != config.parameterValues.end(); ++i) {
-        plugin->setParameter(i->first, i->second);
+             req.configuration.parameterValues.begin();
+         i != req.configuration.parameterValues.end(); ++i) {
+        req.plugin->setParameter(i->first, i->second);
     }
 
-    if (config.currentProgram != "") {
-        plugin->selectProgram(config.currentProgram);
+    if (req.configuration.currentProgram != "") {
+        req.plugin->selectProgram(req.configuration.currentProgram);
     }
 
-    if (plugin->initialise(config.channelCount,
-                           config.stepSize,
-                           config.blockSize)) {
-        return plugin->getOutputDescriptors();
-    } else {
-        return Plugin::OutputList();
+    ConfigurationResponse response;
+
+    if (req.plugin->initialise(req.configuration.channelCount,
+                               req.configuration.stepSize,
+                               req.configuration.blockSize)) {
+        response.outputs = req.plugin->getOutputDescriptors();
     }
+
+    return response;
 }
 
 void
