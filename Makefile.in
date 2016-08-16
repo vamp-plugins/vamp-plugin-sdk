@@ -390,7 +390,7 @@ src/vamp-sdk/PluginAdapter.o: vamp-sdk/PluginAdapter.h vamp/vamp.h
 src/vamp-sdk/PluginAdapter.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
 src/vamp-sdk/PluginAdapter.o: vamp-sdk/plugguard.h vamp-sdk/RealTime.h
 src/vamp-sdk/RealTime.o: ./vamp-sdk/RealTime.h vamp-sdk/plugguard.h
-src/vamp-sdk/FFT.o: src/vamp-sdk/FFT.cpp vamp-sdk/FFT.h src/vamp-sdk/FFTimpl.cpp
+src/vamp-sdk/FFT.o: src/vamp-sdk/FFT.cpp vamp-sdk/FFT.h 
 src/vamp-hostsdk/PluginBufferingAdapter.o: ./vamp-hostsdk/PluginBufferingAdapter.h
 src/vamp-hostsdk/PluginBufferingAdapter.o: ./vamp-hostsdk/PluginWrapper.h
 src/vamp-hostsdk/PluginBufferingAdapter.o: ./vamp-hostsdk/Plugin.h
@@ -416,7 +416,6 @@ src/vamp-hostsdk/PluginInputDomainAdapter.o: vamp-sdk/PluginBase.h
 src/vamp-hostsdk/PluginInputDomainAdapter.o: vamp-sdk/plugguard.h
 src/vamp-hostsdk/PluginInputDomainAdapter.o: vamp-sdk/RealTime.h
 src/vamp-hostsdk/PluginInputDomainAdapter.o: vamp-sdk/FFT.h
-src/vamp-hostsdk/PluginInputDomainAdapter.o: src/vamp-sdk/FFTimpl.cpp
 src/vamp-hostsdk/PluginLoader.o: ./vamp-hostsdk/PluginHostAdapter.h
 src/vamp-hostsdk/PluginLoader.o: vamp/vamp.h vamp-sdk/Plugin.h
 src/vamp-hostsdk/PluginLoader.o: vamp-sdk/PluginBase.h

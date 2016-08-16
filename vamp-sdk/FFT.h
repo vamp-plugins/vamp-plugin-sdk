@@ -44,22 +44,19 @@ namespace Vamp {
 
 /**
  * A simple FFT implementation provided for convenience of plugin
- * authors.
- * 
- * This class provides double-precision FFTs in power-of-two sizes
- * only. It is slower than more sophisticated library
- * implementations. If these requirements aren't suitable, make other
- * arrangements.
+ * authors. This class provides one-shot (i.e. fixed table state is
+ * recalculated every time) double precision complex-complex
+ * transforms. For repeated transforms from real time-domain data, use
+ * a FFTReal object instead.
  *
- * The inverse transform is scaled by 1/n.
- *
- * The implementation is from Don Cross's public domain FFT code.
+ * The forward transform is unscaled; the inverse transform is scaled
+ * by 1/n.
  */
 class FFT
 {
 public:
     /**
-     * Calculate a forward transform of size n.
+     * Calculate a one-shot forward transform of size n.
      * n must be a power of 2, greater than 1.
      *
      * ri and ii must point to the real and imaginary component arrays
@@ -75,7 +72,7 @@ public:
                         double *ro, double *io);
 
     /**
-     * Calculate an inverse transform of size n.
+     * Calculate a one-shot inverse transform of size n.
      * n must be a power of 2, greater than 1.
      *
      * ri and ii must point to the real and imaginary component arrays
@@ -91,6 +88,51 @@ public:
     static void inverse(unsigned int n,
                         const double *ri, const double *ii,
                         double *ro, double *io);
+};
+
+/**
+ * A simple FFT implementation provided for convenience of plugin
+ * authors. This class provides transforms between real
+ * single-precision time-domain and complex single-precision
+ * frequency-domain data.
+ *
+ * The forward transform is unscaled; the inverse transform is scaled
+ * by 1/n.
+ */
+class FFTReal
+{
+    /**
+     * Prepare to calculate transforms of size n.
+     * n must be a power of 2, greater than 1.
+     */
+    FFTReal(unsigned int n);
+
+    ~FFTReal();
+
+    /**
+     * Calculate a forward transform of size n.
+     *
+     * ri must point to the real input data of size n.
+     *
+     * co must point to enough space to receive an interleaved complex
+     * output array of size n/2+1.
+     */
+    void forward(const float *ri, float *co);
+
+    /**
+     * Calculate an inverse transform of size n.
+     *
+     * ci must point to an interleaved complex input array of size n/2+1.
+     *
+     * ro must point to enough space to receive the real output data
+     * of size n. The output is scaled by 1/n and only the real part
+     * is returned.
+     */
+    void inverse(const float *ci, float *ro);
+
+private:
+    class D;
+    D *m_d;
 };
 
 }
