@@ -234,10 +234,12 @@ PluginInputDomainAdapter::Impl::~Impl()
             delete[] m_freqbuf[c];
         }
         delete[] m_freqbuf;
+        delete[] m_ri;
         if (m_cfg) {
             KissSingle::kiss_fftr_free(m_cfg);
-            delete[] m_cbuf;
             m_cfg = 0;
+            delete[] m_cbuf;
+            m_cbuf = 0;
         }
         delete m_window;
     }
@@ -275,10 +277,12 @@ PluginInputDomainAdapter::Impl::initialise(size_t channels, size_t stepSize, siz
             delete[] m_freqbuf[c];
         }
         delete[] m_freqbuf;
+        delete[] m_ri;
         if (m_cfg) {
             KissSingle::kiss_fftr_free(m_cfg);
-            delete[] m_cbuf;
             m_cfg = 0;
+            delete[] m_cbuf;
+            m_cbuf = 0;
         }
         delete m_window;
     }
@@ -291,15 +295,16 @@ PluginInputDomainAdapter::Impl::initialise(size_t channels, size_t stepSize, siz
     for (int c = 0; c < m_channels; ++c) {
         m_freqbuf[c] = new float[m_blockSize + 2];
     }
+    m_ri = new float[m_blockSize];
 
     m_window = new Window<float>(convertType(m_windowType), m_blockSize);
 
-    m_cfg = KissSingle::kiss_fftr_alloc(blockSize, false, 0, 0);
-    m_cbuf = new KissSingle::kiss_fft_cpx[blockSize/2+1];
+    m_cfg = KissSingle::kiss_fftr_alloc(m_blockSize, false, 0, 0);
+    m_cbuf = new KissSingle::kiss_fft_cpx[m_blockSize/2+1];
 
     m_processCount = 0;
 
-    return m_plugin->initialise(channels, stepSize, blockSize);
+    return m_plugin->initialise(channels, stepSize, m_blockSize);
 }
 
 void
