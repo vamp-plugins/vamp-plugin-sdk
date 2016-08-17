@@ -135,7 +135,6 @@ FFT::inverse(unsigned int un,
     KissDouble::kiss_fft_free(c);
     delete[] in;
     delete[] out;
-    KissDouble::kiss_fft_free(c);
 }
 
 class FFTReal::D
