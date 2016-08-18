@@ -80,7 +80,9 @@ enum Verbosity {
     PluginInformationDetailed
 };
 
-void printFeatures(int, int, int, Plugin::FeatureSet, ofstream *, bool frames);
+void printFeatures(int, int,
+                   const Plugin::OutputDescriptor &, int,
+                   const Plugin::FeatureSet &, ofstream *, bool frames);
 void transformInput(float *, size_t);
 void fft(unsigned int, bool, double *, double *, double *, double *);
 void printPluginPath(bool verbose);
@@ -364,6 +366,7 @@ int runPlugin(string myname, string soname, string id,
 
     Plugin::OutputList outputs = plugin->getOutputDescriptors();
     Plugin::OutputDescriptor od;
+    Plugin::FeatureSet features;
 
     int returnValue = 1;
     int progress = 0;
@@ -455,10 +458,11 @@ int runPlugin(string myname, string soname, string id,
 
         rt = RealTime::frame2RealTime(currentStep * stepSize, sfinfo.samplerate);
 
+        features = plugin->process(plugbuf, rt);
+        
         printFeatures
             (RealTime::realTime2Frame(rt + adjustment, sfinfo.samplerate),
-             sfinfo.samplerate, outputNo, plugin->process(plugbuf, rt),
-             out, useFrames);
+             sfinfo.samplerate, od, outputNo, features, out, useFrames);
 
         if (sfinfo.frames > 0){
             int pp = progress;
@@ -476,9 +480,10 @@ int runPlugin(string myname, string soname, string id,
 
     rt = RealTime::frame2RealTime(currentStep * stepSize, sfinfo.samplerate);
 
+    features = plugin->getRemainingFeatures();
+    
     printFeatures(RealTime::realTime2Frame(rt + adjustment, sfinfo.samplerate),
-                  sfinfo.samplerate, outputNo,
-                  plugin->getRemainingFeatures(), out, useFrames);
+                  sfinfo.samplerate, od, outputNo, features, out, useFrames);
 
     returnValue = 0;
 
@@ -492,26 +497,52 @@ done:
     return returnValue;
 }
 
-void
-printFeatures(int frame, int sr, int output,
-              Plugin::FeatureSet features, ofstream *out, bool useFrames)
+static double
+toSeconds(const RealTime &time)
 {
-    for (unsigned int i = 0; i < features[output].size(); ++i) {
+    return time.sec + double(time.nsec + 1) / 1000000000.0;
+}
 
+void
+printFeatures(int frame, int sr,
+              const Plugin::OutputDescriptor &output, int outputNo,
+              const Plugin::FeatureSet &features, ofstream *out, bool useFrames)
+{
+    static int featureCount = 0;
+    
+    if (features.find(outputNo) == features.end()) return;
+    
+    for (size_t i = 0; i < features.at(outputNo).size(); ++i) {
+
+        const Plugin::Feature &f = features.at(outputNo).at(i);
+
+        bool haveRt = false;
+        RealTime rt;
+
+        if (output.sampleType == Plugin::OutputDescriptor::VariableSampleRate) {
+            rt = f.timestamp;
+            haveRt = true;
+        } else if (output.sampleType == Plugin::OutputDescriptor::FixedSampleRate) {
+            int n = featureCount;
+            if (f.hasTimestamp) {
+                n = int(round(toSeconds(f.timestamp) * output.sampleRate));
+            }
+            rt = RealTime::fromSeconds(double(n) / output.sampleRate);
+            haveRt = true;
+        }
+        
         if (useFrames) {
 
             int displayFrame = frame;
 
-            if (features[output][i].hasTimestamp) {
-                displayFrame = RealTime::realTime2Frame
-                    (features[output][i].timestamp, sr);
+            if (haveRt) {
+                displayFrame = RealTime::realTime2Frame(rt, sr);
             }
 
             (out ? *out : cout) << displayFrame;
 
-            if (features[output][i].hasDuration) {
-                displayFrame = RealTime::realTime2Frame
-                    (features[output][i].duration, sr);
+            if (f.hasDuration) {
+                displayFrame = RealTime::realTime2Frame(f.duration, sr);
                 (out ? *out : cout) << "," << displayFrame;
             }
 
@@ -519,28 +550,28 @@ printFeatures(int frame, int sr, int output,
 
         } else {
 
-            RealTime rt = RealTime::frame2RealTime(frame, sr);
-
-            if (features[output][i].hasTimestamp) {
-                rt = features[output][i].timestamp;
+            if (!haveRt) {
+                rt = RealTime::frame2RealTime(frame, sr);
             }
 
             (out ? *out : cout) << rt.toString();
 
-            if (features[output][i].hasDuration) {
-                rt = features[output][i].duration;
+            if (f.hasDuration) {
+                rt = f.duration;
                 (out ? *out : cout) << "," << rt.toString();
             }
 
             (out ? *out : cout) << ":";
         }
 
-        for (unsigned int j = 0; j < features[output][i].values.size(); ++j) {
-            (out ? *out : cout) << " " << features[output][i].values[j];
+        for (unsigned int j = 0; j < f.values.size(); ++j) {
+            (out ? *out : cout) << " " << f.values[j];
         }
-        (out ? *out : cout) << " " << features[output][i].label;
+        (out ? *out : cout) << " " << f.label;
 
         (out ? *out : cout) << endl;
+
+        ++featureCount;
     }
 }
 
