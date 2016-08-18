@@ -108,21 +108,92 @@ FFT::inverse(unsigned int un,
     delete[] out;
 }
 
+class FFTComplex::D
+{
+public:
+    D(int n) :
+        m_n(n),
+        m_fconf(Kiss::kiss_fft_alloc(n, false, 0, 0)),
+        m_iconf(Kiss::kiss_fft_alloc(n, true, 0, 0)),
+        m_ci(new Kiss::kiss_fft_cpx[m_n]),
+        m_co(new Kiss::kiss_fft_cpx[m_n]) { }
+
+    ~D() {
+        Kiss::kiss_fftr_free(m_fconf);
+        Kiss::kiss_fftr_free(m_iconf);
+        delete[] m_ci;
+        delete[] m_co;
+    }
+
+    void forward(const double *ci, double *co) {
+        for (int i = 0; i < m_n; ++i) {
+            m_ci[i].r = ci[i*2];
+            m_ci[i].i = ci[i*2+1];
+        }
+        Kiss::kiss_fft(m_fconf, m_ci, m_co);
+        for (int i = 0; i < m_n; ++i) {
+            co[i*2] = m_co[i].r;
+            co[i*2+1] = m_co[i].i;
+        }
+    }
+
+    void inverse(const double *ci, double *co) {
+        for (int i = 0; i < m_n; ++i) {
+            m_ci[i].r = ci[i*2];
+            m_ci[i].i = ci[i*2+1];
+        }
+        Kiss::kiss_fft(m_iconf, m_ci, m_co);
+        double scale = 1.0 / double(m_n);
+        for (int i = 0; i < m_n; ++i) {
+            co[i*2] = m_co[i].r * scale;
+            co[i*2+1] = m_co[i].i * scale;
+        }
+    }
+    
+private:
+    int m_n;
+    Kiss::kiss_fft_cfg m_fconf;
+    Kiss::kiss_fft_cfg m_iconf;
+    Kiss::kiss_fft_cpx *m_ci;
+    Kiss::kiss_fft_cpx *m_co;
+};
+
+FFTComplex::FFTComplex(unsigned int n) :
+    m_d(new D(n))
+{
+}
+
+FFTComplex::~FFTComplex()
+{
+    delete m_d;
+}
+
+void
+FFTComplex::forward(const double *ci, double *co)
+{
+    m_d->forward(ci, co);
+}
+
+void
+FFTComplex::inverse(const double *ci, double *co)
+{
+    m_d->inverse(ci, co);
+}
+
 class FFTReal::D
 {
 public:
-    
     D(int n) :
         m_n(n),
-        m_cf(Kiss::kiss_fftr_alloc(n, false, 0, 0)),
-        m_ci(Kiss::kiss_fftr_alloc(n, true, 0, 0)),
+        m_fconf(Kiss::kiss_fftr_alloc(n, false, 0, 0)),
+        m_iconf(Kiss::kiss_fftr_alloc(n, true, 0, 0)),
         m_ri(new Kiss::kiss_fft_scalar[m_n]),
         m_ro(new Kiss::kiss_fft_scalar[m_n]),
         m_freq(new Kiss::kiss_fft_cpx[n/2+1]) { }
 
     ~D() {
-        Kiss::kiss_fftr_free(m_cf);
-        Kiss::kiss_fftr_free(m_ci);
+        Kiss::kiss_fftr_free(m_fconf);
+        Kiss::kiss_fftr_free(m_iconf);
         delete[] m_ri;
         delete[] m_ro;
         delete[] m_freq;
@@ -133,7 +204,7 @@ public:
             // in case kiss_fft_scalar is float
             m_ri[i] = ri[i];
         }
-        Kiss::kiss_fftr(m_cf, m_ri, m_freq);
+        Kiss::kiss_fftr(m_fconf, m_ri, m_freq);
         int hs = m_n/2 + 1;
         for (int i = 0; i < hs; ++i) {
             co[i*2] = m_freq[i].r;
@@ -147,7 +218,7 @@ public:
             m_freq[i].r = ci[i*2];
             m_freq[i].i = ci[i*2+1];
         }
-        Kiss::kiss_fftri(m_ci, m_freq, m_ro);
+        Kiss::kiss_fftri(m_iconf, m_freq, m_ro);
         double scale = 1.0 / double(m_n);
         for (int i = 0; i < m_n; ++i) {
             ro[i] = m_ro[i] * scale;
@@ -156,8 +227,8 @@ public:
     
 private:
     int m_n;
-    Kiss::kiss_fftr_cfg m_cf;
-    Kiss::kiss_fftr_cfg m_ci;
+    Kiss::kiss_fftr_cfg m_fconf;
+    Kiss::kiss_fftr_cfg m_iconf;
     Kiss::kiss_fft_scalar *m_ri;
     Kiss::kiss_fft_scalar *m_ro;
     Kiss::kiss_fft_cpx *m_freq;

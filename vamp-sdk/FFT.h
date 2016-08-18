@@ -47,7 +47,11 @@ namespace Vamp {
  * authors. This class provides one-shot (i.e. fixed table state is
  * recalculated every time) double-precision complex-complex
  * transforms. For repeated transforms from real time-domain data, use
- * an FFTReal object instead.
+ * an FFTComplex or FFTReal object instead.
+ *
+ * Note: If the SDK has been compiled with the SINGLE_PRECISION_FFT
+ * flag, then all FFTs will use single precision internally. The
+ * default is double precision. The API uses doubles in either case.
  *
  * The forward transform is unscaled; the inverse transform is scaled
  * by 1/n.
@@ -57,7 +61,7 @@ class FFT
 public:
     /**
      * Calculate a one-shot forward transform of size n.
-     * n must be a power of 2, greater than 1.
+     * n must be a multiple of 2.
      *
      * ri and ii must point to the real and imaginary component arrays
      * of the input. For real input, ii may be NULL.
@@ -92,9 +96,63 @@ public:
 
 /**
  * A simple FFT implementation provided for convenience of plugin
+ * authors. This class provides double-precision complex-complex
+ * transforms.
+ *
+ * Note: If the SDK has been compiled with the SINGLE_PRECISION_FFT
+ * flag, then all FFTs will use single precision internally. The
+ * default is double precision. The API uses doubles in either case.
+ *
+ * The forward transform is unscaled; the inverse transform is scaled
+ * by 1/n.
+ */
+class FFTComplex
+{
+    /**
+     * Prepare to calculate transforms of size n.
+     * n must be a multiple of 2.
+     */
+    FFTComplex(unsigned int n);
+
+    ~FFTComplex();
+
+    /**
+     * Calculate a forward transform of size n.
+     *
+     * ci must point to the interleaved complex input data of size n
+     * (that is, 2n doubles in total).
+     *
+     * co must point to enough space to receive an interleaved complex
+     * output array of size n (that is, 2n doubles in total).
+     */
+    void forward(const double *ci, double *co);
+
+    /**
+     * Calculate an inverse transform of size n.
+     *
+     * ci must point to an interleaved complex input array of size n
+     * (that is, 2n doubles in total).
+     *
+     * co must point to enough space to receive the interleaved
+     * complex output data of size n (that is, 2n doubles in
+     * total). The output is scaled by 1/n.
+     */
+    void inverse(const double *ci, double *co);
+
+private:
+    class D;
+    D *m_d;
+};
+
+/**
+ * A simple FFT implementation provided for convenience of plugin
  * authors. This class provides transforms between double-precision
  * real time-domain and double-precision complex frequency-domain
  * data.
+ *
+ * Note: If the SDK has been compiled with the SINGLE_PRECISION_FFT
+ * flag, then all FFTs will use single precision internally. The
+ * default is double precision. The API uses doubles in either case.
  *
  * The forward transform is unscaled; the inverse transform is scaled
  * by 1/n.
@@ -103,7 +161,7 @@ class FFTReal
 {
     /**
      * Prepare to calculate transforms of size n.
-     * n must be a power of 2, greater than 1.
+     * n must be a multiple of 2.
      */
     FFTReal(unsigned int n);
 
@@ -115,14 +173,15 @@ class FFTReal
      * ri must point to the real input data of size n.
      *
      * co must point to enough space to receive an interleaved complex
-     * output array of size n/2+1.
+     * output array of size n/2+1 (that is, n+2 doubles in total).
      */
     void forward(const double *ri, double *co);
 
     /**
      * Calculate an inverse transform of size n.
      *
-     * ci must point to an interleaved complex input array of size n/2+1.
+     * ci must point to an interleaved complex input array of size
+     * n/2+1 (that is, n+2 doubles in total).
      *
      * ro must point to enough space to receive the real output data
      * of size n. The output is scaled by 1/n and only the real part
