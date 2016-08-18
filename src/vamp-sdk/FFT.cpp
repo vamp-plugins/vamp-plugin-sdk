@@ -47,36 +47,7 @@
 
 _VAMP_SDK_PLUGSPACE_BEGIN(FFT.cpp)
 
-// Override C linkage for KissFFT headers. So long as we have already
-// included all of the other (system etc) headers KissFFT depends on,
-// this should work out OK
-#undef __cplusplus
-
-namespace KissSingle {
-#undef KISS_FFT_H
-#undef KISS_FTR_H
-#undef KISS_FFT__GUTS_H
-#undef FIXED_POINT
-#undef USE_SIMD
-#undef kiss_fft_scalar
-#define kiss_fft_scalar float
-inline void free(void *ptr) { ::free(ptr); }
-#include "ext/kiss_fft.c"
-#include "ext/kiss_fftr.c"
-}
-
-namespace KissDouble {
-#undef KISS_FFT_H
-#undef KISS_FTR_H
-#undef KISS_FFT__GUTS_H
-#undef FIXED_POINT
-#undef USE_SIMD
-#undef kiss_fft_scalar
-#define kiss_fft_scalar double
-inline void free(void *ptr) { ::free(ptr); }
-#include "ext/kiss_fft.c"
-#include "ext/kiss_fftr.c"
-}
+#include "FFTimpl.cpp"
 
 namespace Vamp {
 
@@ -86,9 +57,9 @@ FFT::forward(unsigned int un,
 	     double *ro, double *io)
 {
     int n(un);
-    KissDouble::kiss_fft_cfg c = KissDouble::kiss_fft_alloc(n, false, 0, 0);
-    KissDouble::kiss_fft_cpx *in = new KissDouble::kiss_fft_cpx[n];
-    KissDouble::kiss_fft_cpx *out = new KissDouble::kiss_fft_cpx[n];
+    Kiss::kiss_fft_cfg c = Kiss::kiss_fft_alloc(n, false, 0, 0);
+    Kiss::kiss_fft_cpx *in = new Kiss::kiss_fft_cpx[n];
+    Kiss::kiss_fft_cpx *out = new Kiss::kiss_fft_cpx[n];
     for (int i = 0; i < n; ++i) {
         in[i].r = ri[i];
         in[i].i = 0;
@@ -103,7 +74,7 @@ FFT::forward(unsigned int un,
         ro[i] = out[i].r;
         io[i] = out[i].i;
     }
-    KissDouble::kiss_fft_free(c);
+    Kiss::kiss_fft_free(c);
     delete[] in;
     delete[] out;
 }
@@ -114,9 +85,9 @@ FFT::inverse(unsigned int un,
 	     double *ro, double *io)
 {
     int n(un);
-    KissDouble::kiss_fft_cfg c = KissDouble::kiss_fft_alloc(n, true, 0, 0);
-    KissDouble::kiss_fft_cpx *in = new KissDouble::kiss_fft_cpx[n];
-    KissDouble::kiss_fft_cpx *out = new KissDouble::kiss_fft_cpx[n];
+    Kiss::kiss_fft_cfg c = Kiss::kiss_fft_alloc(n, true, 0, 0);
+    Kiss::kiss_fft_cpx *in = new Kiss::kiss_fft_cpx[n];
+    Kiss::kiss_fft_cpx *out = new Kiss::kiss_fft_cpx[n];
     for (int i = 0; i < n; ++i) {
         in[i].r = ri[i];
         in[i].i = 0;
@@ -132,7 +103,7 @@ FFT::inverse(unsigned int un,
         ro[i] = out[i].r * scale;
         io[i] = out[i].i * scale;
     }
-    KissDouble::kiss_fft_free(c);
+    Kiss::kiss_fft_free(c);
     delete[] in;
     delete[] out;
 }
@@ -143,18 +114,26 @@ public:
     
     D(int n) :
         m_n(n),
-        m_cf(KissSingle::kiss_fftr_alloc(n, false, 0, 0)),
-        m_ci(KissSingle::kiss_fftr_alloc(n, true, 0, 0)),
-        m_freq(new KissSingle::kiss_fft_cpx[n/2+1]) { }
+        m_cf(Kiss::kiss_fftr_alloc(n, false, 0, 0)),
+        m_ci(Kiss::kiss_fftr_alloc(n, true, 0, 0)),
+        m_ri(new Kiss::kiss_fft_scalar[m_n]),
+        m_ro(new Kiss::kiss_fft_scalar[m_n]),
+        m_freq(new Kiss::kiss_fft_cpx[n/2+1]) { }
 
     ~D() {
-        KissSingle::kiss_fftr_free(m_cf);
-        KissSingle::kiss_fftr_free(m_ci);
+        Kiss::kiss_fftr_free(m_cf);
+        Kiss::kiss_fftr_free(m_ci);
+        delete[] m_ri;
+        delete[] m_ro;
         delete[] m_freq;
     }
 
-    void forward(const float *ri, float *co) {
-        KissSingle::kiss_fftr(m_cf, ri, m_freq);
+    void forward(const double *ri, double *co) {
+        for (int i = 0; i < m_n; ++i) {
+            // in case kiss_fft_scalar is float
+            m_ri[i] = ri[i];
+        }
+        Kiss::kiss_fftr(m_cf, m_ri, m_freq);
         int hs = m_n/2 + 1;
         for (int i = 0; i < hs; ++i) {
             co[i*2] = m_freq[i].r;
@@ -162,24 +141,26 @@ public:
         }
     }
 
-    void inverse(const float *ci, float *ro) {
+    void inverse(const double *ci, double *ro) {
         int hs = m_n/2 + 1;
         for (int i = 0; i < hs; ++i) {
             m_freq[i].r = ci[i*2];
             m_freq[i].i = ci[i*2+1];
         }
-        KissSingle::kiss_fftri(m_ci, m_freq, ro);
+        Kiss::kiss_fftri(m_ci, m_freq, m_ro);
         double scale = 1.0 / double(m_n);
         for (int i = 0; i < m_n; ++i) {
-            ro[i] *= scale;
+            ro[i] = m_ro[i] * scale;
         }
     }
     
 private:
     int m_n;
-    KissSingle::kiss_fftr_cfg m_cf;
-    KissSingle::kiss_fftr_cfg m_ci;
-    KissSingle::kiss_fft_cpx *m_freq;
+    Kiss::kiss_fftr_cfg m_cf;
+    Kiss::kiss_fftr_cfg m_ci;
+    Kiss::kiss_fft_scalar *m_ri;
+    Kiss::kiss_fft_scalar *m_ro;
+    Kiss::kiss_fft_cpx *m_freq;
 };
 
 FFTReal::FFTReal(unsigned int n) :
@@ -193,13 +174,13 @@ FFTReal::~FFTReal()
 }
 
 void
-FFTReal::forward(const float *ri, float *co)
+FFTReal::forward(const double *ri, double *co)
 {
     m_d->forward(ri, co);
 }
 
 void
-FFTReal::inverse(const float *ci, float *ro)
+FFTReal::inverse(const double *ci, double *ro)
 {
     m_d->inverse(ci, ro);
 }

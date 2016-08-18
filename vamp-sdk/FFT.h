@@ -45,9 +45,9 @@ namespace Vamp {
 /**
  * A simple FFT implementation provided for convenience of plugin
  * authors. This class provides one-shot (i.e. fixed table state is
- * recalculated every time) double precision complex-complex
+ * recalculated every time) double-precision complex-complex
  * transforms. For repeated transforms from real time-domain data, use
- * a FFTReal object instead.
+ * an FFTReal object instead.
  *
  * The forward transform is unscaled; the inverse transform is scaled
  * by 1/n.
@@ -92,9 +92,9 @@ public:
 
 /**
  * A simple FFT implementation provided for convenience of plugin
- * authors. This class provides transforms between real
- * single-precision time-domain and complex single-precision
- * frequency-domain data.
+ * authors. This class provides transforms between double-precision
+ * real time-domain and double-precision complex frequency-domain
+ * data.
  *
  * The forward transform is unscaled; the inverse transform is scaled
  * by 1/n.
@@ -117,7 +117,7 @@ class FFTReal
      * co must point to enough space to receive an interleaved complex
      * output array of size n/2+1.
      */
-    void forward(const float *ri, float *co);
+    void forward(const double *ri, double *co);
 
     /**
      * Calculate an inverse transform of size n.
@@ -128,7 +128,7 @@ class FFTReal
      * of size n. The output is scaled by 1/n and only the real part
      * is returned.
      */
-    void inverse(const float *ci, float *ro);
+    void inverse(const double *ci, double *ro);
 
 private:
     class D;
