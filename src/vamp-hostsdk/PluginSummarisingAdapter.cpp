@@ -868,10 +868,19 @@ PluginSummarisingAdapter::Impl::reduce()
                 
                 map<float, int> distribution;
 
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
+                cerr << "summing (discrete): ";
+#endif
                 for (int k = 0; k < sz; ++k) {
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
+                    cerr << accumulator.results[k].values[bin] << " ";
+#endif
                     summary.sum += accumulator.results[k].values[bin];
                     distribution[accumulator.results[k].values[bin]] += 1;
                 }
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
+                cerr << endl;
+#endif
 
                 int md = 0;
 
@@ -908,11 +917,21 @@ PluginSummarisingAdapter::Impl::reduce()
 
                     double sum_c = 0.0;
 
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
+                    cerr << "summing (continuous): ";
+#endif
                     for (int k = 0; k < sz; ++k) {
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
+                        cerr << accumulator.results[k].values[bin] << "*"
+                             << toSec(accumulator.results[k].duration) << " ";
+#endif
                         double value = accumulator.results[k].values[bin]
                             * toSec(accumulator.results[k].duration);
                         sum_c += value;
                     }
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
+                cerr << endl;
+#endif
 
 #ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
                     cerr << "mean_c = " << sum_c << " / " << totalDuration << " = "

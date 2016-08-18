@@ -49,22 +49,40 @@
 #include <string.h>
 #include <limits.h>
 
+// Define this symbol in the build if you want to use single-precision
+// FFTs in the input domain adapter. The default is to use
+// double-precision FFTs.
+//
+//#define SINGLE_PRECISION_INPUT_DOMAIN_ADAPTER 1
+
 // Override C linkage for KissFFT headers. So long as we have already
 // included all of the other (system etc) headers KissFFT depends on,
 // this should work out OK
 #undef __cplusplus
 
-namespace KissSingle {
+namespace Kiss {
+
 #undef KISS_FFT_H
 #undef KISS_FTR_H
 #undef KISS_FFT__GUTS_H
 #undef FIXED_POINT
 #undef USE_SIMD
 #undef kiss_fft_scalar
+
+#ifdef SINGLE_PRECISION_INPUT_DOMAIN_ADAPTER
+typedef float kiss_fft_scalar;
 #define kiss_fft_scalar float
+#else
+typedef double kiss_fft_scalar;
+#define kiss_fft_scalar double
+#endif
+
 inline void free(void *ptr) { ::free(ptr); }
 #include "../vamp-sdk/ext/kiss_fft.c"
 #include "../vamp-sdk/ext/kiss_fftr.c"
+
+#undef kiss_fft_scalar // leaving only the namespaced typedef
+
 }
 
 _VAMP_SDK_HOSTSPACE_BEGIN(PluginInputDomainAdapter.cpp)
@@ -102,24 +120,25 @@ protected:
     int m_stepSize;
     int m_blockSize;
     float **m_freqbuf;
-    float *m_ri;
+    Kiss::kiss_fft_scalar *m_ri;
 
     WindowType m_windowType;
-    Window<float> *m_window;
+    typedef Window<Kiss::kiss_fft_scalar> W;
+    W *m_window;
 
     ProcessTimestampMethod m_method;
     int m_processCount;
     float **m_shiftBuffers;
 
-    KissSingle::kiss_fftr_cfg m_cfg;
-    KissSingle::kiss_fft_cpx *m_cbuf;
+    Kiss::kiss_fftr_cfg m_cfg;
+    Kiss::kiss_fft_cpx *m_cbuf;
 
     FeatureSet processShiftingTimestamp(const float *const *inputBuffers, RealTime timestamp);
     FeatureSet processShiftingData(const float *const *inputBuffers, RealTime timestamp);
 
     size_t makeBlockSizeAcceptable(size_t) const;
     
-    Window<float>::WindowType convertType(WindowType t) const;
+    W::WindowType convertType(WindowType t) const;
 };
 
 PluginInputDomainAdapter::PluginInputDomainAdapter(Plugin *plugin) :
@@ -236,7 +255,7 @@ PluginInputDomainAdapter::Impl::~Impl()
         delete[] m_freqbuf;
         delete[] m_ri;
         if (m_cfg) {
-            KissSingle::kiss_fftr_free(m_cfg);
+            Kiss::kiss_fftr_free(m_cfg);
             m_cfg = 0;
             delete[] m_cbuf;
             m_cbuf = 0;
@@ -279,7 +298,7 @@ PluginInputDomainAdapter::Impl::initialise(size_t channels, size_t stepSize, siz
         delete[] m_freqbuf;
         delete[] m_ri;
         if (m_cfg) {
-            KissSingle::kiss_fftr_free(m_cfg);
+            Kiss::kiss_fftr_free(m_cfg);
             m_cfg = 0;
             delete[] m_cbuf;
             m_cbuf = 0;
@@ -295,12 +314,12 @@ PluginInputDomainAdapter::Impl::initialise(size_t channels, size_t stepSize, siz
     for (int c = 0; c < m_channels; ++c) {
         m_freqbuf[c] = new float[m_blockSize + 2];
     }
-    m_ri = new float[m_blockSize];
+    m_ri = new Kiss::kiss_fft_scalar[m_blockSize];
 
-    m_window = new Window<float>(convertType(m_windowType), m_blockSize);
+    m_window = new W(convertType(m_windowType), m_blockSize);
 
-    m_cfg = KissSingle::kiss_fftr_alloc(m_blockSize, false, 0, 0);
-    m_cbuf = new KissSingle::kiss_fft_cpx[m_blockSize/2+1];
+    m_cfg = Kiss::kiss_fftr_alloc(m_blockSize, false, 0, 0);
+    m_cbuf = new Kiss::kiss_fft_cpx[m_blockSize/2+1];
 
     m_processCount = 0;
 
@@ -393,7 +412,7 @@ PluginInputDomainAdapter::Impl::setWindowType(WindowType t)
     m_windowType = t;
     if (m_window) {
         delete m_window;
-        m_window = new Window<float>(convertType(m_windowType), m_blockSize);
+        m_window = new W(convertType(m_windowType), m_blockSize);
     }
 }
 
@@ -403,26 +422,26 @@ PluginInputDomainAdapter::Impl::getWindowType() const
     return m_windowType;
 }
 
-Window<float>::WindowType
+PluginInputDomainAdapter::Impl::W::WindowType
 PluginInputDomainAdapter::Impl::convertType(WindowType t) const
 {
     switch (t) {
     case RectangularWindow:
-        return Window<float>::RectangularWindow;
+        return W::RectangularWindow;
     case BartlettWindow:
-        return Window<float>::BartlettWindow;
+        return W::BartlettWindow;
     case HammingWindow:
-        return Window<float>::HammingWindow;
+        return W::HammingWindow;
     case HanningWindow:
-        return Window<float>::HanningWindow;
+        return W::HanningWindow;
     case BlackmanWindow:
-        return Window<float>::BlackmanWindow;
+        return W::BlackmanWindow;
     case NuttallWindow:
-        return Window<float>::NuttallWindow;
+        return W::NuttallWindow;
     case BlackmanHarrisWindow:
-        return Window<float>::BlackmanHarrisWindow;
+        return W::BlackmanHarrisWindow;
     default:
-	return Window<float>::HanningWindow;
+	return W::HanningWindow;
     }
 }
 
@@ -467,12 +486,12 @@ PluginInputDomainAdapter::Impl::processShiftingTimestamp(const float *const *inp
 
         for (int i = 0; i < m_blockSize/2; ++i) {
             // FFT shift
-            float value = m_ri[i];
+            Kiss::kiss_fft_scalar value = m_ri[i];
             m_ri[i] = m_ri[i + m_blockSize/2];
             m_ri[i + m_blockSize/2] = value;
         }
 
-        KissSingle::kiss_fftr(m_cfg, m_ri, m_cbuf);
+        Kiss::kiss_fftr(m_cfg, m_ri, m_cbuf);
         
         for (int i = 0; i <= m_blockSize/2; ++i) {
             m_freqbuf[c][i * 2] = m_cbuf[i].r;
@@ -516,12 +535,12 @@ PluginInputDomainAdapter::Impl::processShiftingData(const float *const *inputBuf
 
         for (int i = 0; i < m_blockSize/2; ++i) {
             // FFT shift
-            float value = m_ri[i];
+            Kiss::kiss_fft_scalar value = m_ri[i];
             m_ri[i] = m_ri[i + m_blockSize/2];
             m_ri[i + m_blockSize/2] = value;
         }
 
-        KissSingle::kiss_fftr(m_cfg, m_ri, m_cbuf);
+        Kiss::kiss_fftr(m_cfg, m_ri, m_cbuf);
         
         for (int i = 0; i <= m_blockSize/2; ++i) {
             m_freqbuf[c][i * 2] = m_cbuf[i].r;
