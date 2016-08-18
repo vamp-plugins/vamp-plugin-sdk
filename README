@@ -254,9 +254,11 @@ Music at Queen Mary, University of London.
 The SDK was written by Chris Cannam, copyright (c) 2005-2016
 Chris Cannam and QMUL.
 
+The SDK incorporates KissFFT code, copyright (c) 2003-2010 Mark
+Borgerding.
+
 Mark Sandler and Christian Landone provided ideas and direction, and
 Mark Levy, Dan Stowell, Martin Gasser and Craig Sapp provided testing
 and other input for the 1.0 API and SDK.  The API also uses some ideas
 from prior plugin systems, notably DSSI (http://dssi.sourceforge.net)
 and FEAPI (http://feapi.sourceforge.net).
-
