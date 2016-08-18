@@ -1,4 +1,4 @@
-=== vamp-test-plugin:vamp-test-plugin:curve-fsr-timed
+=== vamp-test-plugin:vamp-test-plugin-freq:curve-fsr-timed
  0.000000000: 0 1 of 10: 0 at 0 snap to 0
  0.000000000: 0.1 2 of 10: 0.1 at 0 snap to 0
  0.000000000: 0.2 3 of 10: 0.2 at 0.166 snap to 0
