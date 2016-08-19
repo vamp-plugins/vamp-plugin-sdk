@@ -108,6 +108,7 @@ public:
  */
 class FFTComplex
 {
+public:
     /**
      * Prepare to calculate transforms of size n.
      * n must be a multiple of 2.
@@ -159,6 +160,7 @@ private:
  */
 class FFTReal
 {
+public:
     /**
      * Prepare to calculate transforms of size n.
      * n must be a multiple of 2.
