@@ -232,7 +232,6 @@ PluginLoader::Impl::listPluginData()
         string key = *ki;
 	Plugin *p = loadPlugin(key, 44100, 0);
 	if (p) {
-            string library = getLibraryPathForPlugin(key);
             PluginCategoryHierarchy category = getPluginCategory(key);
 	    dataList.push_back(PluginStaticData::fromPlugin(key, category, p));
 	}
