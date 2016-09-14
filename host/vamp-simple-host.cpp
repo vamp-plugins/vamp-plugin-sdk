@@ -508,7 +508,7 @@ printFeatures(int frame, int sr,
               const Plugin::OutputDescriptor &output, int outputNo,
               const Plugin::FeatureSet &features, ofstream *out, bool useFrames)
 {
-    static int featureCount = 0;
+    static int featureCount = -1;
     
     if (features.find(outputNo) == features.end()) return;
     
@@ -523,12 +523,13 @@ printFeatures(int frame, int sr,
             rt = f.timestamp;
             haveRt = true;
         } else if (output.sampleType == Plugin::OutputDescriptor::FixedSampleRate) {
-            int n = featureCount;
+            int n = featureCount + 1;
             if (f.hasTimestamp) {
                 n = int(round(toSeconds(f.timestamp) * output.sampleRate));
             }
             rt = RealTime::fromSeconds(double(n) / output.sampleRate);
             haveRt = true;
+            featureCount = n;
         }
         
         if (useFrames) {
@@ -570,8 +571,6 @@ printFeatures(int frame, int sr,
         (out ? *out : cout) << " " << f.label;
 
         (out ? *out : cout) << endl;
-
-        ++featureCount;
     }
 }
 
