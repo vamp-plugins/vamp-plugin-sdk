@@ -223,7 +223,7 @@ public:
  *
  * A structure that bundles the data returned by a process call and by
  * Plugin::getRemainingFeatures(). This is simply a FeatureSet
- * wrapper, named for symmetry with the other request-response pairs.
+ * wrapper that happens to reference the plugin as well.
  *
  * \see Plugin::process(), Plugin::getRemainingFeatures()
  *
@@ -235,9 +235,10 @@ public:
 struct ProcessResponse
 {
 public:
-    ProcessResponse() // empty by default
-    { }
+    ProcessResponse() : // invalid by default
+        plugin(0) { }
 
+    Plugin *plugin;
     Plugin::FeatureSet features;
 };
 
