@@ -54,6 +54,25 @@ class Plugin;
 namespace HostExt {
 
 /**
+ * \class ListResponse RequestResponse.h <vamp-hostsdk/RequestResponse.h>
+ * 
+ * Vamp::HostExt::ListResponse is a structure containing the
+ * information returned by PluginLoader when asked to list static
+ * information about the available plugins.
+ *
+ * \see PluginLoader::listPluginData, PluginStaticData
+ *
+ * \note This class was introduced in version 2.7 of the Vamp plugin
+ * SDK, along with the PluginLoader method that returns this structure.
+ */
+struct ListResponse
+{
+    ListResponse() { } // empty by default
+    
+    std::vector<PluginStaticData> pluginData;
+};
+
+/**
  * \class LoadRequest RequestResponse.h <vamp-hostsdk/RequestResponse.h>
  * 
  * Vamp::HostExt::LoadRequest is a structure containing the
