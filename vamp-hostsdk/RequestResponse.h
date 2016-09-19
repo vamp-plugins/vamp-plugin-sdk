@@ -186,9 +186,10 @@ public:
 struct ConfigurationResponse
 {
 public:
-    ConfigurationResponse() // failed by default
-    { }
+    ConfigurationResponse() : // failed by default
+        plugin(0) { }
 
+    Plugin *plugin;
     Plugin::OutputList outputs;
 };
 
@@ -240,6 +241,32 @@ public:
 
     Plugin *plugin;
     Plugin::FeatureSet features;
+};
+
+/**
+ * \class FinishRequest RequestResponse.h <vamp-hostsdk/RequestResponse.h>
+ *
+ * A structure that bundles the necessary data for finishing
+ * processing, i.e. calling getRemainingFeatures(). This consists only
+ * of the plugin pointer. Caller retains ownership of the plugin.
+ *
+ * \see Plugin::getRemainingFeatures()
+ *
+ * \note This class was introduced in version 2.7 of the Vamp plugin
+ * SDK, but it is not currently used by the SDK. It is supplied as a
+ * convenience for code using the SDK, and for symmetry with the load
+ * and configuration request structs.
+ *
+ * \note The response to a finish request (getRemainingFeatures()) is
+ * a ProcessResponse, just as it is for a process request.
+ */
+struct FinishRequest
+{
+public:
+    FinishRequest() : // invalid by default
+        plugin(0) { }
+
+    Plugin *plugin;
 };
 
 }
