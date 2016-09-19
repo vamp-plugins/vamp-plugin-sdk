@@ -54,6 +54,25 @@ class Plugin;
 namespace HostExt {
 
 /**
+ * \class ListResponse RequestResponse.h <vamp-hostsdk/RequestResponse.h>
+ * 
+ * Vamp::HostExt::ListResponse is a structure containing the
+ * information returned by PluginLoader when asked to list static
+ * information about the available plugins.
+ *
+ * \see PluginLoader::listPluginData, PluginStaticData
+ *
+ * \note This class was introduced in version 2.7 of the Vamp plugin
+ * SDK, along with the PluginLoader method that returns this structure.
+ */
+struct ListResponse
+{
+    ListResponse() { } // empty by default
+    
+    std::vector<PluginStaticData> pluginData;
+};
+
+/**
  * \class LoadRequest RequestResponse.h <vamp-hostsdk/RequestResponse.h>
  * 
  * Vamp::HostExt::LoadRequest is a structure containing the
@@ -186,9 +205,10 @@ public:
 struct ConfigurationResponse
 {
 public:
-    ConfigurationResponse() // failed by default
-    { }
+    ConfigurationResponse() : // failed by default
+        plugin(0) { }
 
+    Plugin *plugin;
     Plugin::OutputList outputs;
 };
 
@@ -223,7 +243,7 @@ public:
  *
  * A structure that bundles the data returned by a process call and by
  * Plugin::getRemainingFeatures(). This is simply a FeatureSet
- * wrapper, named for symmetry with the other request-response pairs.
+ * wrapper that happens to reference the plugin as well.
  *
  * \see Plugin::process(), Plugin::getRemainingFeatures()
  *
@@ -235,10 +255,37 @@ public:
 struct ProcessResponse
 {
 public:
-    ProcessResponse() // empty by default
-    { }
+    ProcessResponse() : // invalid by default
+        plugin(0) { }
 
+    Plugin *plugin;
     Plugin::FeatureSet features;
+};
+
+/**
+ * \class FinishRequest RequestResponse.h <vamp-hostsdk/RequestResponse.h>
+ *
+ * A structure that bundles the necessary data for finishing
+ * processing, i.e. calling getRemainingFeatures(). This consists only
+ * of the plugin pointer. Caller retains ownership of the plugin.
+ *
+ * \see Plugin::getRemainingFeatures()
+ *
+ * \note This class was introduced in version 2.7 of the Vamp plugin
+ * SDK, but it is not currently used by the SDK. It is supplied as a
+ * convenience for code using the SDK, and for symmetry with the load
+ * and configuration request structs.
+ *
+ * \note The response to a finish request (getRemainingFeatures()) is
+ * a ProcessResponse, just as it is for a process request.
+ */
+struct FinishRequest
+{
+public:
+    FinishRequest() : // invalid by default
+        plugin(0) { }
+
+    Plugin *plugin;
 };
 
 }

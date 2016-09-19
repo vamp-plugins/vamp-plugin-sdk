@@ -123,14 +123,6 @@ public:
     typedef std::vector<std::string> PluginCategoryHierarchy;
 
     /**
-     * PluginStaticDataList is a list containing static information
-     * about a set of Vamp plugins.
-     *
-     * \see PluginStaticData, listPluginData()
-     */
-    typedef std::vector<PluginStaticData> PluginStaticDataList;
-    
-    /**
      * Search for all available Vamp plugins, and return a list of
      * them in the order in which they were found.
      */
@@ -141,8 +133,10 @@ public:
      * static data about each plugin in the order in which they were
      * found. This is slower but returns more comprehensive
      * information than listPlugins().
+     *
+     * \see ListResponse, PluginStaticData
      */
-    PluginStaticDataList listPluginData();
+    ListResponse listPluginData();
 
     /**
      * AdapterFlags contains a set of values that may be OR'd together
