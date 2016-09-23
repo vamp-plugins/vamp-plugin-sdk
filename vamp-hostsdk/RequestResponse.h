@@ -69,7 +69,7 @@ struct ListResponse
 {
     ListResponse() { } // empty by default
     
-    std::vector<PluginStaticData> pluginData;
+    std::vector<PluginStaticData> plugins;
 };
 
 /**

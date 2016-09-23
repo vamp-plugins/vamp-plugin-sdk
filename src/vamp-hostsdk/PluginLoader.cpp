@@ -234,7 +234,7 @@ PluginLoader::Impl::listPluginData()
 	Plugin *p = loadPlugin(key, 44100, 0);
 	if (p) {
             PluginCategoryHierarchy category = getPluginCategory(key);
-            response.pluginData.push_back
+            response.plugins.push_back
                 (PluginStaticData::fromPlugin(key, category, p));
 	}
         delete p;
