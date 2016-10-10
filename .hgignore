@@ -27,3 +27,5 @@ re:^build/_UpgradeReport_Files/
 *.opensdf
 re:^build/x64/Debug/
 re:^build/x64/Release/
+test/obtained
+test/failures

@@ -6,7 +6,7 @@
     An API for audio analysis and feature extraction plugins.
 
     Centre for Digital Music, Queen Mary, University of London.
-    Copyright 2006-2009 Chris Cannam and QMUL.
+    Copyright 2006-2016 Chris Cannam and QMUL.
   
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
@@ -61,11 +61,16 @@ public:
     virtual ~Impl();
 
     PluginKeyList listPlugins();
+    PluginStaticDataList listPluginData();
 
     Plugin *loadPlugin(PluginKey key,
                        float inputSampleRate,
                        int adapterFlags);
 
+    LoadResponse loadPlugin(LoadRequest req);
+
+    ConfigurationResponse configurePlugin(ConfigurationRequest req);
+    
     PluginKey composePluginKey(string libraryName, string identifier);
 
     PluginCategoryHierarchy getPluginCategory(PluginKey key);
@@ -138,10 +143,16 @@ PluginLoader::getInstance()
     return m_instance;
 }
 
-vector<PluginLoader::PluginKey>
+PluginLoader::PluginKeyList
 PluginLoader::listPlugins() 
 {
     return m_impl->listPlugins();
+}
+
+PluginLoader::PluginStaticDataList
+PluginLoader::listPluginData() 
+{
+    return m_impl->listPluginData();
 }
 
 Plugin *
@@ -150,6 +161,18 @@ PluginLoader::loadPlugin(PluginKey key,
                          int adapterFlags)
 {
     return m_impl->loadPlugin(key, inputSampleRate, adapterFlags);
+}
+
+LoadResponse
+PluginLoader::loadPlugin(LoadRequest req)
+{
+    return m_impl->loadPlugin(req);
+}
+
+ConfigurationResponse
+PluginLoader::configurePlugin(ConfigurationRequest req)
+{
+    return m_impl->configurePlugin(req);
 }
 
 PluginLoader::PluginKey
@@ -185,7 +208,7 @@ PluginLoader::Impl::setInstanceToClean(PluginLoader *instance)
     m_cleaner.setInstance(instance);
 }
 
-vector<PluginLoader::PluginKey>
+PluginLoader::PluginKeyList
 PluginLoader::Impl::listPlugins() 
 {
     if (!m_allPluginsEnumerated) enumeratePlugins();
@@ -197,6 +220,25 @@ PluginLoader::Impl::listPlugins()
     }
 
     return plugins;
+}
+
+PluginLoader::PluginStaticDataList
+PluginLoader::Impl::listPluginData() 
+{
+    PluginKeyList keys = listPlugins();
+    PluginStaticDataList dataList;
+
+    for (PluginKeyList::const_iterator ki = keys.begin(); ki != keys.end(); ++ki) {
+        string key = *ki;
+	Plugin *p = loadPlugin(key, 44100, 0);
+	if (p) {
+            PluginCategoryHierarchy category = getPluginCategory(key);
+	    dataList.push_back(PluginStaticData::fromPlugin(key, category, p));
+	}
+        delete p;
+    }
+
+    return dataList;
 }
 
 void
@@ -380,6 +422,60 @@ PluginLoader::Impl::loadPlugin(PluginKey key,
          << fullPath << "\"" << endl;
 
     return 0;
+}
+
+LoadResponse
+PluginLoader::Impl::loadPlugin(LoadRequest req)
+{
+    Plugin *plugin = loadPlugin(req.pluginKey,
+                                req.inputSampleRate,
+                                req.adapterFlags);
+    LoadResponse response;
+    response.plugin = plugin;
+    if (!plugin) return response;
+
+    response.plugin = plugin;
+    response.staticData = PluginStaticData::fromPlugin
+        (req.pluginKey,
+         getPluginCategory(req.pluginKey),
+         plugin);
+
+    int defaultChannels = 0;
+    if (plugin->getMinChannelCount() == plugin->getMaxChannelCount()) {
+        defaultChannels = plugin->getMinChannelCount();
+    }
+    
+    response.defaultConfiguration = PluginConfiguration::fromPlugin
+        (plugin,
+         defaultChannels,
+         plugin->getPreferredStepSize(),
+         plugin->getPreferredBlockSize());
+    
+    return response;
+}
+
+ConfigurationResponse
+PluginLoader::Impl::configurePlugin(ConfigurationRequest req)
+{
+    for (PluginConfiguration::ParameterMap::const_iterator i =
+             req.configuration.parameterValues.begin();
+         i != req.configuration.parameterValues.end(); ++i) {
+        req.plugin->setParameter(i->first, i->second);
+    }
+
+    if (req.configuration.currentProgram != "") {
+        req.plugin->selectProgram(req.configuration.currentProgram);
+    }
+
+    ConfigurationResponse response;
+
+    if (req.plugin->initialise(req.configuration.channelCount,
+                               req.configuration.stepSize,
+                               req.configuration.blockSize)) {
+        response.outputs = req.plugin->getOutputDescriptors();
+    }
+
+    return response;
 }
 
 void

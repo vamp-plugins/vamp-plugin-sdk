@@ -41,7 +41,7 @@ default:	@TARGETS@
 CC		= @CC@
 CXX		= @CXX@
 CFLAGS		= @CFLAGS@
-CXXFLAGS	= -I. @CXXFLAGS@ @SNDFILE_CFLAGS@
+CXXFLAGS	= -I. @CXXFLAGS@ @SNDFILE_CFLAGS@ 
 
 # ar, ranlib
 #
@@ -78,13 +78,13 @@ INSTALL_SDK_LIBS	  = $(INSTALL_PREFIX)/lib
 INSTALL_PLUGINS		  = $(INSTALL_PREFIX)/lib/vamp
 INSTALL_BINARIES	  = $(INSTALL_PREFIX)/bin 
 
-INSTALL_SDK_LIBNAME	  = libvamp-sdk.so.2.6.0
+INSTALL_SDK_LIBNAME	  = libvamp-sdk.so.2.7.0
 INSTALL_SDK_LINK_ABI	  = libvamp-sdk.so.2
 INSTALL_SDK_LINK_DEV	  = libvamp-sdk.so
 INSTALL_SDK_STATIC        = libvamp-sdk.a
 INSTALL_SDK_LA            = libvamp-sdk.la
 
-INSTALL_HOSTSDK_LIBNAME   = libvamp-hostsdk.so.3.6.0
+INSTALL_HOSTSDK_LIBNAME   = libvamp-hostsdk.so.3.7.0
 INSTALL_HOSTSDK_LINK_ABI  = libvamp-hostsdk.so.3
 INSTALL_HOSTSDK_LINK_DEV  = libvamp-hostsdk.so
 INSTALL_HOSTSDK_STATIC    = libvamp-hostsdk.a
@@ -113,7 +113,7 @@ ifeq ($(uname_S),Darwin)
 	HOSTSDK_DYNAMIC_LDFLAGS	  = $(DYNAMIC_LDFLAGS)
 	PLUGIN_LDFLAGS		  = $(DYNAMIC_LDFLAGS) -exported_symbols_list build/vamp-plugin.list
 
-	INSTALL_HOSTSDK_LIBNAME   = libvamp-hostsdk.3.6.0.dylib
+	INSTALL_HOSTSDK_LIBNAME   = libvamp-hostsdk.3.7.0.dylib
 	INSTALL_HOSTSDK_LINK_ABI  = libvamp-hostsdk.3.dylib
 
 # The OS X linker doesn't allow you to request static linkage when
@@ -122,7 +122,7 @@ ifeq ($(uname_S),Darwin)
 # dynamic, the static library will never be used. That's OK for the
 # host SDK, but we do want plugins to get static linkage of the plugin
 # SDK. So install the dynamic version under a different name.
-	INSTALL_SDK_LIBNAME	  = libvamp-sdk-dynamic.2.6.0.dylib
+	INSTALL_SDK_LIBNAME	  = libvamp-sdk-dynamic.2.7.0.dylib
 	INSTALL_SDK_LINK_ABI	  = libvamp-sdk-dynamic.2.dylib
 
 endif
@@ -146,13 +146,16 @@ HOSTSDK_HEADERS	= \
 		$(HOSTSDKDIR)/Plugin.h \
 		$(HOSTSDKDIR)/PluginBase.h \
 		$(HOSTSDKDIR)/PluginHostAdapter.h \
-		$(HOSTSDKDIR)/RealTime.h \
 		$(HOSTSDKDIR)/PluginBufferingAdapter.h \
 		$(HOSTSDKDIR)/PluginChannelAdapter.h \
 		$(HOSTSDKDIR)/PluginInputDomainAdapter.h \
 		$(HOSTSDKDIR)/PluginLoader.h \
 		$(HOSTSDKDIR)/PluginSummarisingAdapter.h \
 		$(HOSTSDKDIR)/PluginWrapper.h \
+		$(HOSTSDKDIR)/RealTime.h \
+		$(HOSTSDKDIR)/PluginConfiguration.h \
+		$(HOSTSDKDIR)/PluginStaticData.h \
+		$(HOSTSDKDIR)/RequestResponse.h \
 		$(HOSTSDKDIR)/hostguard.h \
 		$(HOSTSDKDIR)/host-c.h \
 		$(HOSTSDKDIR)/vamp-hostsdk.h
@@ -387,7 +390,7 @@ src/vamp-sdk/PluginAdapter.o: vamp-sdk/PluginAdapter.h vamp/vamp.h
 src/vamp-sdk/PluginAdapter.o: vamp-sdk/Plugin.h vamp-sdk/PluginBase.h
 src/vamp-sdk/PluginAdapter.o: vamp-sdk/plugguard.h vamp-sdk/RealTime.h
 src/vamp-sdk/RealTime.o: ./vamp-sdk/RealTime.h vamp-sdk/plugguard.h
-src/vamp-sdk/FFT.o: src/vamp-sdk/FFT.cpp vamp-sdk/FFT.h src/vamp-sdk/FFTimpl.cpp
+src/vamp-sdk/FFT.o: src/vamp-sdk/FFT.cpp vamp-sdk/FFT.h 
 src/vamp-hostsdk/PluginBufferingAdapter.o: ./vamp-hostsdk/PluginBufferingAdapter.h
 src/vamp-hostsdk/PluginBufferingAdapter.o: ./vamp-hostsdk/PluginWrapper.h
 src/vamp-hostsdk/PluginBufferingAdapter.o: ./vamp-hostsdk/Plugin.h
@@ -413,7 +416,6 @@ src/vamp-hostsdk/PluginInputDomainAdapter.o: vamp-sdk/PluginBase.h
 src/vamp-hostsdk/PluginInputDomainAdapter.o: vamp-sdk/plugguard.h
 src/vamp-hostsdk/PluginInputDomainAdapter.o: vamp-sdk/RealTime.h
 src/vamp-hostsdk/PluginInputDomainAdapter.o: vamp-sdk/FFT.h
-src/vamp-hostsdk/PluginInputDomainAdapter.o: src/vamp-sdk/FFTimpl.cpp
 src/vamp-hostsdk/PluginLoader.o: ./vamp-hostsdk/PluginHostAdapter.h
 src/vamp-hostsdk/PluginLoader.o: vamp/vamp.h vamp-sdk/Plugin.h
 src/vamp-hostsdk/PluginLoader.o: vamp-sdk/PluginBase.h

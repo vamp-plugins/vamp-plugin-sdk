@@ -7,8 +7,7 @@ MYDIR=$(dirname "$0")
 TEST_PLUGIN_DIR="$MYDIR/../../vamp-test-plugin"
 HOST_DIR="$MYDIR/../host"
 HOST="$HOST_DIR/vamp-simple-host"
-#TEST_FILE="$MYDIR/20sec-silence.wav"
-TEST_FILE="/tmp/test.wav"
+TEST_FILE="$MYDIR/testsignal.wav"
 
 mkdir -p "$MYDIR/obtained"
 mkdir -p "$MYDIR/failures"
