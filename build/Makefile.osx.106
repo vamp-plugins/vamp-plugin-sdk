@@ -161,9 +161,6 @@ HOSTSDK_HEADERS	= \
 		$(HOSTSDKDIR)/PluginLoader.h \
 		$(HOSTSDKDIR)/PluginSummarisingAdapter.h \
 		$(HOSTSDKDIR)/PluginWrapper.h \
-		$(HOSTSDKDIR)/PluginConfiguration.h \
-		$(HOSTSDKDIR)/PluginStaticData.h \
-		$(HOSTSDKDIR)/RequestResponse.h \
 		$(HOSTSDKDIR)/hostguard.h \
 		$(HOSTSDKDIR)/host-c.h \
 		$(HOSTSDKDIR)/vamp-hostsdk.h

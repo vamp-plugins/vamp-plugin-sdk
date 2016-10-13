@@ -62,15 +62,9 @@ public:
 
     PluginKeyList listPlugins();
 
-    ListResponse listPluginData();
-
     Plugin *loadPlugin(PluginKey key,
                        float inputSampleRate,
                        int adapterFlags);
-
-    LoadResponse loadPlugin(LoadRequest req);
-
-    ConfigurationResponse configurePlugin(ConfigurationRequest req);
     
     PluginKey composePluginKey(string libraryName, string identifier);
 
@@ -150,30 +144,12 @@ PluginLoader::listPlugins()
     return m_impl->listPlugins();
 }
 
-ListResponse
-PluginLoader::listPluginData() 
-{
-    return m_impl->listPluginData();
-}
-
 Plugin *
 PluginLoader::loadPlugin(PluginKey key,
                          float inputSampleRate,
                          int adapterFlags)
 {
     return m_impl->loadPlugin(key, inputSampleRate, adapterFlags);
-}
-
-LoadResponse
-PluginLoader::loadPlugin(LoadRequest req)
-{
-    return m_impl->loadPlugin(req);
-}
-
-ConfigurationResponse
-PluginLoader::configurePlugin(ConfigurationRequest req)
-{
-    return m_impl->configurePlugin(req);
 }
 
 PluginLoader::PluginKey
@@ -221,26 +197,6 @@ PluginLoader::Impl::listPlugins()
     }
 
     return plugins;
-}
-
-ListResponse
-PluginLoader::Impl::listPluginData() 
-{
-    PluginKeyList keys = listPlugins();
-    ListResponse response;
-
-    for (PluginKeyList::const_iterator ki = keys.begin(); ki != keys.end(); ++ki) {
-        string key = *ki;
-	Plugin *p = loadPlugin(key, 44100, 0);
-	if (p) {
-            PluginCategoryHierarchy category = getPluginCategory(key);
-            response.available.push_back
-                (PluginStaticData::fromPlugin(key, category, p));
-	}
-        delete p;
-    }
-
-    return response;
 }
 
 void
@@ -424,62 +380,6 @@ PluginLoader::Impl::loadPlugin(PluginKey key,
          << fullPath << "\"" << endl;
 
     return 0;
-}
-
-LoadResponse
-PluginLoader::Impl::loadPlugin(LoadRequest req)
-{
-    Plugin *plugin = loadPlugin(req.pluginKey,
-                                req.inputSampleRate,
-                                req.adapterFlags);
-    LoadResponse response;
-    response.plugin = plugin;
-    if (!plugin) return response;
-
-    response.plugin = plugin;
-    response.staticData = PluginStaticData::fromPlugin
-        (req.pluginKey,
-         getPluginCategory(req.pluginKey),
-         plugin);
-
-    int defaultChannels = 0;
-    if (plugin->getMinChannelCount() == plugin->getMaxChannelCount()) {
-        defaultChannels = plugin->getMinChannelCount();
-    }
-    
-    response.defaultConfiguration = PluginConfiguration::fromPlugin
-        (plugin,
-         defaultChannels,
-         plugin->getPreferredStepSize(),
-         plugin->getPreferredBlockSize());
-    
-    return response;
-}
-
-ConfigurationResponse
-PluginLoader::Impl::configurePlugin(ConfigurationRequest req)
-{
-    for (PluginConfiguration::ParameterMap::const_iterator i =
-             req.configuration.parameterValues.begin();
-         i != req.configuration.parameterValues.end(); ++i) {
-        req.plugin->setParameter(i->first, i->second);
-    }
-
-    if (req.configuration.currentProgram != "") {
-        req.plugin->selectProgram(req.configuration.currentProgram);
-    }
-
-    ConfigurationResponse response;
-
-    response.plugin = req.plugin;
-    
-    if (req.plugin->initialise(req.configuration.channelCount,
-                               req.configuration.stepSize,
-                               req.configuration.blockSize)) {
-        response.outputs = req.plugin->getOutputDescriptors();
-    }
-
-    return response;
 }
 
 void
