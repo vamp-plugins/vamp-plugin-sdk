@@ -43,7 +43,6 @@
 
 #include "hostguard.h"
 #include "PluginWrapper.h"
-#include "RequestResponse.h"
 
 _VAMP_SDK_HOSTSPACE_BEGIN(PluginLoader.h)
 
@@ -129,16 +128,6 @@ public:
     PluginKeyList listPlugins();
 
     /**
-     * Search for all available Vamp plugins, and return a list of
-     * static data about each plugin in the order in which they were
-     * found. This is slower but returns more comprehensive
-     * information than listPlugins().
-     *
-     * \see ListResponse, PluginStaticData
-     */
-    ListResponse listPluginData();
-
-    /**
      * AdapterFlags contains a set of values that may be OR'd together
      * to indicate in which circumstances PluginLoader should use a
      * plugin adapter to make a plugin easier to use for a host that
@@ -211,33 +200,6 @@ public:
     Plugin *loadPlugin(PluginKey key,
                        float inputSampleRate,
                        int adapterFlags = 0);
-
-    /**
-     * Load a Vamp plugin, given its key, inputSampleRate and the
-     * adapter flags, bundled into a LoadRequest structure. The loaded
-     * plugin is returned along with its static data and default
-     * configuration in a LoadResponse.
-     * 
-     * \see AdapterFlags, PluginInputDomainAdapter, PluginChannelAdapter, LoadRequest, LoadResponse
-     */
-    LoadResponse loadPlugin(LoadRequest req);
-
-    /**
-     * Configure and initialise a Vamp plugin. This applies the
-     * parameter and program settings found in the PluginConfiguration
-     * part of the supplied ConfigurationRequest and initialises the
-     * plugin. (Many hosts will prefer to do this themselves in
-     * stages, by calling methods on the plugin directly.)
-     *
-     * Return a ConfigurationResponse containing the result of calling
-     * getOutputDescriptors() on the configured and initialised
-     * plugin, representing the outputs of the plugin following
-     * configuration (since output ranges etc can depend on the
-     * parameters). If initialisation fails, returns an empty list.
-     *
-     * \see PluginConfiguration, ConfigurationRequest, ConfigurationResponse
-     */
-    ConfigurationResponse configurePlugin(ConfigurationRequest req);
     
     /**
      * Given a Vamp plugin library name and plugin identifier, return
