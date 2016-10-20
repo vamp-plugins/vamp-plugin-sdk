@@ -460,8 +460,8 @@ PluginInputDomainAdapter::Impl::processShiftingTimestamp(const float *const *inp
         Kiss::kiss_fftr(m_cfg, m_ri, m_cbuf);
         
         for (int i = 0; i <= m_blockSize/2; ++i) {
-            m_freqbuf[c][i * 2] = m_cbuf[i].r;
-            m_freqbuf[c][i * 2 + 1] = m_cbuf[i].i;
+            m_freqbuf[c][i * 2] = float(m_cbuf[i].r);
+            m_freqbuf[c][i * 2 + 1] = float(m_cbuf[i].i);
         }
     }
 
@@ -509,8 +509,8 @@ PluginInputDomainAdapter::Impl::processShiftingData(const float *const *inputBuf
         Kiss::kiss_fftr(m_cfg, m_ri, m_cbuf);
         
         for (int i = 0; i <= m_blockSize/2; ++i) {
-            m_freqbuf[c][i * 2] = m_cbuf[i].r;
-            m_freqbuf[c][i * 2 + 1] = m_cbuf[i].i;
+            m_freqbuf[c][i * 2] = float(m_cbuf[i].r);
+            m_freqbuf[c][i * 2 + 1] = float(m_cbuf[i].i);
         }
     }
 
