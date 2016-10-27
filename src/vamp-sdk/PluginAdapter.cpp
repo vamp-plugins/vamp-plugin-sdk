@@ -604,7 +604,9 @@ PluginAdapterBase::Impl::cleanup(Plugin *plugin)
         if (m_pluginOutputs[plugin]) {
             outputCount = m_pluginOutputs[plugin]->size();
         }
-        std::cerr << "cleanup: " << outputCount << " output(s)" << std::endl;
+#ifdef DEBUG_PLUGIN_ADAPTER
+        std::cerr << "PluginAdapterBase::Impl::cleanup: " << outputCount << " output(s)" << std::endl;
+#endif
         VampFeatureList *list = m_fs[plugin];
         for (unsigned int i = 0; i < outputCount; ++i) {
             for (unsigned int j = 0; j < m_fsizes[plugin][i]; ++j) {
