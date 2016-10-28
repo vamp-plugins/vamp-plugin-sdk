@@ -125,15 +125,15 @@ Files::loadLibrary(string path)
     void *handle = 0;
 #ifdef _WIN32
 #ifdef UNICODE
-    int len = path.length() + 1; // cannot be more wchars than length in bytes of utf8 string
-    wchar_t *buffer = new wchar_t[len];
-    int rv = MultiByteToWideChar(CP_UTF8, 0, path.c_str(), len, buffer, len);
-    if (rv <= 0) {
+    int wlen = MultiByteToWideChar(CP_UTF8, 0, path.c_str(), path.length(), 0, 0);
+    if (wlen < 0) {
         cerr << "Vamp::HostExt: Unable to convert library path \""
              << path << "\" to wide characters " << endl;
-        delete[] buffer;
         return handle;
     }
+    wchar_t *buffer = new wchar_t[wlen+1];
+    (void)MultiByteToWideChar(CP_UTF8, 0, path.c_str(), path.length(), buffer, wlen);
+    buffer[wlen] = L'\0';
     handle = LoadLibrary(buffer);
     delete[] buffer;
 #else
@@ -218,15 +218,15 @@ Files::listFiles(string dir, string extension)
 #ifdef _WIN32
     string expression = dir + "\\*." + extension;
 #ifdef UNICODE
-    int len = expression.length() + 1; // cannot be more wchars than length in bytes of utf8 string
-    wchar_t *buffer = new wchar_t[len];
-    int rv = MultiByteToWideChar(CP_UTF8, 0, expression.c_str(), len, buffer, len);
-    if (rv <= 0) {
+    int wlen = MultiByteToWideChar(CP_UTF8, 0, expression.c_str(), expression.length(), 0, 0);
+    if (wlen < 0) {
         cerr << "Vamp::HostExt: Unable to convert wildcard path \""
              << expression << "\" to wide characters" << endl;
-        delete[] buffer;
         return files;
     }
+    wchar_t *buffer = new wchar_t[wlen+1];
+    (void)MultiByteToWideChar(CP_UTF8, 0, expression.c_str(), expression.length(), buffer, wlen);
+    buffer[wlen] = L'\0';
     WIN32_FIND_DATA data;
     HANDLE fh = FindFirstFile(buffer, &data);
     if (fh == INVALID_HANDLE_VALUE) {
@@ -237,11 +237,16 @@ Files::listFiles(string dir, string extension)
     bool ok = true;
     while (ok) {
         wchar_t *fn = data.cFileName;
-        int wlen = wcslen(fn) + 1;
-        int maxlen = wlen * 6;
-        char *conv = new char[maxlen];
-        int rv = WideCharToMultiByte(CP_UTF8, 0, fn, wlen, conv, maxlen, 0, 0);
-        if (rv > 0) {
+        int wlen = wcslen(fn);
+        int len = WideCharToMultiByte(CP_UTF8, 0, fn, wlen, 0, 0, 0, 0);
+        if (len < 0) {
+            cerr << "Vamp::HostExt: Unable to convert wide char filename to utf-8" << endl;
+            break;
+        }
+        char *conv = new char[len+1];
+        (void)WideCharToMultiByte(CP_UTF8, 0, fn, wlen, conv, len, 0, 0);
+        conv[len] = '\0';
+        if (len > 0) {
             files.push_back(conv);
         }
         delete[] conv;
