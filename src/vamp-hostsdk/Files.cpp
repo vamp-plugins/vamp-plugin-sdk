@@ -66,21 +66,25 @@ using namespace std;
 vector<string>
 Files::listLibraryFiles()
 {
-    return listLibraryFilesMatching("");
+    return listLibraryFilesMatching({});
 }
 
 vector<string>
-Files::listLibraryFilesMatching(string libraryName)
+Files::listLibraryFilesMatching(Filter filter)
 {
     vector<string> path = Vamp::PluginHostAdapter::getPluginPath();
     vector<string> libraryFiles;
 
     // we match case-insensitively, but only with ascii range
-    // characters (this string is expected to be utf-8)
-    for (size_t i = 0; i < libraryName.length(); ++i) {
-        if (!(libraryName[i] & 0x80)) {
-            libraryName[i] = char(tolower(libraryName[i]));
+    // characters (input strings are expected to be utf-8)
+    vector<string> libraryNames;
+    for (auto n: filter.libraryNames) {
+        for (size_t i = 0; i < n.length(); ++i) {
+            if (!(n[i] & 0x80)) {
+                n[i] = char(tolower(n[i]));
+            }
         }
+        libraryNames.push_back(n);
     }
 
     for (size_t i = 0; i < path.size(); ++i) {
@@ -89,27 +93,53 @@ Files::listLibraryFilesMatching(string libraryName)
 
         for (vector<string>::iterator fi = files.begin();
              fi != files.end(); ++fi) {
-            
-            if (libraryName != "") {
-		// we match case-insensitively, but only with ascii
-		// range characters (this string is expected to be
-		// utf-8)
-                string temp = *fi;
-                for (size_t i = 0; i < temp.length(); ++i) {
-                    if (!(temp[i] & 0x80)) {
-                        temp[i] = char(tolower(temp[i]));
-                    }
-                }
-                // libraryName should be lacking an extension, as it
-                // is supposed to have come from the plugin key
-                string::size_type pi = temp.find('.');
-                if (pi == string::npos) {
-                    if (libraryName != temp) continue;
-                } else {
-                    if (libraryName != temp.substr(0, pi)) continue;
+
+            // we match case-insensitively, but only with ascii range
+            // characters (this string is expected to be utf-8)
+            string cleaned = *fi;
+            for (size_t i = 0; i < cleaned.length(); ++i) {
+                if (!(cleaned[i] & 0x80)) {
+                    cleaned[i] = char(tolower(cleaned[i]));
                 }
             }
 
+            // libraryName should be lacking an extension, as it is
+            // supposed to have come from the plugin key
+            string::size_type pi = cleaned.find('.');
+            if (pi != string::npos) {
+                cleaned = cleaned.substr(0, pi);
+            }
+            
+            bool matched = false;
+
+            switch (filter.type) {
+
+            case Filter::All:
+                matched = true;
+                break;
+
+            case Filter::Matching:
+                for (const auto &n: libraryNames) {
+                    if (cleaned == n) {
+                        matched = true;
+                        break;
+                    }
+                }
+                break;
+
+            case Filter::NotMatching:
+                matched = true;
+                for (const auto &n: libraryNames) {
+                    if (cleaned == n) {
+                        matched = false;
+                        break;
+                    }
+                }
+                break;
+            }
+
+            if (!matched) continue;
+            
             string fullPath = path[i];
             fullPath = splicePath(fullPath, *fi);
 	    libraryFiles.push_back(fullPath);
