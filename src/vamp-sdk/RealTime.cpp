@@ -155,7 +155,7 @@ RealTime::toString() const
 std::string
 RealTime::toText(bool fixedDp) const
 {
-    if (*this < RealTime::zeroTime) return "-" + (-*this).toText();
+    if (*this < RealTime::zeroTime) return "-" + (-*this).toText(fixedDp);
 
     std::stringstream out;
 
@@ -226,8 +226,8 @@ long
 RealTime::realTime2Frame(const RealTime &time, unsigned int sampleRate)
 {
     if (time < zeroTime) return -realTime2Frame(-time, sampleRate);
-    double s = time.sec + double(time.nsec + 1) / 1000000000.0;
-    return long(s * sampleRate);
+    double s = time.sec + double(time.nsec) / ONE_BILLION;
+    return long(s * sampleRate + 0.5);
 }
 
 RealTime
@@ -235,11 +235,13 @@ RealTime::frame2RealTime(long frame, unsigned int sampleRate)
 {
     if (frame < 0) return -frame2RealTime(-frame, sampleRate);
 
-    RealTime rt;
-    rt.sec = int(frame / long(sampleRate));
-    frame -= rt.sec * long(sampleRate);
-    rt.nsec = (int)(((double(frame) * 1000000.0) / sampleRate) * 1000.0);
-    return rt;
+    int sec = int(frame / long(sampleRate));
+    frame -= sec * long(sampleRate);
+    int nsec = (int)((double(frame) / double(sampleRate)) * ONE_BILLION + 0.5);
+    // Use ctor here instead of setting data members directly to
+    // ensure nsec > ONE_BILLION is handled properly.  It's extremely
+    // unlikely, but not impossible.
+    return RealTime(sec, nsec);
 }
 
 const RealTime RealTime::zeroTime(0,0);
