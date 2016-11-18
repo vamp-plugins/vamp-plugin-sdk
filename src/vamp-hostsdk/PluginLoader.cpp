@@ -213,11 +213,13 @@ PluginLoader::Impl::setInstanceToClean(PluginLoader *instance)
 PluginLoader::PluginKeyList
 PluginLoader::Impl::listPlugins() 
 {
-    if (!m_allPluginsEnumerated) enumeratePlugins({});
+    if (!m_allPluginsEnumerated) enumeratePlugins(Enumeration());
 
     vector<PluginKey> plugins;
-    for (const auto &mi: m_pluginLibraryNameMap) {
-        plugins.push_back(mi.first);
+    for (map<PluginKey, string>::const_iterator i =
+             m_pluginLibraryNameMap.begin();
+         i != m_pluginLibraryNameMap.end(); ++i) {
+        plugins.push_back(i->first);
     }
 
     return plugins;
@@ -259,10 +261,11 @@ PluginLoader::Impl::listLibraryFilesFor(Enumeration enumeration)
             std::cerr << "WARNING: Vamp::HostExt::PluginLoader: "
                       << "Invalid plugin key \"" << enumeration.key
                       << "\" in enumerate" << std::endl;
-            return {};
+            return vector<string>();
         }
         filter.type = Files::Filter::Matching;
-        filter.libraryNames = { libraryName };
+        filter.libraryNames.clear();
+        filter.libraryNames.push_back(libraryName);
         break;
     }
 

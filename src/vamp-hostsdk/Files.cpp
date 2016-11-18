@@ -66,7 +66,7 @@ using namespace std;
 vector<string>
 Files::listLibraryFiles()
 {
-    return listLibraryFilesMatching({});
+    return listLibraryFilesMatching(Filter());
 }
 
 vector<string>
@@ -78,7 +78,8 @@ Files::listLibraryFilesMatching(Filter filter)
     // we match case-insensitively, but only with ascii range
     // characters (input strings are expected to be utf-8)
     vector<string> libraryNames;
-    for (auto n: filter.libraryNames) {
+    for (int j = 0; j < int(filter.libraryNames.size()); ++j) {
+        string n = filter.libraryNames[j];
         for (size_t i = 0; i < n.length(); ++i) {
             if (!(n[i] & 0x80)) {
                 n[i] = char(tolower(n[i]));
@@ -97,9 +98,9 @@ Files::listLibraryFilesMatching(Filter filter)
             // we match case-insensitively, but only with ascii range
             // characters (this string is expected to be utf-8)
             string cleaned = *fi;
-            for (size_t i = 0; i < cleaned.length(); ++i) {
-                if (!(cleaned[i] & 0x80)) {
-                    cleaned[i] = char(tolower(cleaned[i]));
+            for (size_t j = 0; j < cleaned.length(); ++j) {
+                if (!(cleaned[j] & 0x80)) {
+                    cleaned[j] = char(tolower(cleaned[j]));
                 }
             }
 
@@ -119,8 +120,8 @@ Files::listLibraryFilesMatching(Filter filter)
                 break;
 
             case Filter::Matching:
-                for (const auto &n: libraryNames) {
-                    if (cleaned == n) {
+                for (int j = 0; j < int(libraryNames.size()); ++j) {
+                    if (cleaned == libraryNames[j]) {
                         matched = true;
                         break;
                     }
@@ -129,8 +130,8 @@ Files::listLibraryFilesMatching(Filter filter)
 
             case Filter::NotMatching:
                 matched = true;
-                for (const auto &n: libraryNames) {
-                    if (cleaned == n) {
+                for (int j = 0; j < int(libraryNames.size()); ++j) {
+                    if (cleaned == libraryNames[j]) {
                         matched = false;
                         break;
                     }
