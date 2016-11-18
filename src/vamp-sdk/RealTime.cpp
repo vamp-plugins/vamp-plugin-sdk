@@ -82,10 +82,10 @@ RealTime::RealTime(int s, int n) :
 	while (nsec >=  ONE_BILLION) { nsec -= ONE_BILLION; ++sec; }
     } else if (sec < 0) {
 	while (nsec <= -ONE_BILLION) { nsec += ONE_BILLION; --sec; }
-	while (nsec > 0)             { nsec -= ONE_BILLION; ++sec; }
+	while (nsec > 0 && sec < 0)  { nsec -= ONE_BILLION; ++sec; }
     } else { 
 	while (nsec >=  ONE_BILLION) { nsec -= ONE_BILLION; ++sec; }
-	while (nsec < 0)             { nsec += ONE_BILLION; --sec; }
+	while (nsec < 0 && sec > 0)  { nsec += ONE_BILLION; --sec; }
     }
 }
 
