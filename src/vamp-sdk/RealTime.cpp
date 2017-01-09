@@ -43,7 +43,7 @@
 
 #include <iostream>
 
-#if (__GNUC__ < 3)
+#if (defined(__GNUC__)) && (__GNUC__ < 3)
 #include <strstream>
 #define stringstream strstream
 #else
