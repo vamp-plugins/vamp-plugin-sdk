@@ -23,13 +23,13 @@ To build the SDK, example plugins, and command-line host:
 To build only the SDK and example plugins (for example if you do not
 have libsndfile installed):
 
- $ make -f build/Makefile.osx sdk examples
+ $ make -f build/Makefile.osx sdk plugins
 
 See the comments at the top of Makefile.osx for more information about
 the libraries and other targets that are built in this way.
 
-If you are using an IDE such as Xcode, you may prefer to simply add
-the vamp-sdk and src/vamp-sdk (for plugins) or vamp-hostsdk and
+If you are using an IDE such as Xcode, you may prefer to add the
+vamp-sdk and src/vamp-sdk (for plugins) or vamp-hostsdk and
 src/vamp-hostsdk (for hosts) directories to your existing project.
 
 If you are using OS/X 10.6 or older, you could try Makefile.osx.106
