@@ -29,3 +29,5 @@ re:^build/x64/Debug/
 re:^build/x64/Release/
 test/obtained
 test/failures
+*.VC.db
+*.VC.opendb
