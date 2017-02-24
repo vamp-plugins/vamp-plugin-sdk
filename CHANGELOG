@@ -1,4 +1,17 @@
 
+Version 2.7, 2017-02-24 (maintenance and minor feature release)
+
+  * Add ability to PluginLoader to list plugins only in (or not in)
+    certain library files
+  * Fix fixed-sample-rate output timestamps in printout from the
+    simple host, and add regression test script using test plugin
+  * Switch the convenience FFT interface for plugin usage from the
+    very slow reference implementation previously provided, to the
+    somewhat faster KissFFT
+  * Add a top-secret compiler flag to switch internal FFTs to single-
+    precision only
+  * Fix some small but long-standing memory leaks and minor bugs
+
 Version 2.6, 2015-06-16 (maintenance and minor feature release)
 
   * Add a simple C-linkage API for plugin library discovery and
