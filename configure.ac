@@ -50,6 +50,7 @@ if test "x$GCC" = "xyes"; then
     *[\ \	]-fPIC\ -Wall[\ \	]*) ;;
     *) CFLAGS="$CFLAGS -fPIC -Wall -Wextra" ;;
   esac
+  CXXFLAGS="$CXXFLAGS -std=c++98"
 fi
 changequote([,])dnl
 
