@@ -2,7 +2,7 @@
 // Override C linkage for KissFFT headers. So long as we have already
 // included all of the other (system etc) headers KissFFT depends on,
 // this should work out OK
-#undef __cplusplus
+#define KISSFFT_USE_CPP_LINKAGE 1
 
 namespace Kiss {
 
@@ -30,3 +30,9 @@ inline void free(void *ptr) { ::free(ptr); }
 
 }
 
+// Check that this worked, i.e. that we have our own suitably
+// hacked KissFFT header which set this after making the
+// appropriate change
+#ifndef KISSFFT_USED_CPP_LINKAGE
+#error "KissFFT header lacks specific linkage adjustment needed for Vamp SDK"
+#endif

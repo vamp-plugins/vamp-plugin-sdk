@@ -6,8 +6,10 @@
 #include <math.h>
 #include <string.h>
 
+#ifndef KISSFFT_USE_CPP_LINKAGE
 #ifdef __cplusplus
 extern "C" {
+#endif
 #endif
 
 /*
@@ -117,8 +119,14 @@ int kiss_fft_next_fast_size(int n);
 #define kiss_fftr_next_fast_size_real(n) \
         (kiss_fft_next_fast_size( ((n)+1)>>1)<<1)
 
+#ifndef KISSFFT_USE_CPP_LINKAGE
 #ifdef __cplusplus
 } 
+#endif
+#endif
+
+#ifdef KISSFFT_USE_CPP_LINKAGE
+#define KISSFFT_USED_CPP_LINKAGE 1
 #endif
 
 #endif

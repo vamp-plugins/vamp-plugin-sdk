@@ -2,8 +2,11 @@
 #define KISS_FTR_H
 
 #include "kiss_fft.h"
+
+#ifndef KISSFFT_USE_CPP_LINKAGE
 #ifdef __cplusplus
 extern "C" {
+#endif
 #endif
 
     
@@ -40,7 +43,14 @@ void kiss_fftri(kiss_fftr_cfg cfg,const kiss_fft_cpx *freqdata,kiss_fft_scalar *
 
 #define kiss_fftr_free free
 
+#ifndef KISSFFT_USE_CPP_LINKAGE
 #ifdef __cplusplus
 }
 #endif
+#endif
+
+#ifdef KISSFFT_USE_CPP_LINKAGE
+#define KISSFFT_USED_CPP_LINKAGE 1
+#endif
+
 #endif
