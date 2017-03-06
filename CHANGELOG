@@ -1,4 +1,10 @@
 
+Version 2.7.1, 2017-03-06 (maintenance release)
+
+  * Fix inclusion mechanism for FFTs which could cause a host
+    application to crash in certain circumstances due to
+    conflicting versions of C-linkage symbols
+
 Version 2.7, 2017-02-24 (maintenance and minor feature release)
 
   * Add ability to PluginLoader to list plugins only in (or not in)
