@@ -906,6 +906,12 @@ PluginSummarisingAdapter::Impl::reduce()
                 for (map<float, double>::iterator di = distribution_c.begin();
                      di != distribution_c.end(); ++di) {
                     if (di->second > mrd) {
+#ifdef DEBUG_PLUGIN_SUMMARISING_ADAPTER
+                        cerr << "element " << di->first << " spans time "
+                             << di->second << " and so is an improved mode "
+                             << "candidate over element " << summary.mode_c
+                             << " which spanned " << mrd << endl;
+#endif
                         mrd = di->second;
                         summary.mode_c = di->first;
                     }
