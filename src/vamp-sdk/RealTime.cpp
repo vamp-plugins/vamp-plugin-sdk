@@ -42,6 +42,7 @@
 */
 
 #include <iostream>
+#include <limits.h>
 
 #if (defined(__GNUC__)) && (__GNUC__ < 3)
 #include <strstream>
@@ -77,16 +78,10 @@ namespace Vamp {
 RealTime::RealTime(int s, int n) :
     sec(s), nsec(n)
 {
-    if (sec == 0) {
-	while (nsec <= -ONE_BILLION) { nsec += ONE_BILLION; --sec; }
-	while (nsec >=  ONE_BILLION) { nsec -= ONE_BILLION; ++sec; }
-    } else if (sec < 0) {
-	while (nsec <= -ONE_BILLION) { nsec += ONE_BILLION; --sec; }
-	while (nsec > 0 && sec < 0)  { nsec -= ONE_BILLION; ++sec; }
-    } else { 
-	while (nsec >=  ONE_BILLION) { nsec -= ONE_BILLION; ++sec; }
-	while (nsec < 0 && sec > 0)  { nsec += ONE_BILLION; --sec; }
-    }
+    while (nsec <= -ONE_BILLION && sec > INT_MIN) { nsec += ONE_BILLION; --sec; }
+    while (nsec >=  ONE_BILLION && sec < INT_MAX) { nsec -= ONE_BILLION; ++sec; }
+    while (nsec > 0 && sec < 0) { nsec -= ONE_BILLION; ++sec; }
+    while (nsec < 0 && sec > 0) { nsec += ONE_BILLION; --sec; }
 }
 
 RealTime
