@@ -529,6 +529,8 @@ FixedTempoEstimator::D::assembleFeatures()
 
     for (int i = p0; i <= p1 && i+1 < n/2; ++i) {
 
+        if (i < 1) continue;
+        
         if (m_fr[i] > m_fr[i-1] &&
             m_fr[i] > m_fr[i+1]) {
 
