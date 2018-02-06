@@ -1,0 +1,12 @@
+
+configuration:
+  - Release
+
+platform:
+  - x86
+  - x64
+
+build:
+  project: build\VampSDK.sln
+  project: build\VampHostSDK.sln
+  
