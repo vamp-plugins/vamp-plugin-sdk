@@ -6,7 +6,7 @@ platform:
   - x86
   - x64
 
-build:
-  project: build\VampSDK.sln
-  project: build\VampHostSDK.sln
+build_script:
+  - msbuild build\VampSDK.sln
+  - msbuild build\VampHostSDK.sln
   
