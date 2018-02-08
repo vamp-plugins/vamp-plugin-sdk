@@ -106,10 +106,15 @@ bool
 AmplitudeFollower::initialise(size_t channels, size_t stepSize, size_t blockSize)
 {
     if (channels < getMinChannelCount() ||
-	channels > getMaxChannelCount()) return false;
+	channels > getMaxChannelCount()) {
+	cerr << "ERROR: AmplitudeFollower::initialise: "
+	     << "channel count " << channels << " out of supported range"
+	     << endl;
+        return false;
+    }
 
     m_stepSize = std::min(stepSize, blockSize);
-	
+    
     // Translate the coefficients 
     // from their "convenient" 60dB convergence-time values
     // to real coefficients
