@@ -233,6 +233,12 @@ public:
      * Given a Vamp plugin library name and plugin identifier, return
      * the corresponding plugin key in a form suitable for passing in to
      * loadPlugin().
+     *
+     * (Note that the reverse of this is not well-defined and is not
+     * offered in this API - consider using getLibraryPathForPlugin
+     * instead. See documentation for the PluginKey type for details.)
+     *
+     * \see PluginKey, getLibraryPathForPlugin, loadPlugin
      */
     PluginKey composePluginKey(std::string libraryName,
                                std::string identifier);
