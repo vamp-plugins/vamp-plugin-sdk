@@ -322,3 +322,66 @@ Files::listFiles(string dir, string extension)
 
     return files;
 }
+
+bool
+Files::getEnvUtf8(std::string variable, std::string &value)
+{
+    value = "";
+    
+#ifdef _WIN32
+    int wvarlen = MultiByteToWideChar(CP_UTF8, 0,
+                                      variable.c_str(), int(variable.length()),
+                                      0, 0);
+    if (wvarlen < 0) {
+        cerr << "Vamp::HostExt: Unable to convert environment variable name "
+             << variable << " to wide characters" << endl;
+        return false;
+    }
+    
+    wchar_t *wvarbuf = new wchar_t[wvarlen + 1];
+    (void)MultiByteToWideChar(CP_UTF8, 0,
+                              variable.c_str(), int(variable.length()),
+                              wvarbuf, wvarlen);
+    wvarbuf[wvarlen] = L'\0';
+    
+    wchar_t *wvalue = _wgetenv(wvarbuf);
+
+    delete[] wvarbuf;
+
+    if (!wvalue) {
+        return false;
+    }
+
+    int wvallen = int(wcslen(wvalue));
+    int vallen = WideCharToMultiByte(CP_UTF8, 0,
+                                     wvalue, wvallen,
+                                     0, 0, 0, 0);
+    if (vallen < 0) {
+        cerr << "Vamp::HostExt: Unable to convert environment value to UTF-8"
+             << endl;
+        return false;
+    }
+
+    char *val = new char[vallen + 1];
+    (void)WideCharToMultiByte(CP_UTF8, 0,
+                              wvalue, wvallen,
+                              val, vallen, 0, 0);
+    val[vallen] = '\0';
+
+    value = val;
+
+    delete[] val;
+    return true;
+
+#else
+
+    char *val = getenv(variable.c_str());
+    if (!val) {
+        return false;
+    }
+
+    value = val;
+    return true;
+    
+#endif
+}

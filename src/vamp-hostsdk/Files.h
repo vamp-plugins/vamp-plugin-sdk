@@ -62,6 +62,8 @@ public:
     static std::string lcBasename(std::string path);
     static std::string splicePath(std::string a, std::string b);
     static std::vector<std::string> listFiles(std::string dir, std::string ext);
+
+    static bool getEnvUtf8(std::string variable, std::string &value);
 };
 
 #endif

@@ -37,6 +37,8 @@
 #include <vamp-hostsdk/PluginHostAdapter.h>
 #include <cstdlib>
 
+#include "Files.h"
+
 #if ( VAMP_SDK_MAJOR_VERSION != 2 || VAMP_SDK_MINOR_VERSION != 7 )
 #error Unexpected version of Vamp SDK header included
 #endif
@@ -70,8 +72,7 @@ PluginHostAdapter::getPluginPath()
     std::vector<std::string> path;
     std::string envPath;
 
-    char *cpath = getenv("VAMP_PATH");
-    if (cpath) envPath = cpath;
+    (void)Files::getEnvUtf8("VAMP_PATH", envPath);
 
 #ifdef _WIN32
 #define PATH_SEPARATOR ';'
@@ -87,9 +88,8 @@ PluginHostAdapter::getPluginPath()
 
     if (envPath == "") {
         envPath = DEFAULT_VAMP_PATH;
-        char *chome = getenv("HOME");
-        if (chome) {
-            std::string home(chome);
+        std::string home;
+        if (Files::getEnvUtf8("HOME", home)) {
             std::string::size_type f;
             while ((f = envPath.find("$HOME")) != std::string::npos &&
                     f < envPath.length()) {
@@ -97,9 +97,10 @@ PluginHostAdapter::getPluginPath()
             }
         }
 #ifdef _WIN32
-        char *cpfiles = getenv("ProgramFiles");
-        if (!cpfiles) cpfiles = (char *)"C:\\Program Files";
-        std::string pfiles(cpfiles);
+        std::string pfiles;
+        if (!Files::getEnvUtf8("ProgramFiles", pfiles)) {
+            pfiles = "C:\\Program Files";
+        }
         std::string::size_type f;
         while ((f = envPath.find("%ProgramFiles%")) != std::string::npos &&
                f < envPath.length()) {
