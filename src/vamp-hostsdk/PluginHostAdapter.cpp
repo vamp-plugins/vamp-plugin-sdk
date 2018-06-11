@@ -72,7 +72,11 @@ PluginHostAdapter::getPluginPath()
     std::vector<std::string> path;
     std::string envPath;
 
-    (void)Files::getEnvUtf8("VAMP_PATH", envPath);
+    if (Files::isNonNative32Bit()) {
+        (void)Files::getEnvUtf8("VAMP_PATH_32", envPath);
+    } else {
+        (void)Files::getEnvUtf8("VAMP_PATH", envPath);
+    }
 
 #ifdef _WIN32
 #define PATH_SEPARATOR ';'

@@ -324,6 +324,48 @@ Files::listFiles(string dir, string extension)
 }
 
 bool
+Files::isNonNative32Bit()
+{
+    // Return true if we are running on a system for which we should
+    // use the VAMP_PATH_32 variable instead of VAMP_PATH. This will
+    // be the case if we are a 32-bit executable but the OS is
+    // natively 64-bit.
+    //
+    // This currently works only on Windows; other operating systems
+    // will use VAMP_PATH always.
+    
+    if (sizeof(void *) == 8) {
+        return false;
+    }
+
+#ifdef _WIN32
+    BOOL wow64 = FALSE;
+    BOOL (WINAPI *fnIsWow64Process)(HANDLE, PBOOL) =
+        (BOOL (WINAPI *)(HANDLE, PBOOL)) GetProcAddress
+        (GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
+    if (fnIsWow64Process) {
+        if (fnIsWow64Process(GetCurrentProcess(), &wow64)) {
+            if (wow64) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            cerr << "Vamp::HostExt: Unable to query process architecture"
+                 << endl;
+            return false;
+        }
+    } else {
+        cerr << "Vamp::HostExt: Unable to query process architecture: "
+             << "Function not available" << endl;
+        return false;
+    }
+#endif
+
+    return false;
+}
+
+bool
 Files::getEnvUtf8(std::string variable, std::string &value)
 {
     value = "";
