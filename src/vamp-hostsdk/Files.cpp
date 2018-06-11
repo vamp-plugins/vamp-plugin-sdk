@@ -50,6 +50,7 @@
 
 #else /* ! _WIN32 */
 
+#include <cstdlib>
 #include <dirent.h>
 #include <dlfcn.h>
 
