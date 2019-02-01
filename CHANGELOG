@@ -1,4 +1,20 @@
 
+Version 2.8, 2019-02-05 (maintenance and minor feature release)
+
+  * When running in a 32-bit process within 64-bit Windows (WoW64),
+    use the VAMP_PATH_32 environment variable instead of VAMP_PATH
+    (hosts running in this context already use "Program Files (x86)"
+    instead of Program Files)
+  * Fix off-by-one rounding errors in frame-to-ns conversions. Unlike
+    the other changes here which are invisible to plugin code, this
+    change can lead to different results in the lowest significant
+    figures from existing plugins if relinked against the newer code
+  * Fix path environment variable character encoding handling on
+    Windows
+  * Fix theoretical possibility of integer overflow in RealTime
+    constructor
+  * Fix use of undefined behaviour in PluginRateExtractor
+	
 Version 2.7.1, 2017-03-06 (maintenance release)
 
   * Fix inclusion mechanism for FFTs which could cause a host
