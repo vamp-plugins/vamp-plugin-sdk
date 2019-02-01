@@ -41,7 +41,7 @@
 #include <math.h>
 #include <string.h>
 
-#if ( VAMP_SDK_MAJOR_VERSION != 2 || VAMP_SDK_MINOR_VERSION != 7 )
+#if ( VAMP_SDK_MAJOR_VERSION != 2 || VAMP_SDK_MINOR_VERSION != 8 )
 #error Unexpected version of Vamp SDK header included
 #endif
 
