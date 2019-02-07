@@ -14,7 +14,7 @@ Version 2.8, 2019-02-05 (maintenance and minor feature release)
   * Fix theoretical possibility of integer overflow in RealTime
     constructor
   * Fix use of undefined behaviour in PluginRateExtractor
-	
+
 Version 2.7.1, 2017-03-06 (maintenance release)
 
   * Fix inclusion mechanism for FFTs which could cause a host
