@@ -1,5 +1,5 @@
 
-Version 2.8, 2019-02-05 (maintenance and minor feature release)
+Version 2.8, 2019-02-07 (maintenance and minor feature release)
 
   * When running in a 32-bit process within 64-bit Windows (WoW64),
     use the VAMP_PATH_32 environment variable instead of VAMP_PATH
