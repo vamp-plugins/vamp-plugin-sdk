@@ -9,8 +9,13 @@ You must have Xcode installed, with the command-line build tools (an
 optional component).
 
 You must have libsndfile (http://www.mega-nerd.com/libsndfile/)
-installed in order to build the command-line host successfully.  But
-you do not need libsndfile if you only want to build plugins.
+and pkg-config installed in order to build the command-line host
+successfully.  But you do not need libsndfile if you only want to
+build plugins.
+
+To install dependencies with Homebrew:
+
+ $ brew install pkg-config libsndfile
 
 
 Building at the command line
