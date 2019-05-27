@@ -13,6 +13,8 @@ if pkg-config --modversion vamp-sdk >/dev/null 2>&1; then
 fi
 
 AC_SEARCH_LIBS([dlopen],[dl])
+LDL=$LIBS
+AC_SUBST(LDL)
 
 dnl See if the user wants to build programs, or just the SDK
 AC_ARG_ENABLE(programs,	[AS_HELP_STRING([--enable-programs],
@@ -53,6 +55,8 @@ if test "x$GCC" = "xyes"; then
   CXXFLAGS="$CXXFLAGS -std=c++98"
 fi
 changequote([,])dnl
+
+AC_CONFIG_FILES([pkgconfig/vamp.pc pkgconfig/vamp-sdk.pc pkgconfig/vamp-hostsdk.pc])
 
 AC_SUBST(CXXFLAGS)
 AC_SUBST(CFLAGS)
