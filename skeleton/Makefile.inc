@@ -40,17 +40,17 @@ PLUGIN_HEADERS := MyPlugin.h
 
 SRC_DIR		:= .
 
+# Defaults, usually overridden in the platform-specific Makefile
+VAMPSDK_DIR	?= ../vamp-plugin-sdk
+PLUGIN_EXT	?= .so
+CXX 		?= g++
+CC 		?= gcc
+
 CFLAGS		:= $(ARCHFLAGS) $(CFLAGS)
 CXXFLAGS	:= $(CFLAGS) -I. -I$(VAMPSDK_DIR) $(CXXFLAGS)
 
 LDFLAGS		:= $(ARCHFLAGS) $(LDFLAGS) 
 PLUGIN_LDFLAGS	:= $(LDFLAGS) $(PLUGIN_LDFLAGS)
-
-# Defaults, overridden from the platform-specific Makefile
-VAMPSDK_DIR	?= ../vamp-plugin-sdk
-PLUGIN_EXT	?= .so
-CXX 		?= g++
-CC 		?= gcc
 
 PLUGIN 		:= $(PLUGIN_LIBRARY_NAME)$(PLUGIN_EXT)
 
