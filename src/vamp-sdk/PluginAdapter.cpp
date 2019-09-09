@@ -124,7 +124,7 @@ protected:
     // maps both plugins and descriptors to adapters
     typedef map<const void *, Impl *> AdapterMap;
     static AdapterMap *m_adapterMap;
-    static mutex m_adapterMapMutex;
+    static mutex *m_adapterMapMutex;
     static Impl *lookupAdapter(VampPluginHandle);
 
     mutex m_mutex; // guards all of the below
@@ -275,7 +275,7 @@ PluginAdapterBase::Impl::getDescriptor()
     m_descriptor.getRemainingFeatures = vampGetRemainingFeatures;
     m_descriptor.releaseFeatureSet = vampReleaseFeatureSet;
 
-    lock_guard<mutex> adapterMapGuard(m_adapterMapMutex);
+    lock_guard<mutex> adapterMapGuard(*m_adapterMapMutex);
     
     if (!m_adapterMap) {
         m_adapterMap = new AdapterMap;
@@ -325,12 +325,12 @@ PluginAdapterBase::Impl::~Impl()
     }
     free((void *)m_descriptor.programs);
 
-    lock_guard<mutex> adapterMapGuard(m_adapterMapMutex);
+    lock_guard<mutex> adapterMapGuard(*m_adapterMapMutex);
     
     if (m_adapterMap) {
         
         m_adapterMap->erase(&m_descriptor);
-
+        
         if (m_adapterMap->empty()) {
             delete m_adapterMap;
             m_adapterMap = 0;
@@ -345,7 +345,7 @@ PluginAdapterBase::Impl::lookupAdapter(VampPluginHandle handle)
     cerr << "PluginAdapterBase::Impl::lookupAdapter(" << handle << ")" << endl;
 #endif
 
-    lock_guard<mutex> adapterMapGuard(m_adapterMapMutex);
+    lock_guard<mutex> adapterMapGuard(*m_adapterMapMutex);
     
     if (!m_adapterMap) return 0;
     AdapterMap::const_iterator i = m_adapterMap->find(handle);
@@ -361,7 +361,7 @@ PluginAdapterBase::Impl::vampInstantiate(const VampPluginDescriptor *desc,
     cerr << "PluginAdapterBase::Impl::vampInstantiate(" << desc << ")" << endl;
 #endif
 
-    lock_guard<mutex> adapterMapGuard(m_adapterMapMutex);
+    lock_guard<mutex> adapterMapGuard(*m_adapterMapMutex);
     
     if (!m_adapterMap) {
         m_adapterMap = new AdapterMap();
@@ -625,7 +625,7 @@ PluginAdapterBase::Impl::cleanup(Plugin *plugin)
 {
     // at this point no mutex is held
     
-    lock_guard<mutex> adapterMapGuard(m_adapterMapMutex);
+    lock_guard<mutex> adapterMapGuard(*m_adapterMapMutex);
     lock_guard<mutex> guard(m_mutex);
     
     if (m_fs.find(plugin) != m_fs.end()) {
@@ -990,8 +990,13 @@ PluginAdapterBase::Impl::resizeFV(Plugin *plugin, int n, int j, size_t sz)
 PluginAdapterBase::Impl::AdapterMap *
 PluginAdapterBase::Impl::m_adapterMap = 0;
 
-mutex
-PluginAdapterBase::Impl::m_adapterMapMutex;
+// This is allocated on the heap so that we can be sure it outlives
+// the adapters themselves, which are typically static within the
+// plugin library. If this was also static, then it might be destroyed
+// before the last adapter, and we would end up trying to lock an
+// invalid mutex when removing an adapter from the adapter map.
+mutex *
+PluginAdapterBase::Impl::m_adapterMapMutex = new mutex;
 
 }
 
