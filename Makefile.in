@@ -279,6 +279,7 @@ clean:
 distclean:	clean
 		rm -f $(SDK_STATIC) $(SDK_DYNAMIC) $(HOSTSDK_STATIC) $(HOSTSDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET) $(RDFGEN_TARGET) *~ */*~
 		rm -f config.log config.status Makefile
+		rm -f $(PCDIR)/*.pc
 
 install:	$(SDK_STATIC) $(SDK_DYNAMIC) $(HOSTSDK_STATIC) $(HOSTSDK_DYNAMIC) $(PLUGIN_TARGET) $(HOST_TARGET) $(RDFGEN_TARGET)
 		mkdir -p $(DESTDIR)$(INSTALL_API_HEADERS)
@@ -308,12 +309,9 @@ install:	$(SDK_STATIC) $(SDK_DYNAMIC) $(HOSTSDK_STATIC) $(HOSTSDK_DYNAMIC) $(PLU
 		ln -s $(INSTALL_SDK_LIBNAME) $(DESTDIR)$(INSTALL_SDK_LIBS)/$(INSTALL_SDK_LINK_DEV)
 		rm -f $(DESTDIR)$(INSTALL_SDK_LIBS)/$(INSTALL_HOSTSDK_LINK_DEV)
 		ln -s $(INSTALL_HOSTSDK_LIBNAME) $(DESTDIR)$(INSTALL_SDK_LIBS)/$(INSTALL_HOSTSDK_LINK_DEV)
-		sed "s,%PREFIX%,$(INSTALL_PREFIX)," $(PCDIR)/vamp.pc.in \
-		> $(DESTDIR)$(INSTALL_PKGCONFIG)/vamp.pc
-		sed "s,%PREFIX%,$(INSTALL_PREFIX)," $(PCDIR)/vamp-sdk.pc.in \
-		> $(DESTDIR)$(INSTALL_PKGCONFIG)/vamp-sdk.pc
-		sed "s,%PREFIX%,$(INSTALL_PREFIX)," $(PCDIR)/vamp-hostsdk.pc.in \
-		> $(DESTDIR)$(INSTALL_PKGCONFIG)/vamp-hostsdk.pc
+		cp $(PCDIR)/vamp.pc $(DESTDIR)$(INSTALL_PKGCONFIG)/vamp.pc
+		cp $(PCDIR)/vamp-sdk.pc $(DESTDIR)$(INSTALL_PKGCONFIG)/vamp-sdk.pc
+		cp $(PCDIR)/vamp-hostsdk.pc $(DESTDIR)$(INSTALL_PKGCONFIG)/vamp-hostsdk.pc
 		sed -e "s,%LIBNAME%,$(INSTALL_SDK_LIBNAME),g" \
 		    -e "s,%LINK_ABI%,$(INSTALL_SDK_LINK_ABI),g" \
 		    -e "s,%LINK_DEV%,$(INSTALL_SDK_LINK_DEV),g" \

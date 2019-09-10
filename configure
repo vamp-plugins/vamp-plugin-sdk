@@ -630,6 +630,7 @@ SNDFILE_CFLAGS
 PKG_CONFIG_LIBDIR
 PKG_CONFIG_PATH
 PKG_CONFIG
+LDL
 EGREP
 GREP
 CPP
@@ -3732,6 +3733,8 @@ if test "$ac_res" != no; then :
 
 fi
 
+LDL=$LIBS
+
 
 # Check whether --enable-programs was given.
 if test "${enable_programs+set}" = set; then :
@@ -3958,6 +3961,9 @@ if test "x$GCC" = "xyes"; then
   esac
   CXXFLAGS="$CXXFLAGS -std=c++98"
 fi
+
+ac_config_files="$ac_config_files pkgconfig/vamp.pc pkgconfig/vamp-sdk.pc pkgconfig/vamp-hostsdk.pc"
+
 
 
 
@@ -4669,6 +4675,9 @@ cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
 for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
+    "pkgconfig/vamp.pc") CONFIG_FILES="$CONFIG_FILES pkgconfig/vamp.pc" ;;
+    "pkgconfig/vamp-sdk.pc") CONFIG_FILES="$CONFIG_FILES pkgconfig/vamp-sdk.pc" ;;
+    "pkgconfig/vamp-hostsdk.pc") CONFIG_FILES="$CONFIG_FILES pkgconfig/vamp-hostsdk.pc" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
