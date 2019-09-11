@@ -112,8 +112,7 @@ protected:
 
     void cleanup(Plugin *plugin);
     unsigned int getOutputCount(Plugin *plugin);
-    VampOutputDescriptor *getOutputDescriptor(Plugin *plugin,
-                                             unsigned int i);
+    VampOutputDescriptor *getOutputDescriptor(Plugin *plugin, unsigned int i);
     VampFeatureList *process(Plugin *plugin,
                              const float *const *inputBuffers,
                              int sec, int nsec);
@@ -123,8 +122,22 @@ protected:
     
     // maps both plugins and descriptors to adapters
     typedef map<const void *, Impl *> AdapterMap;
+
     static AdapterMap *m_adapterMap;
-    static mutex *m_adapterMapMutex;
+
+    static mutex &adapterMapMutex() {
+        // If this mutex was a global static, then it might be
+        // destroyed before the last adapter, and we would end up
+        // trying to lock an invalid mutex when removing an adapter
+        // from the adapter map. To ensure it outlasts the adapters,
+        // we need to ensure it is constructed before the construction
+        // of any of them is complete, since destruction order is
+        // reverse of construction. So we have to make sure this is
+        // called from the PluginAdapterBase::Impl constructor below.
+        static mutex m;
+        return m;
+    }
+        
     static Impl *lookupAdapter(VampPluginHandle);
 
     mutex m_mutex; // guards all of the below
@@ -168,6 +181,8 @@ PluginAdapterBase::Impl::Impl(PluginAdapterBase *base) :
 #ifdef DEBUG_PLUGIN_ADAPTER
     cerr << "PluginAdapterBase::Impl[" << this << "]::Impl" << endl;
 #endif
+
+    (void)adapterMapMutex(); // see comment in adapterMapMutex function above
 }
 
 const VampPluginDescriptor *
@@ -275,7 +290,7 @@ PluginAdapterBase::Impl::getDescriptor()
     m_descriptor.getRemainingFeatures = vampGetRemainingFeatures;
     m_descriptor.releaseFeatureSet = vampReleaseFeatureSet;
 
-    lock_guard<mutex> adapterMapGuard(*m_adapterMapMutex);
+    lock_guard<mutex> adapterMapGuard(adapterMapMutex());
     
     if (!m_adapterMap) {
         m_adapterMap = new AdapterMap;
@@ -325,7 +340,7 @@ PluginAdapterBase::Impl::~Impl()
     }
     free((void *)m_descriptor.programs);
 
-    lock_guard<mutex> adapterMapGuard(*m_adapterMapMutex);
+    lock_guard<mutex> adapterMapGuard(adapterMapMutex());
     
     if (m_adapterMap) {
         
@@ -345,7 +360,7 @@ PluginAdapterBase::Impl::lookupAdapter(VampPluginHandle handle)
     cerr << "PluginAdapterBase::Impl::lookupAdapter(" << handle << ")" << endl;
 #endif
 
-    lock_guard<mutex> adapterMapGuard(*m_adapterMapMutex);
+    lock_guard<mutex> adapterMapGuard(adapterMapMutex());
     
     if (!m_adapterMap) return 0;
     AdapterMap::const_iterator i = m_adapterMap->find(handle);
@@ -361,7 +376,7 @@ PluginAdapterBase::Impl::vampInstantiate(const VampPluginDescriptor *desc,
     cerr << "PluginAdapterBase::Impl::vampInstantiate(" << desc << ")" << endl;
 #endif
 
-    lock_guard<mutex> adapterMapGuard(*m_adapterMapMutex);
+    lock_guard<mutex> adapterMapGuard(adapterMapMutex());
     
     if (!m_adapterMap) {
         m_adapterMap = new AdapterMap();
@@ -625,7 +640,7 @@ PluginAdapterBase::Impl::cleanup(Plugin *plugin)
 {
     // at this point no mutex is held
     
-    lock_guard<mutex> adapterMapGuard(*m_adapterMapMutex);
+    lock_guard<mutex> adapterMapGuard(adapterMapMutex());
     lock_guard<mutex> guard(m_mutex);
     
     if (m_fs.find(plugin) != m_fs.end()) {
@@ -989,14 +1004,6 @@ PluginAdapterBase::Impl::resizeFV(Plugin *plugin, int n, int j, size_t sz)
   
 PluginAdapterBase::Impl::AdapterMap *
 PluginAdapterBase::Impl::m_adapterMap = 0;
-
-// This is allocated on the heap so that we can be sure it outlives
-// the adapters themselves, which are typically static within the
-// plugin library. If this was also static, then it might be destroyed
-// before the last adapter, and we would end up trying to lock an
-// invalid mutex when removing an adapter from the adapter map.
-mutex *
-PluginAdapterBase::Impl::m_adapterMapMutex = new mutex;
 
 }
 
