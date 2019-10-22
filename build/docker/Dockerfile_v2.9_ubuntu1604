@@ -13,7 +13,7 @@ RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8  
 ENV LANGUAGE en_US:en  
 ENV LC_ALL en_US.UTF-8
-RUN hg clone -r57053d1ba746 https://code.soundsoftware.ac.uk/hg/vamp-plugin-sdk
+RUN hg clone -rvamp-plugin-sdk-v2.9 https://code.soundsoftware.ac.uk/hg/vamp-plugin-sdk
 RUN hg clone https://code.soundsoftware.ac.uk/hg/vamp-test-plugin
 WORKDIR vamp-plugin-sdk
 RUN ./configure && make
