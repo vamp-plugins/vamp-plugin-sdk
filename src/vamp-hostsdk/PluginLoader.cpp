@@ -567,8 +567,18 @@ void
 PluginLoader::Impl::pluginDeleted(PluginDeletionNotifyAdapter *adapter)
 {
     void *handle = m_pluginLibraryHandleMap[adapter];
-    if (handle) Files::unloadLibrary(handle);
+    if (!handle) return;
+
     m_pluginLibraryHandleMap.erase(adapter);
+
+    for (auto h: m_pluginLibraryHandleMap) {
+        if (h.second == handle) {
+            // still in use
+            return;
+        }
+    }
+    
+    Files::unloadLibrary(handle);
 }
 
 PluginLoader::Impl::PluginDeletionNotifyAdapter::PluginDeletionNotifyAdapter(Plugin *plugin,

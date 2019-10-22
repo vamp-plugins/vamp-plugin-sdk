@@ -1,10 +1,13 @@
 
-AC_INIT(vamp-plugin-sdk, 2.8, cannam@all-day-breakfast.com)
+AC_INIT(vamp-plugin-sdk, 2.9, cannam@all-day-breakfast.com)
 
 AC_CONFIG_SRCDIR(vamp/vamp.h)
 AC_PROG_CXX
 AC_HEADER_STDC
 AC_C_BIGENDIAN
+
+# We now require C++11
+AX_CXX_COMPILE_STDCXX_11(noext)
 
 if pkg-config --modversion vamp-sdk >/dev/null 2>&1; then
   echo "WARNING: A version of the Vamp plugin SDK is already installed."
@@ -50,7 +53,7 @@ if test "x$GCC" = "xyes"; then
     *[\ \	]-fPIC\ -Wall[\ \	]*) ;;
     *) CFLAGS="$CFLAGS -fPIC -Wall -Wextra" ;;
   esac
-  CXXFLAGS="$CXXFLAGS -std=c++98"
+  CXXFLAGS="$CXXFLAGS -std=c++11"
 fi
 changequote([,])dnl
 

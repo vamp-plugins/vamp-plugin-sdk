@@ -1,4 +1,20 @@
 
+Version 2.9, 2019-10-23 (maintenance release)
+
+  * Fix non-thread-safe behaviour in PluginAdapter. Plugins built
+    using the adapter classes in version 2.8 or earlier cannot safely
+    be used simultaneously across threads with other instances of
+    themselves or of other plugins in the same library (i.e. shared
+    object). Hosts have been required to provide synchronisation for
+    such cases. Version 2.9 introduces synchronisation in the plugin,
+    making this usage safe. Unfortunately this does not make host code
+    safe when using older plugin builds, as the problem and its fix
+    are in the plugin side of the SDK. Caution is still required, but
+    this fix does allow updated plugin builds to avoid problems with
+    some existing hosts
+  * Change required C++ language standard from C++98 to C++11. This
+    is because of the use of std::mutex in the above fix
+
 Version 2.8, 2019-02-07 (maintenance and minor feature release)
 
   * When running in a 32-bit process within 64-bit Windows (WoW64),

@@ -70,7 +70,7 @@ ARCHFLAGS ?= -mmacosx-version-min=$(MINVERSION) -arch x86_64 -stdlib=libc++
 # Compile flags
 #
 CFLAGS		+= $(ARCHFLAGS) -fPIC
-CXXFLAGS	+= $(ARCHFLAGS) -O2 -Wall -I. -I/usr/local/include -fPIC
+CXXFLAGS	+= $(ARCHFLAGS) -std=c++11 -O2 -Wall -I. -I/usr/local/include -fPIC
 
 # Link flags common to all link targets
 #
