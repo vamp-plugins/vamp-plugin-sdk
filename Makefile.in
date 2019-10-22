@@ -78,13 +78,13 @@ INSTALL_SDK_LIBS	  = $(INSTALL_PREFIX)/lib
 INSTALL_PLUGINS		  = $(INSTALL_PREFIX)/lib/vamp
 INSTALL_BINARIES	  = $(INSTALL_PREFIX)/bin 
 
-INSTALL_SDK_LIBNAME	  = libvamp-sdk.so.2.8.0
+INSTALL_SDK_LIBNAME	  = libvamp-sdk.so.2.9.0
 INSTALL_SDK_LINK_ABI	  = libvamp-sdk.so.2
 INSTALL_SDK_LINK_DEV	  = libvamp-sdk.so
 INSTALL_SDK_STATIC        = libvamp-sdk.a
 INSTALL_SDK_LA            = libvamp-sdk.la
 
-INSTALL_HOSTSDK_LIBNAME   = libvamp-hostsdk.so.3.8.0
+INSTALL_HOSTSDK_LIBNAME   = libvamp-hostsdk.so.3.9.0
 INSTALL_HOSTSDK_LINK_ABI  = libvamp-hostsdk.so.3
 INSTALL_HOSTSDK_LINK_DEV  = libvamp-hostsdk.so
 INSTALL_HOSTSDK_STATIC    = libvamp-hostsdk.a
@@ -113,7 +113,7 @@ ifeq ($(uname_S),Darwin)
 	HOSTSDK_DYNAMIC_LDFLAGS	  = $(DYNAMIC_LDFLAGS)
 	PLUGIN_LDFLAGS		  = $(DYNAMIC_LDFLAGS) -exported_symbols_list build/vamp-plugin.list
 
-	INSTALL_HOSTSDK_LIBNAME   = libvamp-hostsdk.3.8.0.dylib
+	INSTALL_HOSTSDK_LIBNAME   = libvamp-hostsdk.3.9.0.dylib
 	INSTALL_HOSTSDK_LINK_ABI  = libvamp-hostsdk.3.dylib
 
 # The OS X linker doesn't allow you to request static linkage when
@@ -122,7 +122,7 @@ ifeq ($(uname_S),Darwin)
 # dynamic, the static library will never be used. That's OK for the
 # host SDK, but we do want plugins to get static linkage of the plugin
 # SDK. So install the dynamic version under a different name.
-	INSTALL_SDK_LIBNAME	  = libvamp-sdk-dynamic.2.8.0.dylib
+	INSTALL_SDK_LIBNAME	  = libvamp-sdk-dynamic.2.9.0.dylib
 	INSTALL_SDK_LINK_ABI	  = libvamp-sdk-dynamic.2.dylib
 
 endif
