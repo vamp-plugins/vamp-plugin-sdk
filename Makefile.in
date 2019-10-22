@@ -41,7 +41,7 @@ default:	@TARGETS@
 CC		= @CC@
 CXX		= @CXX@
 CFLAGS		= @CFLAGS@
-CXXFLAGS	= -I. @CXXFLAGS@ @SNDFILE_CFLAGS@ 
+CXXFLAGS	= -std=c++11 -I. @CXXFLAGS@ @SNDFILE_CFLAGS@ 
 
 # ar, ranlib
 #
