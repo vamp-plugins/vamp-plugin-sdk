@@ -1,5 +1,5 @@
 
-Version 2.9, 2019-10-23 (maintenance release)
+Version 2.9, 2019-11-13 (maintenance release)
 
   * Fix non-thread-safe behaviour in PluginAdapter. Plugins built
     using the adapter classes in version 2.8 or earlier cannot safely
