@@ -173,7 +173,7 @@ Files::loadLibrary(string path)
 #endif
     if (!handle) {
         cerr << "Vamp::HostExt: Unable to load library \""
-             << path << "\"" << endl;
+             << path << "\": error code " << GetLastError() << endl;
     }
 #else
     handle = dlopen(path.c_str(), RTLD_LAZY | RTLD_LOCAL);
