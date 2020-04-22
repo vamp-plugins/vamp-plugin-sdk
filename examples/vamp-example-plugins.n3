@@ -18,7 +18,7 @@
     foaf:name "Vamp SDK Example Plugins" ;
     foaf:page <http://vamp-plugins.org/> .
 
-:vamp-example-plugins a  vamp:PluginLibrary ;
+plugbase:library a  vamp:PluginLibrary ;
     vamp:identifier "vamp-example-plugins"  ; 
     dc:title "Vamp example plugins" ;
     dc:description """A set of simple plugins as included with the Vamp developers kit. Amplitude tracker, simple percussion onset detector, tempo estimator, spectral centroid, power spectrum, and zero-crossing counter.""" ;
