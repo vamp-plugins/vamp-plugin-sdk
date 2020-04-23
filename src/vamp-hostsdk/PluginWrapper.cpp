@@ -44,13 +44,22 @@ namespace HostExt {
 
 PluginWrapper::PluginWrapper(Plugin *plugin) :
     Plugin(plugin->getInputSampleRate()),
-    m_plugin(plugin)
+    m_plugin(plugin),
+    m_pluginIsOwned(true)
 {
 }
 
 PluginWrapper::~PluginWrapper()
 {
-    delete m_plugin;
+    if (m_pluginIsOwned) {
+        delete m_plugin;
+    }
+}
+
+void
+PluginWrapper::disownPlugin()
+{
+    m_pluginIsOwned = false;
 }
 
 bool

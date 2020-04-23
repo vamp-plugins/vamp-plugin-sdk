@@ -104,7 +104,7 @@ namespace HostExt {
  * In every respect other than its management of channels, the
  * PluginChannelAdapter behaves identically to the plugin that it
  * wraps.  The wrapped plugin will be deleted when the wrapper is
- * deleted.
+ * deleted.  If you wish to prevent this, call disownPlugin().
  *
  * \note This class was introduced in version 1.1 of the Vamp plugin SDK.
  */
@@ -115,7 +115,8 @@ public:
     /**
      * Construct a PluginChannelAdapter wrapping the given plugin.
      * The adapter takes ownership of the plugin, which will be
-     * deleted when the adapter is deleted.
+     * deleted when the adapter is deleted. If you wish to prevent
+     * this, call disownPlugin().
      */
     PluginChannelAdapter(Plugin *plugin);
     virtual ~PluginChannelAdapter();

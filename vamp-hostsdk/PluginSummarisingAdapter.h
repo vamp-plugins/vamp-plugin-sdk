@@ -89,7 +89,8 @@ public:
     /**
      * Construct a PluginSummarisingAdapter wrapping the given plugin.
      * The adapter takes ownership of the plugin, which will be
-     * deleted when the adapter is deleted.
+     * deleted when the adapter is deleted. If you wish to prevent
+     * this, call disownPlugin().
      */
     PluginSummarisingAdapter(Plugin *plugin); 
     virtual ~PluginSummarisingAdapter();

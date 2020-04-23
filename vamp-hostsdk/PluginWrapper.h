@@ -56,6 +56,9 @@ namespace HostExt {
  * override only the methods that are meaningful for the particular
  * adapter.
  *
+ * A PluginWrapper takes ownership of the plugin it wraps, and deletes
+ * it when it is itself deleted. To prevent this, call disownPlugin().
+ *
  * \note This class was introduced in version 1.1 of the Vamp plugin SDK.
  */
 
@@ -121,9 +124,25 @@ public:
         return 0;
     }
 
+    /**
+     * Disown the wrapped plugin, so that we no longer delete it on
+     * our own destruction. The identity of the wrapped plugin is
+     * unchanged, but this switches the expectation about ownership so
+     * that the caller is expected to handle the lifecycle of the
+     * wrapped plugin and to ensure that it outlasts this wrapper.
+     *
+     * This is not the normal model, but could be useful in situations
+     * where a plugin is already managed using a smart pointer model
+     * before being adapted into this wrapper. Note that this can't be
+     * reversed - if you call this, you must subsequently take charge
+     * of the wrapped plugin yourself.
+     */
+    void disownPlugin();
+    
 protected:
     PluginWrapper(Plugin *plugin); // I take ownership of plugin
     Plugin *m_plugin;
+    bool m_pluginIsOwned;
 };
 
 }

@@ -69,7 +69,8 @@ namespace HostExt {
  * 
  * In other respects, the PluginBufferingAdapter behaves identically
  * to the plugin that it wraps. The wrapped plugin will be deleted
- * when the wrapper is deleted.
+ * when the wrapper is deleted. If you wish to prevent this, call
+ * disownPlugin().
  */
 		
 class PluginBufferingAdapter : public PluginWrapper
@@ -78,7 +79,8 @@ public:
     /**
      * Construct a PluginBufferingAdapter wrapping the given plugin.
      * The adapter takes ownership of the plugin, which will be
-     * deleted when the adapter is deleted.
+     * deleted when the adapter is deleted. If you wish to prevent
+     * this, call disownPlugin().
      */
     PluginBufferingAdapter(Plugin *plugin);
     virtual ~PluginBufferingAdapter();
