@@ -1,4 +1,14 @@
 
+Version 2.10, 2020-05-18 (minor feature release)
+
+  * Add a method to PluginWrapper, the host-side base for adapters
+    like PluginInputDomainAdapter that modify the processing behaviour
+    of a plugin, that tells it to "disown" the wrapped plugin. The
+    former behaviour, and still the default, is for the wrapper to
+    take ownership of the wrapped plugin. The alternative behaviour
+    makes it easier to mix these classes with some modern C++ styles
+    that use managed pointers
+
 Version 2.9, 2019-11-13 (maintenance release)
 
   * Fix non-thread-safe behaviour in PluginAdapter. Plugins built

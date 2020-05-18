@@ -41,7 +41,7 @@
 
 #include <mutex>
 
-#if ( VAMP_SDK_MAJOR_VERSION != 2 || VAMP_SDK_MINOR_VERSION != 9 )
+#if ( VAMP_SDK_MAJOR_VERSION != 2 || VAMP_SDK_MINOR_VERSION != 10 )
 #error Unexpected version of Vamp SDK header included
 #endif
 

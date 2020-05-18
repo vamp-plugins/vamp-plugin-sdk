@@ -9,7 +9,7 @@ An API for audio analysis and feature extraction plugins.
 Vamp is an API for C and C++ plugins that process sampled audio data
 to produce descriptive output (measurements or semantic observations).
 
-This is version 2.9 of the Vamp plugin Software Development Kit.
+This is version 2.10 of the Vamp plugin Software Development Kit.
 
 Plugins and hosts built with this SDK are binary compatible with those
 built using any version 2.0 or newer of the SDK.

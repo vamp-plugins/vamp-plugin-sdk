@@ -1,6 +1,7 @@
 /* These stubs are provided so that autoconf can check library
  * versions using C symbols only */
 
+extern void libvampsdk_v_2_10_present(void) { }
 extern void libvampsdk_v_2_9_present(void) { }
 extern void libvampsdk_v_2_8_present(void) { }
 extern void libvampsdk_v_2_7_1_present(void) { }
