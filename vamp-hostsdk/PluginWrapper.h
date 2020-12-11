@@ -121,7 +121,7 @@ public:
         if (w) return w;
         PluginWrapper *pw = dynamic_cast<PluginWrapper *>(m_plugin);
         if (pw) return pw->getWrapper<WrapperType>();
-        return 0;
+        return nullptr;
     }
 
     /**
