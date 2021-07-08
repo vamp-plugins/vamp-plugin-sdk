@@ -79,7 +79,7 @@ PowerSpectrum::getMaker() const
 int
 PowerSpectrum::getPluginVersion() const
 {
-    return 1;
+    return 2;
 }
 
 string
@@ -113,7 +113,7 @@ PowerSpectrum::getOutputDescriptors() const
     d.identifier = "powerspectrum";
     d.name = "Power Spectrum";
     d.description = "Power values of the frequency spectrum bins calculated from the input signal";
-    d.unit = "";
+    d.unit = "V^2";
     d.hasFixedBinCount = true;
     if (m_blockSize == 0) {
         // Just so as not to return "1".  This is the bin count that
