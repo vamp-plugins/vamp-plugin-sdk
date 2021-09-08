@@ -440,7 +440,12 @@ int runPlugin(string myname, string soname, string id,
                 cerr << "ERROR: sf_readf_float failed: " << sf_strerror(sndfile) << endl;
                 break;
             }
-            if (count != stepSize) --finalStepsRemaining;
+            if (count != stepSize) {
+                memset(filebuf + ((overlapSize + count) * channels), 0,
+                       (stepSize - count) * channels * sizeof(float));
+                --finalStepsRemaining;
+            }
+            
             count += overlapSize;
         }
 
