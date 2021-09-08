@@ -729,6 +729,8 @@ struct ValueDurationFloatPair
 
     ValueDurationFloatPair() : value(0), duration(0) { }
     ValueDurationFloatPair(float v, float d) : value(v), duration(d) { }
+    ValueDurationFloatPair(const ValueDurationFloatPair &p) :
+        value(p.value), duration(p.duration) { }
     ValueDurationFloatPair &operator=(const ValueDurationFloatPair &p) {
         value = p.value;
         duration = p.duration;
