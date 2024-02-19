@@ -30,7 +30,7 @@ hosts that do not support feature duration.  Or, if the plugins rely
 on version 2.0 features, the library could make itself invisible to
 older hosts (returning no plugin descriptors).
 
-The version argument passed to vampGetPluginDescriptor will be 1 for
+The version argument passed to `vampGetPluginDescriptor` will be 1 for
 Vamp 1.x hosts or 2 for Vamp 2.0 hosts.  (Plugin libraries should
 behave as for version 2 if passed a version number greater than 2.)
 
@@ -52,14 +52,15 @@ For host code, version 2.0 of the Vamp plugin SDK is neither source
 nor binary compatible with version 1.x.
 
 The host SDK header include location has moved for version 2.0; hosts
-should now only include headers from the vamp-hostsdk/ include
-directory -- the vamp-sdk/ directory is reserved for inclusion in
+should now only include headers from the `vamp-hostsdk/` include
+directory -- the `vamp-sdk/` directory is reserved for inclusion in
 plugin code only.  There is also no longer a separate subdirectory for
 hostext headers.
 
 Hosts written for version 1.x will therefore need to have their
 #include directives updated as follows:
 
+```
   Old                                            New
 
   <vamp-sdk/PluginBase.h>                        <vamp-hostsdk/PluginBase.h>
@@ -70,16 +71,18 @@ Hosts written for version 1.x will therefore need to have their
   <vamp-sdk/hostext/PluginChannelAdapter.h>      <vamp-hostsdk/PluginChannelAdapter.h>
   <vamp-sdk/hostext/PluginInputDomainAdapter.h>  <vamp-hostsdk/PluginInputDomainAdapter.h>
   <vamp-sdk/PluginHostAdapter.h>                 <vamp-hostsdk/PluginHostAdapter.h>
+```
 
 For most hosts, these should be the only changes necessary; the actual
 code remains the same.
 
 Hosts that incorporate plugin code
 ----------------------------------
-One of the changes in this version of the SDK is that separate
+
+One of the changes in version 2.0 of the SDK is that separate
 top-level C++ namespaces are used for classes compiled into plugins
-(the _VampPlugin namespace) and hosts (the _VampHost namespace), to
-avoid any confusion between host and plugin namespaces in unusual
+(the `_VampPlugin` namespace) and hosts (the `_VampHost` namespace),
+to avoid any confusion between host and plugin namespaces in unusual
 linkage situations (as the host and plugin SDKs contain many of the
 same classes, there is a risk that the wrong class may be picked up by
 a stupid dynamic linker in cases where the host and plugin SDK
@@ -92,7 +95,7 @@ example to provide functionality that is the same as those plugins
 without having to explicitly load them, will find that they cannot
 resolve plugin symbols at link time because of this namespace
 mismatch.  To avoid this, you may define the preprocessor symbol
-_VAMP_PLUGIN_IN_HOST_NAMESPACE when compiling the plugin code in the
+`_VAMP_PLUGIN_IN_HOST_NAMESPACE` when compiling the plugin code in the
 context of the host, to ensure that both host and plugin code exist
 within the same namespace.
 

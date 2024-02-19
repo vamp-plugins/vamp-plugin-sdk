@@ -14,6 +14,7 @@ add_library(
     src/vamp-sdk/FFT.cpp
     src/vamp-sdk/PluginAdapter.cpp
     src/vamp-sdk/RealTime.cpp
+    src/vamp-sdk/acsymbols.c
 )
 set_target_properties(vamp-sdk PROPERTIES POSITION_INDEPENDENT_CODE ON)  # to be linked to shared plugin libraries
 target_include_directories(vamp-sdk PUBLIC .)
@@ -32,6 +33,8 @@ add_library(
     src/vamp-hostsdk/PluginSummarisingAdapter.cpp
     src/vamp-hostsdk/PluginWrapper.cpp
     src/vamp-hostsdk/RealTime.cpp
+    src/vamp-hostsdk/host-c.cpp
+    src/vamp-hostsdk/acsymbols.c
 )
 target_link_libraries(vamp-hostsdk PUBLIC ${CMAKE_DL_LIBS})
 target_include_directories(vamp-hostsdk PUBLIC .)
@@ -54,6 +57,15 @@ if(VAMPSDK_BUILD_EXAMPLE_PLUGINS)
     set_target_properties(vamp-example-plugins PROPERTIES PREFIX "")  # remove lib* prefix
     target_link_libraries(vamp-example-plugins PRIVATE vamp-sdk)
 endif()
+    if(MSVC)
+        set_target_properties(vamp-example-plugins PROPERTIES LINK_FLAGS /EXPORT:vampGetPluginDescriptor)
+    else()
+        if(APPLE)
+            set_target_properties(vamp-example-plugins PROPERTIES LINK_FLAGS "-exported_symbols_list ${CMAKE_SOURCE_DIR}/vamp-plugin.list")
+        else()
+            set_target_properties(vamp-example-plugins PROPERTIES LINK_FLAGS "-Wl,--version-script=${CMAKE_SOURCE_DIR}/vamp-plugin.map")
+        endif(APPLE)       
+    endif(MSVC)
 
 # simple host
 option(VAMPSDK_BUILD_SIMPLE_HOST "Build simple host" OFF)

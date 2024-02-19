@@ -101,7 +101,7 @@ HOSTSDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS) -Wl,-soname=$(INSTALL_HOSTSDK_LINK_
 # Additional flags for making a plugin.  This version script tells the
 # GNU linker to make all symbols in the library hidden except for the
 # public entry point.  It's not essential, but makes a tidier library.
-PLUGIN_LDFLAGS		= $(DYNAMIC_LDFLAGS) -Wl,--version-script=build/vamp-plugin.map
+PLUGIN_LDFLAGS		= $(DYNAMIC_LDFLAGS) -Wl,--version-script=vamp-plugin.map
 
 
 # Adapt install details when found to be running on OSX (thanks to David O)
@@ -111,7 +111,7 @@ ifeq ($(uname_S),Darwin)
 	DYNAMIC_LDFLAGS		  = -dynamiclib
 	SDK_DYNAMIC_LDFLAGS	  = $(DYNAMIC_LDFLAGS)
 	HOSTSDK_DYNAMIC_LDFLAGS	  = $(DYNAMIC_LDFLAGS)
-	PLUGIN_LDFLAGS		  = $(DYNAMIC_LDFLAGS) -exported_symbols_list build/vamp-plugin.list
+	PLUGIN_LDFLAGS		  = $(DYNAMIC_LDFLAGS) -exported_symbols_list vamp-plugin.list
 
 	INSTALL_HOSTSDK_LIBNAME   = libvamp-hostsdk.3.10.0.dylib
 	INSTALL_HOSTSDK_LINK_ABI  = libvamp-hostsdk.3.dylib
