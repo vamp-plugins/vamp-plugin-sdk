@@ -186,30 +186,33 @@ plugin.  They are also intended to be correct and useful, if simple.
  - [ZeroCrossing](examples/ZeroCrossing.cpp) calculates the positions
  and density of zero-crossing points in an audio waveform.
 
- - SpectralCentroid calculates the centre of gravity of the frequency
- domain representation of each block of audio.
+ - [SpectralCentroid](examples/SpectralCentroid.cpp) calculates the
+ centre of gravity of the frequency domain representation of each
+ block of audio.
 
- - PowerSpectrum calculates a power spectrum from the input audio.
- Actually, it doesn't do any work except calculating power from a
- cartesian complex FFT output.  The work of calculating this frequency
- domain output is done for it by the host or host SDK; the plugin just
- needs to declare that it wants frequency domain input.  This is the
- simplest of the example plugins.
+ - [PowerSpectrum](examples/PowerSpectrum.cpp) calculates a power
+ spectrum from the input audio.  Actually, it doesn't do any work
+ except calculating power from a cartesian complex FFT output.  The
+ work of calculating this frequency domain output is done for it by
+ the host or host SDK; the plugin just needs to declare that it wants
+ frequency domain input.  This is the simplest of the example plugins.
 
- - AmplitudeFollower is a simple implementation of SuperCollider's
- amplitude-follower algorithm.
+ - [AmplitudeFollower](examples/AmplitudeFollower.cpp) is a simple
+ implementation of SuperCollider's amplitude-follower algorithm.
 
- - PercussionOnsetDetector estimates the locations of percussive
- onsets using a simple method described in "Drum Source Separation
- using Percussive Feature Detection and Spectral Modulation" by Dan
- Barry, Derry Fitzgerald, Eugene Coyle and Bob Lawlor, ISSC 2005.
+ - [PercussionOnsetDetector](examples/PercussionOnsetDetector)
+ estimates the locations of percussive onsets using a simple method
+ described in "Drum Source Separation using Percussive Feature
+ Detection and Spectral Modulation" by Dan Barry, Derry Fitzgerald,
+ Eugene Coyle and Bob Lawlor, ISSC 2005.
 
- - FixedTempoEstimator calculates a single beats-per-minute value
- which is an estimate of the tempo of a piece of music that is assumed
- to be of fixed tempo, using autocorrelation of a frequency domain
- energy rise metric.  It has several outputs that return intermediate
- results used in the calculation, and may be a useful example of a
- plugin having several outputs with varying feature structures.
+ - [FixedTempoEstimator](examples/FixedTempoEstimator) calculates a
+ single beats-per-minute value which is an estimate of the tempo of a
+ piece of music that is assumed to be of fixed tempo, using
+ autocorrelation of a frequency domain energy rise metric.  It has
+ several outputs that return intermediate results used in the
+ calculation, and may be a useful example of a plugin having several
+ outputs with varying feature structures.
 
 
 ### skeleton
