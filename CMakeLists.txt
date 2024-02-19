@@ -57,6 +57,15 @@ if(VAMPSDK_BUILD_EXAMPLE_PLUGINS)
     set_target_properties(vamp-example-plugins PROPERTIES PREFIX "")  # remove lib* prefix
     target_link_libraries(vamp-example-plugins PRIVATE vamp-sdk)
 endif()
+    if(MSVC)
+        set_target_properties(vamp-example-plugins PROPERTIES LINK_FLAGS /EXPORT:vampGetPluginDescriptor)
+    else()
+        if(APPLE)
+            set_target_properties(vamp-example-plugins PROPERTIES LINK_FLAGS -exported_symbols_list vamp-plugin.list)
+        else()
+            set_target_properties(vamp-example-plugins PROPERTIES LINK_FLAGS -Wl,--version-script=vamp-plugin.map)
+        endif(APPLE)       
+    endif(MSVC)
 
 # simple host
 option(VAMPSDK_BUILD_SIMPLE_HOST "Build simple host" OFF)

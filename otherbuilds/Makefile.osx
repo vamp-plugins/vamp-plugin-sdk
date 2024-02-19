@@ -109,7 +109,7 @@ DYNAMIC_LDFLAGS		= $(ARCHFLAGS) -dynamiclib
 #
 PLUGIN_LDFLAGS		= $(DYNAMIC_LDFLAGS) \
 			  -install_name vamp-example-plugins.dylib \
-			  -exported_symbols_list build/vamp-plugin.list
+			  -exported_symbols_list vamp-plugin.list
 SDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS) -install_name libvamp-sdk.dylib
 HOSTSDK_DYNAMIC_LDFLAGS	= $(DYNAMIC_LDFLAGS) -install_name libvamp-hostsdk.dylib
 
