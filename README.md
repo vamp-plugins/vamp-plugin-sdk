@@ -48,9 +48,9 @@ $ cmake --build .
 The following custom CMake defines are supported:
 
 <table>
-<tr><td>`VAMPSDK_BUILD_EXAMPLE_PLUGINS`</td><td>Build the example Vamp plugin library.</td></tr>
-<tr><td>`VAMPSDK_BUILD_SIMPLE_HOST`</td><td>Build the simple host executable. This requires that [libsndfile](https://github.com/libsndfile/libsndfile) be installed in a way that CMake can detect.</td></tr>
-<tr><td>`VAMPSDK_BUILD_RDFGEN`</td><td>Build the RDF template generator utility, which can help produce RDF description files for plugins.</td></tr>
+<tr><td><pre>VAMPSDK_BUILD_EXAMPLE_PLUGINS</pre></td><td>Build the example Vamp plugin library.</td></tr>
+<tr><td><pre>VAMPSDK_BUILD_SIMPLE_HOST</pre></td><td>Build the simple host executable. This requires that [libsndfile](https://github.com/libsndfile/libsndfile) be installed in a way that CMake can detect.</td></tr>
+<tr><td><pre>VAMPSDK_BUILD_RDFGEN</pre></td><td>Build the RDF template generator utility, which can help produce RDF description files for plugins.</td></tr>
 </table>
 
 By default all of these options are OFF and only the plugin and host
@@ -282,9 +282,10 @@ source code, provided you retain the original copyright note.
 See Also
 --------
 
-Sonic Visualiser, an interactive open-source graphical audio
-inspection, analysis and visualisation tool supporting Vamp plugins.
-https://www.sonicvisualiser.org/
+[Sonic Visualiser](https://www.sonicvisualiser.org/), an interactive
+open-source graphical audio inspection, analysis and visualisation
+tool supporting Vamp plugins.
+
 
 
 Authors
@@ -298,6 +299,8 @@ Chris Cannam and QMUL.
 
 The SDK incorporates KissFFT code, copyright (c) 2003-2010 Mark
 Borgerding.
+
+The CMake support was provided by Lukas Berbuer.
 
 Mark Sandler and Christian Landone provided ideas and direction, and
 Mark Levy, Dan Stowell, Martin Gasser and Craig Sapp provided testing
