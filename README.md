@@ -11,16 +11,14 @@ to produce descriptive output (measurements or semantic observations).
 
 This is version 2.10 of the Vamp plugin Software Development Kit.
 
- * Plugins and hosts built with this SDK are binary compatible with
-those built using all versions 2.x of the SDK.
-
- * Plugins and hosts built with this SDK are binary compatible with
-those built using version 1.0 of the SDK, with certain restrictions.
-See the file [README_on_compatibility.md](README_on_compatibility.md)
-for more details.
-
+ * Plugins and hosts built with this version of the SDK are binary
+   compatible with those built using any other 2.x version of the SDK.
+ * Plugins and hosts built with this version of the SDK are binary
+   compatible with those built using version 1.0 of the SDK, with
+   certain restrictions.  See the [compatibility
+   README](README_on_compatibility.md) for more details.
  * See the file [CHANGELOG](CHANGELOG) for a list of the changes in
-this release.
+   this release.
 
 A documentation guide to writing plugins using the Vamp SDK can be
 found at https://www.vamp-plugins.org/guide.pdf .
