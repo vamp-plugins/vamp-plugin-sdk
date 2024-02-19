@@ -294,7 +294,7 @@ Authors
 Vamp and the Vamp SDK were designed and made at the Centre for Digital
 Music at Queen Mary, University of London.
 
-The SDK was written by Chris Cannam, copyright (c) 2005-2017
+The SDK was written by Chris Cannam, copyright (c) 2005-2024
 Chris Cannam and QMUL.
 
 The SDK incorporates KissFFT code, copyright (c) 2003-2010 Mark
