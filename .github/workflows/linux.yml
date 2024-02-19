@@ -14,7 +14,7 @@ jobs:
         sudo apt-get install -y build-essential cmake libsndfile-dev
     - name: make
       run: |
-        mkdir buildfiles
-        cd buildfiles
+        mkdir build
+        cd build
         cmake .. -DVAMPSDK_BUILD_EXAMPLE_PLUGINS=ON -DVAMPSDK_BUILD_SIMPLE_HOST=ON -DVAMPSDK_BUILD_RDFGEN=ON
         make

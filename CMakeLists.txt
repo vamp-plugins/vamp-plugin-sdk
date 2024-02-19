@@ -14,6 +14,7 @@ add_library(
     src/vamp-sdk/FFT.cpp
     src/vamp-sdk/PluginAdapter.cpp
     src/vamp-sdk/RealTime.cpp
+    src/vamp-sdk/acsymbols.c
 )
 set_target_properties(vamp-sdk PROPERTIES POSITION_INDEPENDENT_CODE ON)  # to be linked to shared plugin libraries
 target_include_directories(vamp-sdk PUBLIC .)
@@ -32,6 +33,8 @@ add_library(
     src/vamp-hostsdk/PluginSummarisingAdapter.cpp
     src/vamp-hostsdk/PluginWrapper.cpp
     src/vamp-hostsdk/RealTime.cpp
+    src/vamp-hostsdk/host-c.cpp
+    src/vamp-hostsdk/acsymbols.c
 )
 target_link_libraries(vamp-hostsdk PUBLIC ${CMAKE_DL_LIBS})
 target_include_directories(vamp-hostsdk PUBLIC .)

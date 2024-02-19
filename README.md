@@ -29,13 +29,53 @@ found at https://www.vamp-plugins.org/guide.pdf .
 Compiling and Installing the SDK and Examples
 ---------------------------------------------
 
-This SDK is intended for use on Windows, macOS, Linux, and other POSIX
-and GNU platforms.
+A number of build systems are currently supported:
 
-Please see the platform-specific README file (README.msvc, README.osx,
-README.linux) in the build/ directory for details about how to compile
-and install the SDK, how to build plugin libraries using it, and how
-to install the example plugins so you can use them in a host.
+### CMake
+
+The SDK can be compiled on most platforms using CMake, and this is
+what we suggest when building new plugins or vendoring the SDK into
+host code.
+
+For example:
+
+```
+$ mkdir build && cd build
+$ cmake .. -DVAMPSDK_BUILD_EXAMPLE_PLUGINS=ON
+$ cmake --build .
+```
+
+The following custom CMake defines are supported:
+
+<table>
+<tr><td>`VAMPSDK_BUILD_EXAMPLE_PLUGINS`</td><td>Build the example Vamp plugin library.</td></tr>
+<tr><td>`VAMPSDK_BUILD_SIMPLE_HOST`</td><td>Build the simple host executable. This requires that [libsndfile](https://github.com/libsndfile/libsndfile) be installed in a way that CMake can detect.</td></tr>
+<tr><td>`VAMPSDK_BUILD_RDFGEN`</td><td>Build the RDF template generator utility, which can help produce RDF description files for plugins.</td></tr>
+</table>
+
+By default all of these options are OFF and only the plugin and host
+SDK libraries are built.
+
+### Autoconf
+
+An older autoconf-based build system is also provided. This is still
+the recommended system for building installable shared libraries on
+Linux, but is not really advised elsewhere.
+
+```
+$ ./configure && make && make install
+```
+
+### Other build systems
+
+Miscellaneous older build files (including Visual Studio projects) can
+be found in the `otherbuilds` directory. These are provided in case
+they are still useful to anyone, but nothing in here should be
+considered supported.
+
+### Continuous integration
+
+Builds are tested via CI on Linux, macOS, and Windows.
 
  * Linux CI build: [![Build Status](https://github.com/vamp-plugins/vamp-plugin-sdk/workflows/Linux%20CI/badge.svg)](https://github.com/vamp-plugins/vamp-plugin-sdk/actions?query=workflow%3A%22Linux+CI%22)
  * macOS CI build: [![Build Status](https://github.com/vamp-plugins/vamp-plugin-sdk/workflows/macOS%20CI/badge.svg)](https://github.com/vamp-plugins/vamp-plugin-sdk/actions?query=workflow%3A%22macOS+CI%22)

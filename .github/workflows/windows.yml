@@ -17,7 +17,7 @@ jobs:
         pip install ninja
     - name: make
       run: |
-        mkdir buildfiles
-        cd buildfiles
+        mkdir build
+        cd build
         cmake .. -G Ninja -DVAMPSDK_BUILD_EXAMPLE_PLUGINS=ON -DVAMPSDK_BUILD_RDFGEN=ON
         ninja
