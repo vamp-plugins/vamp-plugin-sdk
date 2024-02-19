@@ -48,9 +48,9 @@ $ cmake --build .
 The following custom CMake defines are supported:
 
 <table>
-<tr><td><pre>VAMPSDK_BUILD_EXAMPLE_PLUGINS</pre></td><td>Build the example Vamp plugin library.</td></tr>
-<tr><td><pre>VAMPSDK_BUILD_SIMPLE_HOST</pre></td><td>Build the simple host executable. This requires that [libsndfile](https://github.com/libsndfile/libsndfile) be installed in a way that CMake can detect.</td></tr>
-<tr><td><pre>VAMPSDK_BUILD_RDFGEN</pre></td><td>Build the RDF template generator utility, which can help produce RDF description files for plugins.</td></tr>
+<tr><td><code>VAMPSDK_BUILD_EXAMPLE_PLUGINS</code></td><td>Build the example Vamp plugin library.</td></tr>
+<tr><td><code>VAMPSDK_BUILD_SIMPLE_HOST</code></td><td>Build the simple host executable. This requires that <a href="https://github.com/libsndfile/libsndfile">libsndfile</a> be installed in a way that CMake can detect.</td></tr>
+<tr><td><code>VAMPSDK_BUILD_RDFGEN</code></td><td>Build the RDF template generator utility, which can help produce RDF description files for plugins.</td></tr>
 </table>
 
 By default all of these options are OFF and only the plugin and host
@@ -183,8 +183,8 @@ These plugins are intended to be useful examples you can draw code
 from in order to provide the basic shape and structure of a Vamp
 plugin.  They are also intended to be correct and useful, if simple.
 
- - ZeroCrossing calculates the positions and density of zero-crossing
- points in an audio waveform.
+ - [ZeroCrossing](examples/ZeroCrossing.cpp) calculates the positions
+ and density of zero-crossing points in an audio waveform.
 
  - SpectralCentroid calculates the centre of gravity of the frequency
  domain representation of each block of audio.
