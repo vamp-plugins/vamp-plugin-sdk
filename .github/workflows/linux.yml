@@ -9,6 +9,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+      with: repository: 'vamp-plugins/vamp-test-plugin'
     - name: deps
       run: |
         sudo apt-get install -y build-essential cmake libsndfile-dev
@@ -18,3 +20,5 @@ jobs:
         cd build
         cmake .. -DVAMPSDK_BUILD_EXAMPLE_PLUGINS=ON -DVAMPSDK_BUILD_SIMPLE_HOST=ON -DVAMPSDK_BUILD_RDFGEN=ON
         make
+    - name: test-plugin-regression
+      run: ./test/run-test-plugin-regression.sh
