@@ -12,13 +12,15 @@ to produce descriptive output (measurements or semantic observations).
 This is version 2.10 of the Vamp plugin Software Development Kit.
 
 Plugins and hosts built with this SDK are binary compatible with those
-built using any version 2.0 or newer of the SDK.
+built using all versions 2.x of the SDK.
 
 Plugins and hosts built with this SDK are binary compatible with those
 built using version 1.0 of the SDK, with certain restrictions.  See
-the file README.compat for more details.
+the file [README_on_compatibility.md](README_on_compatibility.md) for
+more details.
 
-See the file CHANGELOG for a list of the changes in this release.
+See the file [CHANGELOG](CHANGELOG) for a list of the changes in this
+release.
 
 A documentation guide to writing plugins using the Vamp SDK can be
 found at https://www.vamp-plugins.org/guide.pdf .
@@ -34,6 +36,10 @@ Please see the platform-specific README file (README.msvc, README.osx,
 README.linux) in the build/ directory for details about how to compile
 and install the SDK, how to build plugin libraries using it, and how
 to install the example plugins so you can use them in a host.
+
+ * Linux CI build: [![Build Status](https://github.com/vamp-plugins/vamp-plugin-sdk/workflows/Linux%20CI/badge.svg)](https://github.com/vamp-plugins/vamp-plugin-sdk/actions?query=workflow%3A%22Linux+CI%22)
+ * macOS CI build: [![Build Status](https://github.com/vamp-plugins/vamp-plugin-sdk/workflows/macOS%20CI/badge.svg)](https://github.com/vamp-plugins/vamp-plugin-sdk/actions?query=workflow%3A%22macOS+CI%22)
+ * Windows CI build: [![Build Status](https://github.com/vamp-plugins/vamp-plugin-sdk/workflows/Windows%20CI/badge.svg)](https://github.com/vamp-plugins/vamp-plugin-sdk/actions?query=workflow%3A%22Windows+CI%22)
 
 
 What's In This SDK
