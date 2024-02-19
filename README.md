@@ -46,75 +46,77 @@ This SDK contains the following:
 
 The formal C language plugin API for Vamp plugins.
 
-A Vamp plugin is a dynamic library (.so, .dll or .dylib depending on
-platform) exposing one C-linkage entry point (vampGetPluginDescriptor)
-which returns data defined in the rest of this C header.
+A Vamp plugin is a dynamic library (`.so`, `.dll` or `.dylib`
+depending on platform) exposing one C-linkage entry point
+(`vampGetPluginDescriptor`) which returns data defined in the rest of
+this C header.
 
 Although the C API is the official API for Vamp, we don't recommend
 that you program directly to it.  The C++ abstractions found in the
-vamp-sdk and vamp-hostsdk directories (below) are preferable for most
-purposes and are more thoroughly documented.
+`vamp-sdk` and `vamp-hostsdk` directories (below) are preferable for
+most purposes and are more thoroughly documented.
 
 
 ### vamp-sdk
 
 C++ classes for implementing Vamp plugins.
 
-Plugins should subclass Vamp::Plugin and then use Vamp::PluginAdapter
-to expose the correct C API for the plugin.  Plugin authors should
-read vamp-sdk/PluginBase.h and Plugin.h for code documentation.
+Plugins should subclass `Vamp::Plugin` and then use
+`Vamp::PluginAdapter` to expose the correct C API for the plugin.
+Plugin authors should read `vamp-sdk/PluginBase.h` and `Plugin.h` for
+code documentation.
 
 See "examples" below for details of the example plugins in the SDK,
 from which you are welcome to take code and inspiration.
 
-Plugins should link with -lvamp-sdk.
+Plugins should link with `-lvamp-sdk`.
 
 
 ### vamp-hostsdk
 
 C++ classes for implementing Vamp hosts.
 
-Hosts will normally use a Vamp::PluginHostAdapter to convert each
-plugin's exposed C API back into a useful Vamp::Plugin C++ object.
+Hosts will normally use a `Vamp::PluginHostAdapter` to convert each
+plugin's exposed C API back into a useful `Vamp::Plugin` C++ object.
 
-The Vamp::HostExt namespace contains several additional C++ classes to
-do this work for them, and make the host's life easier:
+The `Vamp::HostExt` namespace contains several additional C++ classes
+to do this work for them, and make the host's life easier:
 
- - Vamp::HostExt::PluginLoader provides a very easy interface for a
+ - `Vamp::HostExt::PluginLoader` provides a very easy interface for a
  host to discover, load, and find out category information about the
  available plugins.  Most Vamp hosts will probably want to use this
  class.
 
- - Vamp::HostExt::PluginInputDomainAdapter provides a simple means for
- hosts to handle plugins that want frequency-domain input, without
+ - `Vamp::HostExt::PluginInputDomainAdapter` provides a simple means
+ for hosts to handle plugins that want frequency-domain input, without
  having to convert the input themselves.
 
- - Vamp::HostExt::PluginChannelAdapter provides a simple means for
+ - `Vamp::HostExt::PluginChannelAdapter` provides a simple means for
  hosts to use plugins that do not necessarily support the same number
  of audio channels as they have available, without having to apply a
  channel management / mixdown policy themselves.
 
- - Vamp::HostExt::PluginBufferingAdapter provides a means for hosts to
- avoid having to negotiate the input step and block size, instead
+ - `Vamp::HostExt::PluginBufferingAdapter` provides a means for hosts
+ to avoid having to negotiate the input step and block size, instead
  permitting the host to use any block size they desire (and a step
  size equal to it).  This is particularly useful for "streaming" hosts
  that cannot seek backwards in the input audio stream and so would
  otherwise need to implement an additional buffer to support step
  sizes smaller than the block size.
 
- - Vamp::HostExt::PluginSummarisingAdapter provides summarisation
+ - `Vamp::HostExt::PluginSummarisingAdapter` provides summarisation
  methods such as mean and median averages of output features, for use
  in any context where an available plugin produces individual values
  but the result that is actually needed is some sort of aggregate.
 
-The PluginLoader class can also use the input domain, channel, and
+The `PluginLoader` class can also use the input domain, channel, and
 buffering adapters automatically to make these conversions transparent
 to the host if required.
 
 Host authors should also refer to the example host code in the host
 directory of the SDK.
 
-Hosts should link with -lvamp-hostsdk.
+Hosts should link with `-lvamp-hostsdk`.
 
 
 ### vamp-hostsdk/host-c.h
@@ -123,7 +125,7 @@ A C-linkage header wrapping the part of the C++ SDK code that handles
 plugin discovery and library loading. Host programs written in C or in
 a language with a C-linkage foreign function interface may choose to
 use this header to discover and load plugin libraries, together with
-the vamp/vamp.h formal API to interact with plugins themselves. See
+the `vamp/vamp.h` formal API to interact with plugins themselves. See
 the header for more documentation.
 
 
@@ -186,44 +188,45 @@ Plugin Lookup and Categorisation
 
 The Vamp API does not officially specify how to load plugin libraries
 or where to find them.  However, the SDK does include a function
-(Vamp::PluginHostAdapter::getPluginPath()) that returns a recommended
-directory search path that hosts may use for plugin libraries, and a
-class (Vamp::HostExt::PluginLoader) that implements a sensible
-cross-platform lookup policy using this path.  We recommend using this
-class in your host unless you have a good reason not to want to.  This
-implementation also permits the user to set the environment variable
-VAMP_PATH to override the default path if desired.
+(`Vamp::PluginHostAdapter::getPluginPath()`) that returns a
+recommended directory search path that hosts may use for plugin
+libraries, and a class (`Vamp::HostExt::PluginLoader`) that implements
+a sensible cross-platform lookup policy using this path.  We recommend
+using this class in your host unless you have a good reason not to
+want to.  This implementation also permits the user to set the
+environment variable `VAMP_PATH` to override the default path if
+desired.
 
-The policy used by Vamp::HostExt::PluginLoader -- and our
+The policy used by `Vamp::HostExt::PluginLoader` -- and our
 recommendation for any host -- is to search each directory in the path
-returned by getPluginPath for .DLL (on Windows), .so (on Linux,
-Solaris, BSD etc) or .dylib (on OS/X) files, then to load each one and
-perform a dynamic name lookup on the vampGetPluginDescriptor function
-to enumerate the plugins in the library.  This operation will
+returned by `getPluginPath` for `.DLL` (on Windows), `.so` (on Linux,
+Solaris, BSD etc) or `.dylib` (on OS/X) files, then to load each one
+and perform a dynamic name lookup on the vampGetPluginDescriptor
+function to enumerate the plugins in the library.  This operation will
 necessarily be system-dependent.
 
 Vamp also has an informal convention for sorting plugins into
 functional categories.  In addition to the library file itself, a
 plugin library may install a category file with the same name as the
-library but .cat extension.  The existence and format of this file are
-not specified by the Vamp API, but by convention the file may contain
-lines of the format
+library but `.cat` extension.  The existence and format of this file
+are not specified by the Vamp API, but by convention the file may
+contain lines of the format
 
-vamp:pluginlibrary:pluginname::General Category > Specific Category
+`vamp:pluginlibrary:pluginname::General Category > Specific Category`
 
 which a host may read and use to assign plugins a location within a
 category tree for display to the user.  The expectation is that
 advanced users may also choose to set up their own preferred category
 trees, which is why this information is not queried as part of the
-Vamp plugin's API itself.  The Vamp::HostExt::PluginLoader class also
-provides support for plugin category lookup using this scheme.
+Vamp plugin's API itself.  The `Vamp::HostExt::PluginLoader` class
+also provides support for plugin category lookup using this scheme.
 
 
 Licensing
 ---------
 
 This plugin SDK is freely redistributable under a "new-style BSD"
-licence.  See the file COPYING for more details.  In short, you may
+licence.  See the file `COPYING` for more details.  In short, you may
 modify and redistribute the SDK and example plugins within any
 commercial or non-commercial, proprietary or open-source plugin or
 application under almost any conditions, with no obligation to provide
@@ -235,7 +238,7 @@ See Also
 
 Sonic Visualiser, an interactive open-source graphical audio
 inspection, analysis and visualisation tool supporting Vamp plugins.
-http://www.sonicvisualiser.org/
+https://www.sonicvisualiser.org/
 
 
 Authors
