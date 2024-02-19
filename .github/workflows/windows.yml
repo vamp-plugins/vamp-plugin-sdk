@@ -9,9 +9,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
     - name: deps
       run: |
-        choco install ninja
+        pip install ninja
     - name: make
       run: |
         mkdir buildfiles
