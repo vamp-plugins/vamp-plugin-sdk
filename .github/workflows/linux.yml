@@ -1,0 +1,21 @@
+name: Linux CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: install-packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install build-essential cmake libsndfile-dev
+    - name: make
+      run: |
+        mkdir buildfiles
+        cd buildfiles
+        cmake .. -DVAMPSDK_BUILD_EXAMPLE_PLUGINS=ON -DVAMPSDK_BUILD_SIMPLE_HOST=ON -DVAMPSDK_BUILD_RDFGEN=ON
+        make
