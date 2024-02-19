@@ -11,16 +11,16 @@ to produce descriptive output (measurements or semantic observations).
 
 This is version 2.10 of the Vamp plugin Software Development Kit.
 
-Plugins and hosts built with this SDK are binary compatible with those
-built using all versions 2.x of the SDK.
+ * Plugins and hosts built with this SDK are binary compatible with
+those built using all versions 2.x of the SDK.
 
-Plugins and hosts built with this SDK are binary compatible with those
-built using version 1.0 of the SDK, with certain restrictions.  See
-the file [README_on_compatibility.md](README_on_compatibility.md) for
-more details.
+ * Plugins and hosts built with this SDK are binary compatible with
+those built using version 1.0 of the SDK, with certain restrictions.
+See the file [README_on_compatibility.md](README_on_compatibility.md)
+for more details.
 
-See the file [CHANGELOG](CHANGELOG) for a list of the changes in this
-release.
+ * See the file [CHANGELOG](CHANGELOG) for a list of the changes in
+this release.
 
 A documentation guide to writing plugins using the Vamp SDK can be
 found at https://www.vamp-plugins.org/guide.pdf .
@@ -29,7 +29,7 @@ found at https://www.vamp-plugins.org/guide.pdf .
 Compiling and Installing the SDK and Examples
 ---------------------------------------------
 
-A number of build systems are currently supported:
+More than one build system is currently supported:
 
 ### CMake
 
@@ -48,12 +48,12 @@ $ cmake --build .
 The following custom CMake defines are supported:
 
 <table>
-<tr><td><code>VAMPSDK_BUILD_EXAMPLE_PLUGINS</code></td><td>Build the example Vamp plugin library.</td></tr>
+<tr><td><code>VAMPSDK_BUILD_EXAMPLE_PLUGINS</code></td><td>Build the example library of Vamp plugins.</td></tr>
 <tr><td><code>VAMPSDK_BUILD_SIMPLE_HOST</code></td><td>Build the simple host executable. This requires that <a href="https://github.com/libsndfile/libsndfile">libsndfile</a> be installed in a way that CMake can detect.</td></tr>
 <tr><td><code>VAMPSDK_BUILD_RDFGEN</code></td><td>Build the RDF template generator utility, which can help produce RDF description files for plugins.</td></tr>
 </table>
 
-By default all of these options are OFF and only the plugin and host
+By default all of these options are `OFF` and only the plugin and host
 SDK libraries are built.
 
 ### Autoconf
@@ -200,15 +200,15 @@ plugin.  They are also intended to be correct and useful, if simple.
  - [AmplitudeFollower](examples/AmplitudeFollower.cpp) is a simple
  implementation of SuperCollider's amplitude-follower algorithm.
 
- - [PercussionOnsetDetector](examples/PercussionOnsetDetector)
+ - [PercussionOnsetDetector](examples/PercussionOnsetDetector.cpp)
  estimates the locations of percussive onsets using a simple method
  described in "Drum Source Separation using Percussive Feature
  Detection and Spectral Modulation" by Dan Barry, Derry Fitzgerald,
  Eugene Coyle and Bob Lawlor, ISSC 2005.
 
- - [FixedTempoEstimator](examples/FixedTempoEstimator) calculates a
- single beats-per-minute value which is an estimate of the tempo of a
- piece of music that is assumed to be of fixed tempo, using
+ - [FixedTempoEstimator](examples/FixedTempoEstimator.cpp) calculates
+ a single beats-per-minute value which is an estimate of the tempo of
+ a piece of music that is assumed to be of fixed tempo, using
  autocorrelation of a frequency domain energy rise metric.  It has
  several outputs that return intermediate results used in the
  calculation, and may be a useful example of a plugin having several
