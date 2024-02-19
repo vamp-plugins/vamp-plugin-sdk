@@ -9,6 +9,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: deps
+      run: |
+        choco install ninja
     - name: make
       run: |
         mkdir buildfiles
