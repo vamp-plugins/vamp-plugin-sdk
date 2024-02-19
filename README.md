@@ -2,9 +2,9 @@
 Vamp
 ====
 
-An API for audio analysis and feature extraction plugins.
+### An API for audio analysis and feature extraction plugins.
 
-   http://www.vamp-plugins.org/
+   https://www.vamp-plugins.org/
 
 Vamp is an API for C and C++ plugins that process sampled audio data
 to produce descriptive output (measurements or semantic observations).
@@ -21,13 +21,13 @@ the file README.compat for more details.
 See the file CHANGELOG for a list of the changes in this release.
 
 A documentation guide to writing plugins using the Vamp SDK can be
-found at http://www.vamp-plugins.org/guide.pdf .
+found at https://www.vamp-plugins.org/guide.pdf .
 
 
 Compiling and Installing the SDK and Examples
-=============================================
+---------------------------------------------
 
-This SDK is intended for use on Windows, OS/X, Linux, and other POSIX
+This SDK is intended for use on Windows, macOS, Linux, and other POSIX
 and GNU platforms.
 
 Please see the platform-specific README file (README.msvc, README.osx,
@@ -37,13 +37,12 @@ to install the example plugins so you can use them in a host.
 
 
 What's In This SDK
-==================
+------------------
 
 This SDK contains the following:
 
 
-vamp/vamp.h
------------
+### vamp/vamp.h
 
 The formal C language plugin API for Vamp plugins.
 
@@ -57,8 +56,7 @@ vamp-sdk and vamp-hostsdk directories (below) are preferable for most
 purposes and are more thoroughly documented.
 
 
-vamp-sdk
---------
+### vamp-sdk
 
 C++ classes for implementing Vamp plugins.
 
@@ -72,8 +70,7 @@ from which you are welcome to take code and inspiration.
 Plugins should link with -lvamp-sdk.
 
 
-vamp-hostsdk
-------------
+### vamp-hostsdk
 
 C++ classes for implementing Vamp hosts.
 
@@ -120,8 +117,7 @@ directory of the SDK.
 Hosts should link with -lvamp-hostsdk.
 
 
-vamp-hostsdk/host-c.h
----------------------
+### vamp-hostsdk/host-c.h
 
 A C-linkage header wrapping the part of the C++ SDK code that handles
 plugin discovery and library loading. Host programs written in C or in
@@ -131,8 +127,7 @@ the vamp/vamp.h formal API to interact with plugins themselves. See
 the header for more documentation.
 
 
-examples
---------
+### examples
 
 Example plugins implemented using the C++ classes.
 
@@ -169,15 +164,13 @@ plugin.  They are also intended to be correct and useful, if simple.
  plugin having several outputs with varying feature structures.
 
 
-skeleton
---------
+### skeleton
 
 Skeleton code that could be used as a template for your new plugin
 implementation.
 
 
-host
-----
+### host
 
 A simple command-line Vamp host, capable of loading a plugin and using
 it to process a complete audio file, with its default parameters.
@@ -189,7 +182,7 @@ still reasonably straightforward, however.
 
 
 Plugin Lookup and Categorisation
-================================
+--------------------------------
 
 The Vamp API does not officially specify how to load plugin libraries
 or where to find them.  However, the SDK does include a function
@@ -227,7 +220,7 @@ provides support for plugin category lookup using this scheme.
 
 
 Licensing
-=========
+---------
 
 This plugin SDK is freely redistributable under a "new-style BSD"
 licence.  See the file COPYING for more details.  In short, you may
@@ -238,7 +231,7 @@ source code, provided you retain the original copyright note.
 
 
 See Also
-========
+--------
 
 Sonic Visualiser, an interactive open-source graphical audio
 inspection, analysis and visualisation tool supporting Vamp plugins.
@@ -246,7 +239,7 @@ http://www.sonicvisualiser.org/
 
 
 Authors
-=======
+-------
 
 Vamp and the Vamp SDK were designed and made at the Centre for Digital
 Music at Queen Mary, University of London.
