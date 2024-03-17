@@ -56,7 +56,6 @@ if(VAMPSDK_BUILD_EXAMPLE_PLUGINS)
     add_library(vamp-example-plugins SHARED ${sources_plugins})
     set_target_properties(vamp-example-plugins PROPERTIES PREFIX "")  # remove lib* prefix
     target_link_libraries(vamp-example-plugins PRIVATE vamp-sdk)
-endif()
     if(MSVC)
         set_target_properties(vamp-example-plugins PROPERTIES LINK_FLAGS /EXPORT:vampGetPluginDescriptor)
     else()
@@ -64,8 +63,9 @@ endif()
             set_target_properties(vamp-example-plugins PROPERTIES LINK_FLAGS "-exported_symbols_list ${CMAKE_SOURCE_DIR}/vamp-plugin.list")
         else()
             set_target_properties(vamp-example-plugins PROPERTIES LINK_FLAGS "-Wl,--version-script=${CMAKE_SOURCE_DIR}/vamp-plugin.map")
-        endif(APPLE)       
+        endif(APPLE)
     endif(MSVC)
+endif()
 
 # simple host
 option(VAMPSDK_BUILD_SIMPLE_HOST "Build simple host" OFF)
