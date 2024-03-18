@@ -56,7 +56,6 @@ if(VAMPSDK_BUILD_EXAMPLE_PLUGINS)
     add_library(vamp-example-plugins SHARED ${sources_plugins})
     set_target_properties(vamp-example-plugins PROPERTIES PREFIX "")  # remove lib* prefix
     target_link_libraries(vamp-example-plugins PRIVATE vamp-sdk)
-endif()
     if(MSVC)
         set_target_properties(vamp-example-plugins PROPERTIES LINK_FLAGS /EXPORT:vampGetPluginDescriptor)
     else()
@@ -64,8 +63,9 @@ endif()
             set_target_properties(vamp-example-plugins PROPERTIES LINK_FLAGS "-exported_symbols_list ${CMAKE_SOURCE_DIR}/vamp-plugin.list")
         else()
             set_target_properties(vamp-example-plugins PROPERTIES LINK_FLAGS "-Wl,--version-script=${CMAKE_SOURCE_DIR}/vamp-plugin.map")
-        endif(APPLE)       
+        endif(APPLE)
     endif(MSVC)
+endif()
 
 # simple host
 option(VAMPSDK_BUILD_SIMPLE_HOST "Build simple host" OFF)
@@ -84,4 +84,47 @@ if(VAMPSDK_BUILD_SIMPLE_HOST)
     add_executable(vamp-simple-host host/vamp-simple-host.cpp)
     target_link_libraries(vamp-simple-host PRIVATE vamp-hostsdk ${LIBSNDFILE_LIBRARY})
     target_include_directories(vamp-simple-host PRIVATE ${LIBSNDFILE_INCLUDE_DIR})
+endif()
+
+# install
+
+option(VAMPSDK_ENABLE_INSTALL "Enable to add install directives" ON)
+
+if(VAMPSDK_ENABLE_INSTALL)
+    include(GNUInstallDirs)
+
+    install(TARGETS vamp-sdk vamp-hostsdk EXPORT VampSdkTargets
+      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+    file (GLOB VAMP_HEADERS "vamp/*.h")
+    install (FILES ${VAMP_HEADERS} DESTINATION include/vamp)
+
+    file (GLOB VAMP_SDK_HEADERS "vamp-sdk/*.h")
+    install (FILES ${VAMP_SDK_HEADERS} DESTINATION include/vamp-sdk)
+
+    file (GLOB VAMP_HOSTSDK_HEADERS "vamp-hostsdk/*.h")
+    install (FILES ${VAMP_HOSTSDK_HEADERS} DESTINATION include/vamp-hostsdk)
+
+    # The following code for installing the pc files could be simplified
+    # in case support for native configure/make was dropped.
+
+    macro(configure_pc_file file)
+      file(READ "pkgconfig/${file}.in" FILE_CONTENT)
+      string(REPLACE "%PREFIX%" "@prefix@" FILE_CONTENT "${FILE_CONTENT}" )
+      file(WRITE "${CMAKE_BINARY_DIR}/${file}.in" "${FILE_CONTENT}")
+      configure_file("${CMAKE_BINARY_DIR}/${file}.in" ${file} @ONLY)
+    endmacro()
+
+    set(prefix ${CMAKE_INSTALL_PREFIX})
+    configure_pc_file(vamp.pc)
+    configure_pc_file(vamp-sdk.pc)
+    configure_pc_file(vamp-hostsdk.pc)
+    install(FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/vamp.pc
+        ${CMAKE_CURRENT_BINARY_DIR}/vamp-sdk.pc
+        ${CMAKE_CURRENT_BINARY_DIR}/vamp-hostsdk.pc
+      DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 endif()
