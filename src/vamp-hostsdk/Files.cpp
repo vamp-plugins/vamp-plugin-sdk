@@ -188,10 +188,17 @@ Files::loadLibrary(string path)
 void
 Files::unloadLibrary(void *handle)
 {
+    // For special purposes allow the build to specify that libraries
+    // should not be unloaded. This turns out to be useful with some
+    // older plugins we have tried on 32-bit Windows which crash if
+    // unloaded and reloaded again in the same process.
+#ifndef DO_NOT_FREE_LIBRARIES
+    
 #ifdef _WIN32
     FreeLibrary((HINSTANCE)handle);
 #else
     dlclose(handle);
+#endif
 #endif
 }
 
